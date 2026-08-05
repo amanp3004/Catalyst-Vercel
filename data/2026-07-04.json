@@ -1,0 +1,60 @@
+{
+  "date": "2026-07-04",
+  "theme": "The Quiet Rise of Sustainable Growth",
+  "theme_image_query": "business growth graph upward",
+  "brief": [
+    {
+      "title": "100 Years, Zero VC: The Coffee Giant Built on Patience",
+      "summary": "Narasu\u2019s, a century-old coffee brand, has grown to a Rs 641 Cr business without external funding, demonstrating the power of consistent product quality and strategic adaptation over generations.",
+      "url": "https://yourstory.com/2026/07/100-years-strong-how-narasus-built-a-rs-641-cr-coffee-business",
+      "domain": "narasus.com",
+      "image_query": "coffee beans production",
+      "image": "https://images.pexels.com/photos/6280320/pexels-photo-6280320.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+    },
+    {
+      "title": "Zoho's Blueprint: Borrow Startup Speed, Keep Business Discipline",
+      "summary": "Zoho advises MSMEs to adopt startup agility while adhering to fundamental business principles, reminding founders that speed must be balanced with sustainable practices for long-term success.",
+      "url": "https://yourstory.com/2026/07/borrow-the-speed-keep-the-discipline-zoho-startup-playbook-msmes",
+      "domain": "zoho.com",
+      "image_query": "business strategy meeting",
+      "image": "https://images.pexels.com/photos/7693692/pexels-photo-7693692.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+    },
+    {
+      "title": "Fintech Unicorn Moneyview Charts its Own Exit Path",
+      "summary": "Despite a challenging funding environment, fintech unicorn Moneyview secured SEBI approval for its IPO, signaling that strong fundamentals can still lead to significant exits.",
+      "url": "https://inc42.com/buzz/fintech-unicorn-moneyview-gets-sebi-approval-for-%e2%82%b91500-cr-ipo/",
+      "domain": "moneyview.in",
+      "image_query": "financial documents approval",
+      "image": "https://images.pexels.com/photos/7821495/pexels-photo-7821495.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+    }
+  ],
+  "breakdown": {
+    "company": "Narasu\u2019s Coffee",
+    "domain": "narasus.com",
+    "category": "Consumer Goods \u00b7 Food & Beverage \u00b7 Salem",
+    "what": "A century-old Indian coffee brand known for its filter coffee powder, which has expanded into chicory blends and instant coffee.",
+    "why": "Narasu's has achieved remarkable scale (Rs 641 Cr revenue) and longevity over 100 years without ever raising external venture capital, proving that deep market understanding, product innovation, and patient execution can build an enduring business.",
+    "lesson": "True market validation comes from consistent revenue and customer loyalty, not just venture capital rounds."
+  },
+  "trend": {
+    "paragraphs": [
+      "The overarching trend is a recalibration of what \"success\" looks like for founders. For years, the startup ecosystem glorified rapid growth fueled by endless venture capital, often at the expense of profitability or sustainable unit economics. However, the current funding slowdown, coupled with the success stories of bootstrapped giants like Narasu's and the pragmatic advice from Zoho, indicates a shift.",
+      "Founders are increasingly realizing that building a resilient business often means prioritizing strong fundamentals, customer value, and self-sufficiency over aggressive burn rates and chasing the next funding round. This doesn't mean forsaking innovation or ambition, but rather anchoring them in a solid financial and operational foundation. The market is rewarding companies that can demonstrate a clear path to profitability and independent growth, challenging the \"growth at all costs\" mentality."
+    ]
+  },
+  "builder_lexicon": {
+    "term": "Bootstrapping",
+    "definition": "Bootstrapping is the process of building a company using only personal savings, initial sales revenue, and minimal external capital, avoiding venture capital or angel investments. It relies on internal cash flow to fund operations and growth.",
+    "why_it_matters": "It forces founders to be extremely resourceful, customer-focused, and financially disciplined from day one, often leading to more resilient and profitable businesses with strong unit economics and full founder control.",
+    "real_world_example": "Mailchimp famously bootstrapped for years before its acquisition, proving massive scale is possible without VC.",
+    "reading_time": "20 sec read"
+  },
+  "editors_note": {
+    "paragraphs": [
+      "The funding reports today might seem grim, with VC inflows declining. But zoom out, and a different narrative emerges: one of resilience and sustainable growth. Narasu\u2019s Coffee, celebrating a century of self-funded success, isn't an anomaly from a bygone era; it's a blueprint for enduring value creation. Their Rs 641 Cr business wasn't built on hype cycles or aggressive burn rates, but on consistent customer focus and smart, incremental expansion.",
+      "This is the core lesson for aspiring founders today: while venture capital can accelerate growth, it's not the only, nor always the best, path. Zoho's advice to MSMEs to balance startup speed with fundamental business discipline echoes this. The market is maturing, and the spotlight is shifting from who can raise the most, to who can build the most robust and valuable company.",
+      "Your challenge isn't just to innovate, but to innovate sustainably. Think less about your next funding round and more about your next profitable customer. Embrace financial discipline, understand your unit economics, and build a business that can stand on its own two feet. That's the kind of long-term thinking that truly builds empires."
+    ]
+  },
+  "theme_image": "https://images.pexels.com/photos/5310563/pexels-photo-5310563.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+}
