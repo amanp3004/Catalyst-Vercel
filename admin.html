@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Catalyst — Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{ --ink:#16261F; --paper:#F6F3EC; --card:#FFFFFF; --signal:#E0A339; --signal-deep:#B87A1E; --line:#D8D2C2; --forest:#2C4A3B; --muted:#6B7268; }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--paper); color:var(--ink); font-family:'Space Grotesk', sans-serif; line-height:1.5; padding-bottom:80px;}
+  .wrap{max-width:720px; margin:0 auto; padding:40px 24px;}
+  h1{font-family:'Fraunces', serif; font-size:28px; margin-bottom:6px;}
+  .sub{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted); margin-bottom:32px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:24px; margin-bottom:20px;}
+  label{display:block; font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--signal-deep); margin-bottom:6px;}
+  input[type=email], input[type=password], input[type=text], textarea{
+    width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:6px;
+    font-family:'Space Grotesk', sans-serif; font-size:14px; background:var(--paper); margin-bottom:14px;
+  }
+  textarea{min-height:120px; resize:vertical; font-family:'IBM Plex Mono', monospace; font-size:12.5px;}
+  button{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; text-transform:uppercase; letter-spacing:0.05em;
+    background:var(--forest); color:var(--paper); border:none; padding:10px 18px; border-radius:6px; cursor:pointer;
+  }
+  button:hover{background:var(--signal-deep);}
+  button.danger{background:#8B3A3A;}
+  button.danger:hover{background:#6E2C2C;}
+  button.ghost{background:none; border:1px solid var(--line); color:var(--ink);}
+  .list-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+  .list-name{font-family:'Fraunces', serif; font-weight:700; font-size:18px;}
+  .count{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted);}
+  .row{display:flex; gap:10px; margin-top:10px;}
+  .status{font-family:'IBM Plex Mono', monospace; font-size:12px; margin-top:10px;}
+  .status.ok{color:var(--forest);}
+  .status.err{color:#8B3A3A;}
+  #loginCard{max-width:360px; margin:80px auto 0;}
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div id="loginCard" class="card">
+    <h1>Catalyst Admin</h1>
+    <div class="sub">Sign in to manage email lists</div>
+    <label>Email</label>
+    <input type="email" id="loginEmail" placeholder="you@example.com">
+    <label>Password</label>
+    <input type="password" id="loginPassword" placeholder="••••••••">
+    <button onclick="login()">Sign in</button>
+    <div id="loginStatus" class="status"></div>
+  </div>
+
+  <div id="adminPanel" class="hidden">
+    <h1>Catalyst Admin</h1>
+    <div class="sub">Manage the email lists the daily digest is sent to</div>
+
+    <div class="card">
+      <div class="list-name">Create a new list</div>
+      <label>List name (e.g. "IIM Udaipur E-Cell", "Investors")</label>
+      <input type="text" id="newListName" placeholder="List name">
+      <button onclick="createList()">Create list</button>
+    </div>
+
+    <div id="listsContainer"></div>
+
+    <button class="ghost" onclick="logout()" style="margin-top:10px;">Sign out</button>
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+// TODO: paste the SAME Firebase config used in index.html / sw.js
+const firebaseConfig = {
+  apiKey: "AIzaSyB63bgKMs5atlnWwkJP7ZnSPFwNLMVT0u4",
+  authDomain: "catalyst-5823f.firebaseapp.com",
+  projectId: "catalyst-5823f",
+  storageBucket: "catalyst-5823f.firebasestorage.app",
+  messagingSenderId: "993238629123",
+  appId: "1:993238629123:web:8f9b45f8de59a790600736",
+  measurementId: "G-XNB4KR8P77"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+auth.onAuthStateChanged((user) => {
+  document.getElementById("loginCard").classList.toggle("hidden", !!user);
+  document.getElementById("adminPanel").classList.toggle("hidden", !user);
+  if (user) loadLists();
+});
+
+function login() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const statusEl = document.getElementById("loginStatus");
+  statusEl.textContent = "Signing in...";
+  statusEl.className = "status";
+  auth.signInWithEmailAndPassword(email, password)
+    .catch((err) => {
+      statusEl.textContent = "Sign in failed: " + err.message;
+      statusEl.className = "status err";
+    });
+}
+
+function logout() {
+  auth.signOut();
+}
+
+function parseEmails(text) {
+  return [...new Set(
+    text.split(/[\n,]/)
+      .map((e) => e.trim().toLowerCase())
+      .filter((e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))
+  )];
+}
+
+async function loadLists() {
+  const container = document.getElementById("listsContainer");
+  container.innerHTML = "Loading...";
+  const snapshot = await db.collection("email_lists").orderBy("name").get();
+
+  if (snapshot.empty) {
+    container.innerHTML = `<div class="card"><span class="sub">No lists yet — create one above.</span></div>`;
+    return;
+  }
+
+  container.innerHTML = "";
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    const emails = data.emails || [];
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="list-head">
+        <div class="list-name">${data.name}</div>
+        <div class="count">${emails.length} email${emails.length === 1 ? "" : "s"}</div>
+      </div>
+      <label>Emails (one per line, or comma-separated)</label>
+      <textarea id="emails-${doc.id}">${emails.join("\n")}</textarea>
+      <div class="row">
+        <button onclick="saveList('${doc.id}')">Save changes</button>
+        <button class="danger" onclick="deleteList('${doc.id}', '${data.name.replace(/'/g, "\\'")}')">Delete list</button>
+      </div>
+      <div id="status-${doc.id}" class="status"></div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+async function createList() {
+  const nameInput = document.getElementById("newListName");
+  const name = nameInput.value.trim();
+  if (!name) return;
+  await db.collection("email_lists").add({ name, emails: [] });
+  nameInput.value = "";
+  loadLists();
+}
+
+async function saveList(docId) {
+  const textarea = document.getElementById(`emails-${docId}`);
+  const statusEl = document.getElementById(`status-${docId}`);
+  const emails = parseEmails(textarea.value);
+  try {
+    await db.collection("email_lists").doc(docId).update({ emails });
+    statusEl.textContent = `Saved — ${emails.length} valid email(s).`;
+    statusEl.className = "status ok";
+    loadLists();
+  } catch (err) {
+    statusEl.textContent = "Save failed: " + err.message;
+    statusEl.className = "status err";
+  }
+}
+
+async function deleteList(docId, name) {
+  if (!confirm(`Delete the list "${name}"? This can't be undone.`)) return;
+  await db.collection("email_lists").doc(docId).delete();
+  loadLists();
+}
+</script>
+
+</body>
+</html>

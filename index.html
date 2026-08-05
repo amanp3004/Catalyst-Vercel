@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Catalyst — Daily Edition for Builders</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#16261F">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Catalyst">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16261F; --paper:#F6F3EC; --card:#FFFFFF;
+    --signal:#E0A339; --signal-deep:#B87A1E; --line:#D8D2C2;
+    --forest:#2C4A3B; --muted:#6B7268;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--paper); color:var(--ink); font-family:'Space Grotesk', sans-serif; line-height:1.5; padding-bottom:80px;}
+  a{color:inherit;}
+  .masthead{border-bottom:3px solid var(--ink); padding:22px 24px 16px; max-width:900px; margin:0 auto;}
+  .masthead-top{display:flex; justify-content:space-between; align-items:center; flex-wrap:nowrap; gap:10px;}
+  .partner-logos{display:flex; align-items:center; gap:12px; flex-shrink:0;}
+  .partner-logos img{height:28px; width:auto; display:block; object-fit:contain;}
+  .masthead-sub{display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px; margin-top:8px;}
+  .brand{font-family:'Fraunces', serif; font-weight:700; font-size:38px; letter-spacing:-0.5px;}
+  .brand .mark{color:var(--signal-deep);}
+  .meta{font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); text-align:right;}
+  .tagline{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted);}
+  .theme-banner{max-width:900px; margin:0 auto; padding:20px 24px; display:flex; align-items:center; gap:16px; border-bottom:1px solid var(--line);}
+  .theme-cover{max-width:900px; margin:0 auto; padding:0 24px;}
+  .theme-cover img{width:100%; height:220px; object-fit:cover; border-radius:12px; display:block; margin-top:20px;}
+  .theme-tag{font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; background:var(--forest); color:var(--paper); padding:4px 8px; border-radius:3px; white-space:nowrap;}
+  .theme-text{font-family:'Fraunces', serif; font-weight:600; font-size:19px;}
+  .wrap{max-width:900px; margin:0 auto; padding:0 24px;}
+  section{padding:34px 0; border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  .section-label{display:flex; align-items:center; gap:8px; font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--signal-deep); margin-bottom:18px;}
+  .section-label svg{width:14px; height:14px; stroke:var(--signal-deep);}
+  .brief-grid{display:flex; flex-direction:column; gap:14px;}
+  .brief-card{background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; transition:transform .15s ease, box-shadow .15s ease;}
+  .brief-card:hover{transform:translateY(-2px); box-shadow:0 6px 18px rgba(22,38,31,0.08);}
+  .brief-photo{width:100%; height:160px; object-fit:cover; display:block; background:#F0EDE3;}
+  .brief-card-inner{padding:16px 18px; display:flex; gap:14px; align-items:flex-start;}
+  .logo-badge{width:40px; height:40px; border-radius:8px; background:#F0EDE3; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden;}
+  .logo-badge img{width:100%; height:100%; object-fit:cover;}
+  .brief-body h3{font-family:'Fraunces', serif; font-weight:600; font-size:16.5px; margin-bottom:4px;}
+  .brief-body p{font-size:14px; color:#333; margin-bottom:8px;}
+  .read-more{font-family:'IBM Plex Mono', monospace; font-size:11px; text-decoration:none; color:var(--forest); display:inline-flex; align-items:center; gap:4px; border-bottom:1px solid var(--forest); padding-bottom:1px;}
+  .read-more:hover{color:var(--signal-deep); border-color:var(--signal-deep);}
+  .read-more svg{width:11px; height:11px;}
+  .breakdown-card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:24px;}
+  .breakdown-head{display:flex; align-items:center; gap:14px; margin-bottom:18px; padding-bottom:16px; border-bottom:1px dashed var(--line);}
+  .breakdown-head img{width:52px; height:52px; border-radius:10px; border:1px solid var(--line);}
+  .breakdown-head h2{font-family:'Fraunces', serif; font-size:22px; font-weight:700;}
+  .breakdown-head .sub{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted);}
+  .bd-block{margin-bottom:16px;}
+  .bd-block:last-child{margin-bottom:0;}
+  .bd-block h4{font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--signal-deep); margin-bottom:6px;}
+  .bd-block p{font-size:14.5px;}
+  .lesson-box{background:#FBF3E2; border-left:3px solid var(--signal); padding:12px 16px; border-radius:4px; font-family:'Fraunces', serif; font-style:italic; font-size:15px;}
+  .trend-carousel-wrap{position:relative; overflow:hidden; border-radius:12px; border:1px solid var(--line); transition:height 0.35s ease;}
+  .trend-carousel{display:flex; align-items:flex-start; touch-action:pan-y; transition:transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);}
+  .trend-card-slide{flex:0 0 100%; box-sizing:border-box; padding:0 1px;}
+  .trend-card-inner{background:var(--card); display:flex; flex-direction:column; user-select:none;}
+  .trend-card-img{width:100%; height:150px; object-fit:cover; display:block; background:#F0EDE3; flex-shrink:0; pointer-events:none;}
+  .trend-card-body{padding:16px 20px; display:flex; flex-direction:column; gap:6px;}
+  .trend-card-headline{font-family:'Fraunces', serif; font-weight:700; font-size:16px; line-height:1.3;}
+  .trend-card-insight{font-size:13px; color:#333; line-height:1.5;}
+  .trend-dots{display:flex; justify-content:center; gap:6px; margin-top:14px;}
+  .trend-dot{width:7px; height:7px; border-radius:50%; background:var(--line); cursor:pointer; transition:background .2s, width .2s;}
+  .trend-dot.active{background:var(--signal-deep); width:20px; border-radius:4px;}
+  .trend-arrow{position:absolute; top:50%; transform:translateY(-50%); background:rgba(22,38,31,0.55); border:none; color:var(--paper); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:2; transition:background .2s; padding:0;}
+  .trend-arrow:hover{background:rgba(22,38,31,0.85);}
+  .trend-arrow svg{width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2.5;}
+  .trend-arrow-left{left:10px;}
+  .trend-arrow-right{right:10px;}
+  .lexicon-card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:24px;}
+  .lexicon-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:18px; padding-bottom:16px; border-bottom:1px dashed var(--line);}
+  .lexicon-term{font-family:'Fraunces', serif; font-weight:700; font-size:22px;}
+  .lexicon-reading{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); white-space:nowrap;}
+  .note{background:var(--forest); color:var(--paper); border-radius:12px; padding:28px;}
+  .note .section-label{color:var(--signal);}
+  .note .section-label svg{stroke:var(--signal);}
+  .note p{font-size:15px; margin-bottom:14px; opacity:0.95;}
+  .note p:last-child{margin-bottom:0;}
+  footer{max-width:900px; margin:40px auto 0; padding:20px 24px 0; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted);}
+  footer .sig{font-weight:600; color:var(--ink); margin-bottom:4px;}
+  .loading, .error{max-width:900px; margin:60px auto; padding:0 24px; font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--muted); text-align:center;}
+  .notify-bar{max-width:900px; margin:0 auto; padding:12px 24px; display:flex; justify-content:flex-end;}
+  .notify-btn{font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; background:var(--forest); color:var(--paper); border:none; padding:8px 14px; border-radius:20px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;}
+  .notify-btn:hover{background:var(--signal-deep);}
+  .notify-btn[disabled]{opacity:0.6; cursor:default;}
+  @media (max-width:600px){ .brand{font-size:24px;} .masthead-sub{flex-direction:column; align-items:flex-start; gap:2px;} .meta{text-align:left;} .partner-logos{gap:8px;} .partner-logos img{height:20px;} .trend-card-img{height:160px;} }
+</style>
+</head>
+<body>
+
+  <div class="masthead">
+    <div class="masthead-top">
+      <div class="brand">Catalyst<span class="mark">.</span></div>
+      <div class="partner-logos">
+        <img src="icons/partners/iimu.png" alt="IIM Udaipur" height="28">
+        <img src="icons/partners/saksham.png" alt="Saksham — The Entrepreneurship Cell of IIM Udaipur" height="28">
+      </div>
+    </div>
+    <div class="masthead-sub">
+      <div class="tagline">Presented by Saksham — Entrepreneurship Club, IIM Udaipur · Curated by Atlas, AI Editor</div>
+      <div class="meta" id="dateMeta">Daily Edition</div>
+    </div>
+  </div>
+
+  <div class="notify-bar">
+    <button class="notify-btn" id="notifyBtn" onclick="enableNotifications()">🔔 Get daily alerts</button>
+  </div>
+
+  <div id="app">
+    <div class="loading">Loading today's edition…</div>
+  </div>
+
+  <footer>
+    <div class="sig">Curated by Atlas — Our AI Editor</div>
+    Atlas reviews publicly available startup news, identifies the day's defining theme, and curates each edition to help builders think like founders — not just stay informed.
+  </footer>
+
+<script>
+const ICONS = {
+  brief: '<path d="M4 6h16M4 12h16M4 18h10"/>',
+  breakdown: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
+  trend: '<path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/>',
+  lexicon: '<path d="M4 5.5C4 4.7 4.7 4 5.5 4H12v16H5.5c-.8 0-1.5-.7-1.5-1.5v-13z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H12v16h6.5c.8 0 1.5-.7 1.5-1.5v-13z"/>',
+  note: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>',
+  link: '<path d="M7 17L17 7M7 7h10v10"/>'
+};
+
+function icon(name, extraClass) {
+  return `<svg class="${extraClass||''}" viewBox="0 0 24 24" fill="none" stroke-width="2">${ICONS[name]}</svg>`;
+}
+
+function logoUrl(domain) {
+  // Clearbit's free Logo API was shut down Dec 2025 — go straight to
+  // favicons (via Google's service) as the primary source instead.
+  return faviconUrl(domain);
+}
+
+function faviconUrl(domain) {
+  return domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : '';
+}
+
+function fallbackAvatar(name) {
+  const initials = (name || '?').trim().slice(0, 2).toUpperCase();
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=2C4A3B&color=F6F3EC&size=128&bold=true&font-size=0.4`;
+}
+
+function handleLogoError(img, domain, name) {
+  // favicon failed (or there was no domain) — fall straight to initials,
+  // and make sure THAT can't loop forever either.
+  img.onerror = null;
+  img.src = fallbackAvatar(name);
+}
+
+// ---------------------------------------------------------------------
+// Trend to Watch — auto-rotating card carousel
+// ---------------------------------------------------------------------
+let trendIndex = 0;
+let trendTimer = null;
+let trendCardCount = 0;
+const TREND_AUTOPLAY_MS = 12000; // 12s — within the requested 10-15s range
+
+function updateTrendTransform() {
+  const track = document.getElementById('trendCarousel');
+  if (!track) return;
+  track.style.transform = `translateX(-${trendIndex * 100}%)`;
+  document.querySelectorAll('#trendDots .trend-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === trendIndex);
+  });
+  syncTrendHeight();
+}
+
+function syncTrendHeight() {
+  const wrap = document.getElementById('trendCarouselWrap');
+  const slides = document.querySelectorAll('#trendCarousel .trend-card-slide');
+  const active = slides[trendIndex];
+  if (wrap && active) {
+    wrap.style.height = active.offsetHeight + 'px';
+  }
+}
+
+function trendArrowClick(delta) {
+  goToTrendSlide(trendIndex + delta);
+  startTrendAutoplay(); // manual nav still resumes normal rotation after
+}
+
+function goToTrendSlide(i) {
+  if (trendCardCount === 0) return;
+  trendIndex = ((i % trendCardCount) + trendCardCount) % trendCardCount;
+  updateTrendTransform();
+}
+
+function startTrendAutoplay() {
+  clearInterval(trendTimer);
+  if (trendCardCount <= 1) return;
+  trendTimer = setInterval(() => goToTrendSlide(trendIndex + 1), TREND_AUTOPLAY_MS);
+}
+
+function pauseTrendAutoplay() {
+  clearInterval(trendTimer);
+}
+
+function initTrendCarousel(cards) {
+  trendIndex = 0;
+  trendCardCount = cards.length;
+  document.querySelectorAll('#trendDots .trend-dot').forEach((dot) => {
+    dot.addEventListener('click', () => {
+      goToTrendSlide(parseInt(dot.dataset.i, 10));
+      startTrendAutoplay(); // manual pick still resumes normal rotation after
+    });
+  });
+  updateTrendTransform();
+  startTrendAutoplay();
+}
+
+window.addEventListener('resize', () => syncTrendHeight());
+
+// Pointer handling attached once (not re-attached per render) so it keeps
+// working across content refreshes. Covers both mouse and touch since
+// Pointer Events unify them. "Hold" pauses rotation; release resumes it,
+// and a clear horizontal drag before release is treated as a manual swipe.
+(function setupTrendPointerHandling() {
+  let dragging = false;
+  let startX = 0;
+  let startedInCarousel = false;
+
+  document.addEventListener('pointerdown', (e) => {
+    const wrap = e.target.closest('#trendCarouselWrap');
+    if (!wrap) return;
+    startedInCarousel = true;
+    dragging = true;
+    startX = e.clientX;
+    pauseTrendAutoplay();
+  });
+
+  document.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    // Prevent the page from scrolling horizontally while swiping the card.
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 10) e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('pointerup', (e) => {
+    if (!startedInCarousel) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 40) {
+      goToTrendSlide(trendIndex + (dx < 0 ? 1 : -1));
+    }
+    dragging = false;
+    startedInCarousel = false;
+    startTrendAutoplay();
+  });
+
+  document.addEventListener('pointercancel', () => {
+    if (!startedInCarousel) return;
+    dragging = false;
+    startedInCarousel = false;
+    startTrendAutoplay();
+  });
+})();
+
+function render(edition) {
+  document.getElementById('dateMeta').innerHTML =
+    `Daily Edition<br>${new Date(edition.date).toLocaleDateString('en-US', {weekday:'short', month:'short', day:'2-digit', year:'numeric'})}`;
+
+  const briefHtml = edition.brief.map(item => `
+    <div class="brief-card">
+      ${item.image ? `<img class="brief-photo" src="${item.image}" alt="${item.title}">` : ''}
+      <div class="brief-card-inner">
+        <div class="logo-badge"><img src="${logoUrl(item.domain)}" alt="${item.title}" onerror="handleLogoError(this, '${item.domain}', '${item.title}')"></div>
+        <div class="brief-body">
+          <h3>${item.title}</h3>
+          <p>${item.summary}</p>
+          <a class="read-more" href="${item.url}" target="_blank" rel="noopener">Read more ${icon('link')}</a>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  const bd = edition.breakdown;
+  const breakdownHtml = `
+    <div class="breakdown-card">
+      <div class="breakdown-head">
+        <img src="${logoUrl(bd.domain)}" alt="${bd.company}" onerror="handleLogoError(this, '${bd.domain}', '${bd.company}')">
+        <div>
+          <h2>${bd.company}</h2>
+          <div class="sub">${bd.category || ''}</div>
+        </div>
+      </div>
+      <div class="bd-block"><h4>What it does</h4><p>${bd.what}</p></div>
+      <div class="bd-block"><h4>Why it matters</h4><p>${bd.why}</p></div>
+      <div class="bd-block"><h4>The lesson</h4><div class="lesson-box">"${bd.lesson}"</div></div>
+    </div>
+  `;
+
+  const trendCards = edition.trend_cards || [];
+  const trendSlidesHtml = trendCards.map(c => `
+    <div class="trend-card-slide">
+      <div class="trend-card-inner">
+        ${c.image ? `<img class="trend-card-img" src="${c.image}" alt="${c.headline}">` : ''}
+        <div class="trend-card-body">
+          <div class="trend-card-headline">${c.headline}</div>
+          <div class="trend-card-insight">${c.insight}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  const trendDotsHtml = trendCards.map((_, i) => `<div class="trend-dot${i === 0 ? ' active' : ''}" data-i="${i}"></div>`).join('');
+  const trendHtml = `
+    <div class="trend-carousel-wrap" id="trendCarouselWrap">
+      <div class="trend-carousel" id="trendCarousel">${trendSlidesHtml}</div>
+      <button type="button" class="trend-arrow trend-arrow-left" onclick="trendArrowClick(-1)" aria-label="Previous insight">
+        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button type="button" class="trend-arrow trend-arrow-right" onclick="trendArrowClick(1)" aria-label="Next insight">
+        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+    <div class="trend-dots" id="trendDots">${trendDotsHtml}</div>
+  `;
+
+  const lex = edition.builder_lexicon;
+  const lexiconHtml = lex ? `
+    <div class="lexicon-card">
+      <div class="lexicon-head">
+        <div class="lexicon-term">${lex.term}</div>
+        ${lex.reading_time ? `<div class="lexicon-reading">${lex.reading_time}</div>` : ''}
+      </div>
+      <div class="bd-block"><h4>Definition</h4><p>${lex.definition}</p></div>
+      <div class="bd-block"><h4>Why It Matters</h4><p>${lex.why_it_matters}</p></div>
+      <div class="bd-block"><h4>Real-World Example</h4><p>${lex.real_world_example}</p></div>
+    </div>
+  ` : '';
+
+  const noteHtml = `<div class="note"><div class="section-label">${icon('note')}Editor's Note</div>${edition.editors_note.paragraphs.map(p => `<p>${p}</p>`).join('')}</div>`;
+
+  document.getElementById('app').innerHTML = `
+    <div class="theme-banner">
+      <div class="theme-tag">Today's Theme</div>
+      <div class="theme-text">${edition.theme}</div>
+    </div>
+    ${edition.theme_image ? `<div class="theme-cover"><img src="${edition.theme_image}" alt="${edition.theme}"></div>` : ''}
+    <div class="wrap">
+      <section>
+        <div class="section-label">${icon('brief')}Startup Brief</div>
+        <div class="brief-grid">${briefHtml}</div>
+      </section>
+      <section>
+        <div class="section-label">${icon('breakdown')}Startup Breakdown</div>
+        ${breakdownHtml}
+      </section>
+      <section>
+        <div class="section-label">${icon('trend')}Trend to Watch</div>
+        ${trendHtml}
+      </section>
+      ${lex ? `
+      <section>
+        <div class="section-label">${icon('lexicon')}Builder's Lexicon</div>
+        ${lexiconHtml}
+      </section>
+      ` : ''}
+      <section style="border-bottom:none;">
+        ${noteHtml}
+      </section>
+    </div>
+  `;
+
+  initTrendCarousel(trendCards);
+}
+
+function loadEdition() {
+  const bust = Date.now();
+  fetch(`data/latest.json?v=${bust}`, { cache: 'no-store' })
+    .then(res => {
+      if (!res.ok) throw new Error('No edition found yet');
+      return res.json();
+    })
+    .then(edition => {
+      if (edition.date !== window.__catalystCurrentDate) {
+        window.__catalystCurrentDate = edition.date;
+        render(edition);
+      }
+    })
+    .catch(err => {
+      document.getElementById('app').innerHTML =
+        `<div class="error">Couldn't load today's edition (${err.message}). Once the generator has run at least once, it'll appear here.</div>`;
+    });
+}
+
+loadEdition();
+// Check for a newer edition every 5 minutes, in case the tab is left open
+// across the daily generation run — updates in place, no manual reload needed.
+setInterval(loadEdition, 5 * 60 * 1000);
+</script>
+
+<!-- ------------------------------------------------------------------ -->
+<!-- PWA install + push notifications (Firebase Cloud Messaging)         -->
+<!-- ------------------------------------------------------------------ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+// TODO: paste your Firebase web config here (Firebase Console → Project
+// Settings → General → Your apps → Web app). Safe to be public.
+const firebaseConfig = {
+  apiKey: "AIzaSyB63bgKMs5atlnWwkJP7ZnSPFwNLMVT0u4",
+  authDomain: "catalyst-5823f.firebaseapp.com",
+  projectId: "catalyst-5823f",
+  storageBucket: "catalyst-5823f.firebasestorage.app",
+  messagingSenderId: "993238629123",
+  appId: "1:993238629123:web:8f9b45f8de59a790600736",
+  measurementId: "G-XNB4KR8P77"
+};
+// TODO: paste your Web Push "VAPID key" (Project Settings → Cloud Messaging
+// → Web configuration → Generate key pair).
+const VAPID_KEY = "BEavfMHZXr8KqpXrSgf9SrwHLI2KdYHuNM34o0mPTfZrjYdef2qUcIsPlX9zG0QwiqVnhDOupVemNKG2_oBi7UU";
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch((err) =>
+    console.warn("Service worker registration failed:", err)
+  );
+}
+
+function setButtonState(state) {
+  const btn = document.getElementById("notifyBtn");
+  if (state === "subscribed") {
+    btn.textContent = "✅ You're subscribed";
+    btn.disabled = true;
+  } else if (state === "blocked") {
+    btn.textContent = "🔕 Notifications blocked";
+    btn.disabled = true;
+  } else if (state === "requesting") {
+    btn.textContent = "Requesting…";
+    btn.disabled = true;
+  } else {
+    btn.textContent = "🔔 Get daily alerts";
+    btn.disabled = false;
+  }
+}
+
+// On every page load, reconcile the button with whatever the browser's
+// actual notification permission already is — this is what makes the
+// subscribed state survive a refresh instead of resetting to the default
+// "Get daily alerts" every time.
+async function syncNotificationButtonState() {
+  if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+    return; // unsupported browser — leave the default button as-is
+  }
+
+  if (Notification.permission === "denied") {
+    setButtonState("blocked");
+    return;
+  }
+
+  if (Notification.permission === "granted") {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const messaging = firebase.messaging();
+      // getToken() with an already-granted permission returns the existing
+      // token silently — it does NOT re-prompt the user.
+      const token = await messaging.getToken({
+        vapidKey: VAPID_KEY,
+        serviceWorkerRegistration: registration,
+      });
+      if (token) {
+        // Keep the Firestore record fresh (e.g. updated lastSeenAt) without
+        // bothering the user — this also self-heals cases where permission
+        // was granted but the original Firestore write failed silently.
+        await db.collection("subscribers").doc(token).set({
+          token,
+          subscribedAt: new Date().toISOString(),
+          platform: navigator.userAgent,
+        }, { merge: true });
+        setButtonState("subscribed");
+        return;
+      }
+    } catch (err) {
+      console.warn("Could not silently restore subscription state:", err);
+    }
+  }
+
+  setButtonState("default");
+}
+
+async function enableNotifications() {
+  setButtonState("requesting");
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      setButtonState("blocked");
+      return;
+    }
+    const registration = await navigator.serviceWorker.ready;
+    const messaging = firebase.messaging();
+    const token = await messaging.getToken({
+      vapidKey: VAPID_KEY,
+      serviceWorkerRegistration: registration,
+    });
+    if (token) {
+      await db.collection("subscribers").doc(token).set({
+        token,
+        subscribedAt: new Date().toISOString(),
+        platform: navigator.userAgent,
+      });
+      setButtonState("subscribed");
+    } else {
+      setButtonState("default");
+    }
+  } catch (err) {
+    console.error("Notification setup failed:", err);
+    setButtonState("default");
+  }
+}
+
+syncNotificationButtonState();
+</script>
+
+</body>
+</html>
