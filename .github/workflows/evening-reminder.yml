@@ -1,0 +1,30 @@
+name: Send Evening Reminder Notification
+
+on:
+  schedule:
+    # 12:30 UTC = 6:00 PM IST. This is independent of the morning generation
+    # time — adjust freely to whatever hour makes sense for a "did you see
+    # this?" evening nudge.
+    - cron: "30 12 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Send evening reminder
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: python send_evening_reminder.py
