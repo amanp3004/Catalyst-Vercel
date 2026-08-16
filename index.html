@@ -91,11 +91,16 @@
   footer{max-width:900px; margin:40px auto 0; padding:20px 24px 0; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted);}
   footer .sig{font-weight:600; color:var(--ink); margin-bottom:4px;}
   .loading, .error{max-width:900px; margin:60px auto; padding:0 24px; font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--muted); text-align:center;}
-  .notify-bar{max-width:900px; margin:0 auto; padding:12px 24px; display:flex; justify-content:flex-end;}
+  .notify-bar{max-width:900px; margin:0 auto; padding:12px 24px; display:flex; justify-content:flex-end; align-items:center; gap:14px;}
   .notify-btn{font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; background:var(--forest); color:var(--paper); border:none; padding:8px 14px; border-radius:20px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;}
   .notify-btn:hover{background:var(--signal-deep);}
   .notify-btn[disabled]{opacity:0.6; cursor:default;}
-  @media (max-width:600px){ .brand{font-size:24px;} .masthead-sub{flex-direction:column; align-items:flex-start; gap:2px;} .meta{text-align:left;} .partner-logos{gap:8px;} .partner-logos img{height:20px;} .trend-card-img{height:160px;} }
+  .archive-label{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); white-space:nowrap;}
+  .archive-select{font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.04em; background:var(--card); color:var(--ink); border:1px solid var(--line); padding:7px 10px; border-radius:6px; cursor:pointer;}
+  .archive-banner{max-width:900px; margin:0 auto 24px; padding:12px 24px; background:#FBF3E2; border-radius:8px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--signal-deep);}
+  .archive-banner button{background:var(--forest); color:var(--paper); border:none; padding:7px 14px; border-radius:16px; font-family:'IBM Plex Mono', monospace; font-size:11px; cursor:pointer; white-space:nowrap;}
+  .archive-banner button:hover{background:var(--signal-deep);}
+  @media (max-width:600px){ .brand{font-size:24px;} .masthead-sub{flex-direction:column; align-items:flex-start; gap:2px;} .meta{text-align:left;} .partner-logos{gap:8px;} .partner-logos img{height:20px;} .trend-card-img{height:160px;} .notify-bar{justify-content:flex-start; flex-wrap:wrap;} }
 </style>
 </head>
 <body>
@@ -115,6 +120,7 @@
   </div>
 
   <div class="notify-bar">
+    <div class="archive-bar" id="archiveBar"></div>
     <button class="notify-btn" id="notifyBtn" onclick="enableNotifications()">🔔 Get daily alerts</button>
   </div>
 
@@ -145,6 +151,16 @@ function logoUrl(domain) {
   // Clearbit's free Logo API was shut down Dec 2025 — go straight to
   // favicons (via Google's service) as the primary source instead.
   return faviconUrl(domain);
+}
+
+// Escapes text destined for inside a single-quoted string within an inline
+// HTML event handler attribute (e.g. onerror="fn('${escapeJsString(x)}')").
+// Without this, any title/company name containing an apostrophe — like
+// "Altmin Builds India's First..." — breaks out of the string early and
+// throws "missing ) after argument list", silently breaking the whole
+// page's script execution below that point.
+function escapeJsString(str) {
+  return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
 function faviconUrl(domain) {
@@ -270,15 +286,23 @@ window.addEventListener('resize', () => syncTrendHeight());
   });
 })();
 
-function render(edition) {
+function render(edition, opts) {
+  opts = opts || {};
   document.getElementById('dateMeta').innerHTML =
     `Daily Edition<br>${new Date(edition.date).toLocaleDateString('en-US', {weekday:'short', month:'short', day:'2-digit', year:'numeric'})}`;
+
+  const archiveBannerHtml = opts.archived ? `
+    <div class="archive-banner">
+      <span>📖 Viewing an archived edition — ${new Date(edition.date).toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'})}</span>
+      <button onclick="exitArchiveMode()">← Back to Today</button>
+    </div>
+  ` : '';
 
   const briefHtml = edition.brief.map(item => `
     <div class="brief-card">
       ${item.image ? `<img class="brief-photo" src="${item.image}" alt="${item.title}">` : ''}
       <div class="brief-card-inner">
-        <div class="logo-badge"><img src="${logoUrl(item.domain)}" alt="${item.title}" onerror="handleLogoError(this, '${item.domain}', '${item.title}')"></div>
+        <div class="logo-badge"><img src="${logoUrl(item.domain)}" alt="${item.title}" onerror="handleLogoError(this, '${escapeJsString(item.domain)}', '${escapeJsString(item.title)}')"></div>
         <div class="brief-body">
           <h3>${item.title}</h3>
           <p>${item.summary}</p>
@@ -292,7 +316,7 @@ function render(edition) {
   const breakdownHtml = `
     <div class="breakdown-card">
       <div class="breakdown-head">
-        <img src="${logoUrl(bd.domain)}" alt="${bd.company}" onerror="handleLogoError(this, '${bd.domain}', '${bd.company}')">
+        <img src="${logoUrl(bd.domain)}" alt="${bd.company}" onerror="handleLogoError(this, '${escapeJsString(bd.domain)}', '${escapeJsString(bd.company)}')">
         <div>
           <h2>${bd.company}</h2>
           <div class="sub">${bd.category || ''}</div>
@@ -346,6 +370,7 @@ function render(edition) {
   const noteHtml = `<div class="note"><div class="section-label">${icon('note')}Editor's Note</div>${edition.editors_note.paragraphs.map(p => `<p>${p}</p>`).join('')}</div>`;
 
   document.getElementById('app').innerHTML = `
+    ${archiveBannerHtml}
     <div class="theme-banner">
       <div class="theme-tag">Today's Theme</div>
       <div class="theme-text">${edition.theme}</div>
@@ -379,7 +404,74 @@ function render(edition) {
   initTrendCarousel(trendCards);
 }
 
+// ---------------------------------------------------------------------
+// Archive — browse the last 7 editions via a dropdown
+// ---------------------------------------------------------------------
+let archiveDates = [];
+let todayDateStr = null;
+let viewingDate = null; // null = live/today mode; a date string = archived
+let archiveListLoaded = false;
+
+async function loadArchiveList() {
+  try {
+    const res = await fetch(`data/index.json?v=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) return;
+    const allDates = await res.json();
+    archiveDates = allDates.slice(-7).reverse(); // most recent 7, newest first
+    renderArchiveBar();
+  } catch (e) {
+    console.warn('Could not load archive list:', e);
+  }
+}
+
+function renderArchiveBar() {
+  const bar = document.getElementById('archiveBar');
+  if (!bar || archiveDates.length === 0) return;
+  const selectedValue = viewingDate || todayDateStr;
+  const options = archiveDates.map(d => {
+    const label = d === todayDateStr
+      ? 'Today'
+      : new Date(d).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit' });
+    return `<option value="${d}" ${d === selectedValue ? 'selected' : ''}>${label}</option>`;
+  }).join('');
+  bar.innerHTML = `
+    <label for="archiveSelect" class="archive-label">📅 Past editions</label>
+    <select id="archiveSelect" class="archive-select" onchange="onArchiveSelect(this.value)">${options}</select>
+  `;
+}
+
+function onArchiveSelect(date) {
+  if (date === todayDateStr) {
+    exitArchiveMode();
+  } else {
+    enterArchiveMode(date);
+  }
+}
+
+async function enterArchiveMode(date) {
+  viewingDate = date;
+  try {
+    const res = await fetch(`data/${date}.json?v=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Edition not found');
+    const edition = await res.json();
+    window.__catalystCurrentDate = null; // force re-render if the user flips back to this same date later
+    render(edition, { archived: true });
+    renderArchiveBar();
+  } catch (e) {
+    document.getElementById('app').innerHTML =
+      `<div class="error">Couldn't load the edition from ${date}.</div>`;
+  }
+}
+
+function exitArchiveMode() {
+  viewingDate = null;
+  window.__catalystCurrentDate = null; // force loadEdition to re-render today's content
+  renderArchiveBar();
+  loadEdition();
+}
+
 function loadEdition() {
+  if (viewingDate !== null) return; // don't let live polling clobber an archived view
   const bust = Date.now();
   fetch(`data/latest.json?v=${bust}`, { cache: 'no-store' })
     .then(res => {
@@ -387,9 +479,16 @@ function loadEdition() {
       return res.json();
     })
     .then(edition => {
+      todayDateStr = edition.date;
       if (edition.date !== window.__catalystCurrentDate) {
         window.__catalystCurrentDate = edition.date;
-        render(edition);
+        render(edition, { archived: false });
+      }
+      if (!archiveListLoaded) {
+        archiveListLoaded = true;
+        loadArchiveList();
+      } else {
+        renderArchiveBar(); // keep dropdown's "Today" label correct if the date rolls over
       }
     })
     .catch(err => {
@@ -401,6 +500,7 @@ function loadEdition() {
 loadEdition();
 // Check for a newer edition every 5 minutes, in case the tab is left open
 // across the daily generation run — updates in place, no manual reload needed.
+// Automatically skipped while browsing an archived date (see loadEdition).
 setInterval(loadEdition, 5 * 60 * 1000);
 </script>
 
