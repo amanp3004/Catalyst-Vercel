@@ -91,16 +91,33 @@
   footer{max-width:900px; margin:40px auto 0; padding:20px 24px 0; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted);}
   footer .sig{font-weight:600; color:var(--ink); margin-bottom:4px;}
   .loading, .error{max-width:900px; margin:60px auto; padding:0 24px; font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--muted); text-align:center;}
-  .notify-bar{max-width:900px; margin:0 auto; padding:12px 24px; display:flex; justify-content:flex-end; align-items:center; gap:14px;}
-  .notify-btn{font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; background:var(--forest); color:var(--paper); border:none; padding:8px 14px; border-radius:20px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;}
+  .notify-bar{max-width:900px; margin:0 auto; padding:12px 24px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:nowrap;}
+  .notify-btn{font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; background:var(--forest); color:var(--paper); border:none; padding:8px 14px; border-radius:20px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; flex-shrink:0;}
   .notify-btn:hover{background:var(--signal-deep);}
   .notify-btn[disabled]{opacity:0.6; cursor:default;}
-  .archive-label{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); white-space:nowrap;}
-  .archive-select{font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.04em; background:var(--card); color:var(--ink); border:1px solid var(--line); padding:7px 10px; border-radius:6px; cursor:pointer;}
+  .archive-bar{display:flex; align-items:center; gap:8px; min-width:0; flex-shrink:1;}
+  .archive-label{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); white-space:nowrap; flex-shrink:0;}
+  .archive-label .archive-text{margin-left:2px;}
+  .archive-select{font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.04em; background:var(--card); color:var(--ink); border:1px solid var(--line); padding:7px 10px; border-radius:6px; cursor:pointer; min-width:0;}
   .archive-banner{max-width:900px; margin:0 auto 24px; padding:12px 24px; background:#FBF3E2; border-radius:8px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--signal-deep);}
   .archive-banner button{background:var(--forest); color:var(--paper); border:none; padding:7px 14px; border-radius:16px; font-family:'IBM Plex Mono', monospace; font-size:11px; cursor:pointer; white-space:nowrap;}
   .archive-banner button:hover{background:var(--signal-deep);}
-  @media (max-width:600px){ .brand{font-size:24px;} .masthead-sub{flex-direction:column; align-items:flex-start; gap:2px;} .meta{text-align:left;} .partner-logos{gap:8px;} .partner-logos img{height:20px;} .trend-card-img{height:160px;} .notify-bar{justify-content:flex-start; flex-wrap:wrap;} }
+  @media (max-width:600px){
+    .brand{font-size:24px;}
+    .masthead-sub{flex-direction:column; align-items:flex-start; gap:2px;}
+    .meta{text-align:left;}
+    .partner-logos{gap:8px;}
+    .partner-logos img{height:20px;}
+    .trend-card-img{height:160px;}
+    .notify-bar{padding:10px 16px; gap:8px; flex-wrap:nowrap;}
+    .archive-bar{gap:5px;}
+    .archive-label .archive-text{display:none;}
+    .archive-select{padding:6px 6px; font-size:10px;}
+    .notify-btn{padding:7px 10px; font-size:9.5px; letter-spacing:0.03em; gap:4px;}
+  }
+  @media (max-width:360px){
+    .notify-btn{padding:6px 8px; font-size:9px;}
+  }
 </style>
 </head>
 <body>
@@ -435,7 +452,7 @@ function renderArchiveBar() {
     return `<option value="${d}" ${d === selectedValue ? 'selected' : ''}>${label}</option>`;
   }).join('');
   bar.innerHTML = `
-    <label for="archiveSelect" class="archive-label">📅 Past editions</label>
+    <label for="archiveSelect" class="archive-label"><span class="archive-emoji">📅</span><span class="archive-text">Past editions</span></label>
     <select id="archiveSelect" class="archive-select" onchange="onArchiveSelect(this.value)">${options}</select>
   `;
 }
