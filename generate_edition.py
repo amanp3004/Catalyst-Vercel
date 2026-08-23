@@ -64,6 +64,7 @@ RSS_SOURCES = {
     "Inc42": "https://inc42.com/feed/",
     "Entrackr": "https://entrackr.com/feed",
     "VentureBeat": "https://venturebeat.com/feed/",
+    "TechnoVans": "https://technovans.com/feed",
     "Sifted": "https://sifted.eu/feed",  # European startups (fintech/deeptech/climate)
 
     # Google News topic/region searches — free, no API key, and a deliberate
@@ -719,12 +720,18 @@ def curate_edition(stories, today):
     # unaided (observed in practice to fail: "Zero-Day Exploit" repeated
     # after only 4 days, well inside the 35-day exclusion window).
     rejected_this_run = []
+    # Same mechanism for Startup Breakdown companies — this exclusion was
+    # previously prompt-only (no code-level check), unlike the lexicon term
+    # exclusion above, which meant a repeated company had no hard guarantee
+    # against slipping through the way a repeated term did.
+    rejected_companies_this_run = []
 
     def build_prompt():
         all_excluded_terms = recent_terms + rejected_this_run
+        all_excluded_companies = recent_companies + rejected_companies_this_run
         history_block = f"""
 RECENTLY FEATURED COMPANIES (Startup Breakdown, last ~35 days — do not repeat):
-{", ".join(recent_companies) if recent_companies else "(none yet)"}
+{", ".join(all_excluded_companies) if all_excluded_companies else "(none yet)"}
 
 RECENTLY USED TERMS (Builder's Lexicon, last ~35 days — do not repeat):
 {", ".join(all_excluded_terms) if all_excluded_terms else "(none yet)"}
@@ -807,25 +814,41 @@ the exclusion lists above. Output only the JSON object."""
                 "prompt or source content triggered a content filter."
             )
 
-        # Code-level enforcement of the lexicon exclusion list. The prompt
-        # instruction alone was observed to be insufficient (see comment
-        # above rejected_this_run) — this is what actually guarantees it.
+        # Code-level enforcement of both exclusion lists. Prompt instructions
+        # alone were observed to be insufficient (see comments above
+        # rejected_this_run / rejected_companies_this_run) — this is what
+        # actually guarantees them. Checked together so a single retry can
+        # fix either or both at once, rather than needing separate attempts.
         picked_term = edition.get("builder_lexicon", {}).get("term", "").strip()
-        already_used = {t.lower() for t in (recent_terms + rejected_this_run)}
-        if picked_term and picked_term.lower() in already_used:
+        already_used_terms = {t.lower() for t in (recent_terms + rejected_this_run)}
+        term_collides = bool(picked_term) and picked_term.lower() in already_used_terms
+
+        picked_company = edition.get("breakdown", {}).get("company", "").strip()
+        already_used_companies = {c.lower() for c in (recent_companies + rejected_companies_this_run)}
+        company_collides = bool(picked_company) and picked_company.lower() in already_used_companies
+
+        if term_collides or company_collides:
+            reasons = []
+            if term_collides:
+                reasons.append(f"Builder's Lexicon term '{picked_term}'")
+            if company_collides:
+                reasons.append(f"Startup Breakdown company '{picked_company}'")
             print(
-                f"[warn] attempt {attempt}/{max_attempts}: Builder's Lexicon "
-                f"term '{picked_term}' collides with the exclusion list. "
-                + ("Retrying with it explicitly excluded..." if attempt < max_attempts
-                   else "Out of retries — keeping it this once rather than "
-                        "failing the whole edition over a soft repeat.")
+                f"[warn] attempt {attempt}/{max_attempts}: {' and '.join(reasons)} "
+                f"collide{'s' if len(reasons) == 1 else ''} with the exclusion list(s). "
+                + ("Retrying with them explicitly excluded..." if attempt < max_attempts
+                   else "Out of retries — keeping the repeat(s) this once rather "
+                        "than failing the whole edition over a soft issue.")
             )
             if attempt < max_attempts:
-                rejected_this_run.append(picked_term)
+                if term_collides:
+                    rejected_this_run.append(picked_term)
+                if company_collides:
+                    rejected_companies_this_run.append(picked_company)
                 continue
-            # Final attempt: accept the repeat rather than block the entire
-            # day's edition over a non-critical issue. Logged loudly above
-            # so it's visible in the Actions run if it happens.
+            # Final attempt: accept the repeat(s) rather than block the
+            # entire day's edition over a non-critical issue. Logged loudly
+            # above so it's visible in the Actions run if it happens.
 
         break  # success (or accepted final-attempt fallback above)
 
