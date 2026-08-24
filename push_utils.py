@@ -25,6 +25,11 @@ def _init_firebase():
             "Accounts → Generate new private key."
         )
     cred_dict = json.loads(raw)
+    # Logged every run so a wrong/rotated key pointing at the wrong project
+    # (or a project where Firestore was never initialized) is immediately
+    # visible in the Actions log, instead of surfacing only as a cryptic
+    # "Invalid database id (default)" error deep in a gRPC traceback.
+    print(f"[info] Firebase service account targets project: {cred_dict.get('project_id', '(missing project_id field!)')}")
     cred = credentials.Certificate(cred_dict)
     firebase_admin.initialize_app(cred)
 
@@ -32,8 +37,25 @@ def _init_firebase():
 def get_subscriber_tokens():
     _init_firebase()
     db = firestore.client()
-    docs = db.collection("subscribers").stream()
-    return [doc.id for doc in docs]
+    try:
+        docs = db.collection("subscribers").stream()
+        return [doc.id for doc in docs]
+    except Exception as e:
+        if "Invalid database id" in str(e) or "database" in str(e).lower():
+            raise SystemExit(
+                f"Firestore query failed: {e}\n\n"
+                "This specific error usually means one of:\n"
+                "  1. Firestore was never created in this project (Firebase "
+                "Console → Firestore Database → 'Create database')\n"
+                "  2. The FIREBASE_SERVICE_ACCOUNT_JSON secret belongs to a "
+                "different/wrong Firebase project than the one with your "
+                "subscriber data — check the 'project_id' logged above "
+                "against your actual project\n"
+                "  3. Firestore exists but under a non-default database ID "
+                "(check the database selector in Firebase Console — it "
+                "should say '(default)')"
+            )
+        raise
 
 
 def remove_dead_token(token):
