@@ -515,10 +515,16 @@ STYLE: Clear, thoughtful, analytical, conversational, concise, confident
 without exaggeration. No buzzwords, no unnecessary adjectives, no
 motivational cliches. Short paragraphs. Write as if speaking to intelligent
 MBA students. Never fabricate facts — only use what's in the provided
-stories. For company domains, use the real, official website domain you
-are confident about (e.g. "openai.com", not "open-ai.com" or a guess) —
-if genuinely unsure of the exact domain, use your best confident guess at
-the root domain rather than a subpage or made-up variant.
+stories. For company domains, only provide one you are genuinely confident
+is correct (e.g. "openai.com", not "open-ai.com" or a plausible-sounding
+guess) — lesser-known companies (deep tech, niche B2B, early-stage
+startups) are exactly where guessing goes wrong, since a plausible guess
+is often not the real domain (e.g. "Commonwealth Fusion Systems" is
+actually at "cfs.energy", not "commonwealthfusion.com" — the kind of
+mistake to actively avoid). If you are not genuinely confident, leave the
+"domain" field as an empty string rather than guessing — a missing domain
+degrades gracefully to a clean fallback icon, while a wrong domain shows a
+misleading or broken one, which is worse.
 
 For every image_query and theme_image_query, write a plain, literal,
 photographable scene (e.g. "team meeting office", "server room data
@@ -909,14 +915,55 @@ def search_pexels(query):
     return None
 
 
+def verify_domain(domain):
+    """Check that a company domain Gemini provided actually resolves,
+    before shipping it to the frontend for logo lookup. This exists
+    because Gemini occasionally hallucinates a plausible-but-wrong domain
+    for lesser-known companies — confirmed in practice: "Commonwealth
+    Fusion Systems" (real domain: cfs.energy) was guessed as
+    "commonwealthfusion.com", which doesn't belong to them. A wrong domain
+    that fails to resolve at all is the easy case to catch here; a wrong
+    domain that happens to resolve to some unrelated real site is not
+    catchable this way (that would need paid search grounding — not worth
+    it for this).
+
+    Deliberately lenient about the HTTP status itself: getting ANY response
+    (even a 403 or 404) proves the domain resolves and has a live server
+    behind it, which is what we actually care about — many real sites
+    reject bot-like HEAD requests with 403 (anti-bot protection) despite
+    being completely legitimate, so treating that as "invalid" would create
+    false negatives on real companies. Only a genuine connection/DNS/
+    timeout failure — meaning the domain doesn't resolve to anything at
+    all — counts as a real failure here.
+
+    Returns the domain if it resolves, otherwise None so the frontend's
+    clean initials-avatar fallback is used instead of silently shipping a
+    broken/misleading logo.
+    """
+    if not domain:
+        return None
+    try:
+        requests.head(
+            f"https://{domain}", timeout=6, allow_redirects=True,
+            headers={"User-Agent": "Mozilla/5.0 (compatible; CatalystBot/1.0)"},
+        )
+        return domain  # any response at all proves the domain is real
+    except Exception as e:
+        print(f"[warn] domain '{domain}' failed to verify ({e}) — dropping it, frontend will show a fallback icon instead")
+        return None
+
+
 def enrich_with_images(edition):
     edition["theme_image"] = search_pexels(edition.get("theme_image_query"))
     for item in edition.get("brief", []):
         time.sleep(0.3)  # gentle pacing; well within Pexels' 200 req/hour limit
         item["image"] = search_pexels(item.get("image_query"))
+        item["domain"] = verify_domain(item.get("domain"))
     for card in edition.get("trend_cards", []):
         time.sleep(0.3)
         card["image"] = search_pexels(card.get("image_query"))
+    if "breakdown" in edition:
+        edition["breakdown"]["domain"] = verify_domain(edition["breakdown"].get("domain"))
     return edition
 
 
