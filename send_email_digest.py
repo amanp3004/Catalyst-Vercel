@@ -38,7 +38,13 @@ def _clean_credential(value):
 
 GMAIL_ADDRESS = _clean_credential(os.environ.get("GMAIL_ADDRESS"))
 GMAIL_APP_PASSWORD = _clean_credential(os.environ.get("GMAIL_APP_PASSWORD"))
-SITE_URL = os.environ.get("SITE_URL", "https://your-project.vercel.app")
+SITE_URL = os.environ.get("SITE_URL")
+if not SITE_URL:
+    raise SystemExit(
+        "SITE_URL environment variable is not set. Refusing to send an "
+        "email with a broken placeholder link — add a 'SITE_URL' repo "
+        "secret with your real live site URL."
+    )
 
 if not GMAIL_ADDRESS or not GMAIL_APP_PASSWORD:
     raise SystemExit(
