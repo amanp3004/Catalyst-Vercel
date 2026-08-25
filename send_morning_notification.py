@@ -14,7 +14,13 @@ import json
 from push_utils import send_push
 from edition_utils import load_todays_edition
 
-SITE_URL = os.environ.get("SITE_URL", "https://your-project.vercel.app")
+SITE_URL = os.environ.get("SITE_URL")
+if not SITE_URL:
+    raise SystemExit(
+        "SITE_URL environment variable is not set. Refusing to send a "
+        "notification with a broken placeholder link — add a 'SITE_URL' "
+        "repo secret with your real live site URL."
+    )
 
 
 if __name__ == "__main__":
