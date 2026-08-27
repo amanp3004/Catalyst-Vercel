@@ -283,113 +283,138 @@ WORKFLOW:
          business units as stars, cash cows, question marks, or dogs);
          Platform Strategy (building a business around enabling
          interactions between two or more customer groups)
-       Marketing: Sales Funnel (the stages a prospective customer moves
-         through from awareness to purchase); Conversion Rate (the % of
-         users who take a desired action out of total visitors/leads);
-         Brand Equity (the commercial value a brand name adds beyond the
-         product's functional attributes); Market Positioning (how a brand
-         is perceived relative to competitors in customers' minds); Market
-         Segmentation (dividing a broad market into groups with similar
-         needs); Growth Hacking (rapid, low-cost experimentation across
-         marketing and product to drive growth); Net Promoter Score
-         (measuring customer loyalty via likelihood to recommend); A/B
-         Testing (comparing two versions of something to see which
-         performs better); Customer Retention (a company's ability to keep
-         customers over time); Performance Marketing (marketing where
-         spend is tied directly to measurable actions like clicks or
-         sales); Attribution Model (a framework for assigning credit for a
-         conversion across marketing touchpoints); Cohort Analysis
-         (analyzing behavior of user groups sharing a common start point
-         over time); Viral Coefficient (the number of new users each
-         existing user brings in, on average); Product-Led Growth (a
-         go-to-market motion where the product itself drives acquisition
-         and expansion); Marketing Qualified Lead (a lead who's engaged
-         with marketing but isn't sales-ready yet); Sales Qualified Lead (a
-         lead vetted and deemed ready for direct sales follow-up); Share of
-         Voice (a brand's visibility in its market relative to
-         competitors); Customer Journey Mapping (visualizing every
-         touchpoint a customer has with a brand from discovery to
-         purchase)
-       Operations: Supply Chain (the network of organizations and processes
-         that produce and deliver a product); Just-In-Time Inventory
-         (materials arrive only as needed, minimizing holding costs); Lean
-         Manufacturing (a production approach focused on eliminating waste
-         while maximizing value); Six Sigma (a data-driven methodology
-         aimed at reducing defects and process variation); Bottleneck (the
-         stage in a process that limits the system's overall throughput);
-         Service-Level Agreement (a contract defining the expected level
-         of service between provider and customer); Vendor Management
-         (managing supplier relationships to control cost, quality, and
-         risk); Inventory Turnover (how many times a company sells and
-         replaces its inventory in a period); Kanban (a visual workflow
-         method using cards to represent tasks moving through stages);
-         Kaizen (a philosophy of continuous, incremental process
-         improvement); Total Quality Management (an organization-wide
-         approach to continuously improving quality everywhere); Capacity
-         Utilization (the % of a company's maximum output actually being
-         used); Value Stream Mapping (visualizing all process steps to find
-         waste and improvement opportunities); Last-Mile Delivery (the
-         final delivery step, from a distribution hub to the customer's
-         door); Procurement (the process of sourcing and purchasing goods
-         and services a business needs); Outsourcing (contracting a
-         business function to an external provider instead of doing it
-         in-house); Business Process Re-engineering (radically redesigning
-         core business processes to improve performance)
-       HR/People: Employee Engagement (the level of emotional commitment
-         and motivation employees have toward their work); Attrition Rate
-         (the rate at which employees leave a company over a period);
-         Talent Acquisition (the strategic process of identifying and
-         hiring skilled people); Org Structure (how a company arranges
-         reporting lines, roles, and responsibilities); Span of Control
-         (the number of direct reports a manager oversees); Performance
-         Management (the ongoing process of setting goals and evaluating
-         employee performance); Onboarding (integrating a new employee into
-         a company and their role); 360-Degree Feedback (a review method
-         gathering input from peers, managers, and reports); Succession
-         Planning (identifying and developing employees to fill future key
-         leadership roles); Total Rewards (the complete package of pay,
-         benefits, and non-monetary value offered); Diversity, Equity &
-         Inclusion (organizational practices aimed at fair representation
-         and treatment of all employees); Psychological Safety (a team
-         environment where people feel safe to take risks and speak up);
-         Matrix Organization (a structure where employees report to more
-         than one manager, often by function and project); Change
-         Management (a structured approach to helping an organization
-         transition through change); Quiet Quitting (employees doing only
-         the minimum required, without going above and beyond)
-       Finance: Working Capital (the difference between a company's current
-         assets and current liabilities); EBITDA (Earnings Before Interest,
-         Taxes, Depreciation, and Amortization — a proxy for operating
-         profitability); Gross Margin (revenue minus cost of goods sold, as
-         a % of revenue); ROI (the profit generated from an investment
-         relative to its cost); Break-Even Point (the sales level where
-         total revenue equals total costs); Valuation (the estimated worth
-         of a company); Dilution (the reduction in existing shareholders'
-         ownership % when new shares are issued); Vesting (the process by
-         which an employee earns full ownership of granted equity over
-         time); Liquidation Preference (certain investors' right to be paid
-         back before others in an exit); Pre-Money/Post-Money Valuation (a
-         company's valuation before and after a new investment round);
-         P&L (a statement summarizing revenues, costs, and expenses over a
-         period); Balance Sheet (a statement showing assets, liabilities,
-         and equity at a point in time); Cash Flow Statement (a statement
-         showing cash moving in and out of a business over a period); Free
-         Cash Flow (cash left after capital expenditures needed to
-         maintain operations); Net Present Value (the value today of
-         future cash flows, discounted at a required rate); Internal Rate
-         of Return (the discount rate at which an investment's NPV equals
-         zero); Cost of Capital (the return a company must earn to justify
-         the cost of its funding); Debt-to-Equity Ratio (a measure of
-         financial leverage comparing total debt to shareholder equity);
-         Accounts Receivable (money owed to a company by customers for
-         goods/services already delivered); Accounts Payable (money a
-         company owes suppliers for goods/services already received);
-         Depreciation (allocating a tangible asset's cost over its useful
-         life); Sunk Cost (a cost already incurred that can't be recovered
-         and shouldn't drive future decisions); Opportunity Cost (the value
-         of the next best alternative given up when making a choice);
-         Contribution Margin (revenue remaining after variable costs,
-         available to cover fixed costs and profit)
+       Marketing: Jobs to Be Done (the idea that customers "hire" a product
+         to do a specific job, not that they fit a demographic — reframes
+         how you find real competitors); Category Design (creating and
+         defining a brand-new market category instead of competing within
+         an existing one, e.g. Salesforce vs. "CRM software"); Anchoring
+         Effect (the first number/price a customer sees heavily skews their
+         judgment of everything after it — core to pricing strategy);
+         Price Elasticity of Demand (how sensitive customer demand is to a
+         price change — inelastic demand means you can raise prices with
+         little volume loss); Halo Effect (a positive perception of one
+         product or attribute spills over to make the whole brand look
+         better, e.g. a great flagship product lifting a whole product
+         line); Share of Wallet (the % of a customer's total spending in a
+         category that goes to your brand specifically, not just whether
+         they buy from you at all); Marketing Mix Modeling (a statistical
+         technique estimating how much each marketing channel actually
+         contributed to sales, used to justify ad spend); Brand Salience
+         (how easily and how often a brand comes to mind in relevant
+         buying moments — more predictive of sales than brand "liking");
+         Customer Equity (the combined lifetime value of all of a
+         company's customers, treated as a company-wide financial asset);
+         Diffusion of Innovation (the theory of how new products spread
+         through a population in stages — innovators, early adopters,
+         early/late majority, laggards — and why crossing from early
+         adopters to the mainstream is the hardest step); Push vs. Pull
+         Marketing (pushing product through distribution channels via
+         incentives vs. pulling customers toward the brand via demand you
+         create); Category Killer (a brand so dominant it effectively
+         defines its entire product category in consumers' minds); Sales
+         Funnel, Conversion Rate, Net Promoter Score, Customer Journey
+         Mapping, and Product-Led Growth remain valid fallback choices if
+         none of the above fit today's theme well.
+       Supply Chain: Bullwhip Effect (small demand fluctuations at the
+         retail end get amplified into large swings further up the supply
+         chain — the classic reason supply chains over- or under-stock);
+         Vendor-Managed Inventory (the supplier, not the buyer, monitors
+         and replenishes stock at the customer's location); Cross-Docking
+         (goods move directly from inbound to outbound trucks with little
+         or no warehouse storage in between, cutting handling cost and
+         time); Safety Stock (extra inventory held specifically to buffer
+         against demand or supply uncertainty, not to meet expected
+         demand); Total Landed Cost (the true full cost of a product:
+         purchase price plus shipping, customs, duties, and insurance —
+         often much higher than the sticker price suggests); Dual Sourcing
+         (deliberately using two suppliers for the same component so a
+         single supplier failure doesn't halt production); Reshoring
+         (moving manufacturing back to the home country after having
+         moved it offshore, often to reduce supply chain risk); Demand
+         Sensing (using real-time signals like point-of-sale data to
+         predict near-term demand more accurately than traditional
+         forecasting); Supply Chain Resilience (a supply chain's ability
+         to anticipate, absorb, and recover from disruptions — the
+         concept that got boardroom attention after COVID and the 2021
+         Suez Canal blockage); Incoterms (standardized international
+         trade terms, like FOB or CIF, that define exactly when risk and
+         cost shift from seller to buyer in a shipment); Perfect Order
+         Rate (the % of orders delivered complete, on time, damage-free,
+         with correct paperwork — a single number capturing overall
+         fulfillment quality); Days Inventory Outstanding (the average
+         number of days a company holds inventory before it sells —
+         lower is generally more capital-efficient); Milk Run (a delivery
+         route where one vehicle picks up or drops off at multiple
+         suppliers/customers in a single loop, instead of separate trips);
+         Vendor Lock-in (dependency on a single supplier that makes
+         switching costly or operationally risky even if a cheaper option
+         exists); Pull vs. Push Supply Chain (push systems produce based
+         on forecasts; pull systems produce only in response to actual
+         confirmed demand, like Toyota's original just-in-time model).
+       HR/People: Nine-Box Grid (a talent-management tool that plots
+         employees on performance vs. potential to guide promotion,
+         development, and succession decisions); Compa-Ratio (an
+         employee's actual pay divided by the midpoint of their salary
+         band — used to spot pay equity issues and flight risk); Stay
+         Interview (a proactive conversation with a current, valued
+         employee about why they stay, used to fix retention problems
+         before someone quits, not after); Job Architecture (a structured
+         framework of job levels, families, and career paths that makes
+         promotion and pay decisions consistent across a company); Skip-
+         Level Meeting (a meeting between an employee and their manager's
+         manager, bypassing the direct manager, usually to surface issues
+         that wouldn't otherwise reach leadership); Calibration Session (a
+         meeting where managers compare notes to align performance ratings
+         across teams, so "meets expectations" means the same thing
+         everywhere); Regretted Attrition (specifically the departure of a
+         high-performing employee a company genuinely didn't want to lose
+         — tracked separately from attrition a company is fine with);
+         Employee Value Proposition (the specific mix of pay, growth,
+         culture, and meaning a company offers in exchange for someone's
+         skills — effectively a company's "pitch" to its own talent);
+         Broadbanding (collapsing many narrow salary grades into fewer,
+         wider pay bands to give managers more flexibility); Silent Layoff
+         (quietly shrinking headcount through attrition and non-
+         replacement instead of a formal layoff announcement); Talent
+         Density (the concentration of high performers on a team — Netflix
+         popularized the idea of optimizing for this over sheer headcount);
+         Succession Bench Strength (how ready and deep the internal pool of
+         candidates is to fill key leadership roles if someone left
+         tomorrow); Human Capital ROI (a metric estimating the financial
+         return generated per dollar spent on employee pay and benefits).
+       Finance (valuation & modeling — beyond basic ratios): Comparable
+         Company Analysis / "Comps" (valuing a company by benchmarking it
+         against the trading multiples of similar public companies);
+         Precedent Transaction Analysis (valuing a company based on prices
+         actually paid in similar past M&A deals, not current market
+         multiples); Terminal Value (the estimated value of a business
+         beyond a DCF model's explicit forecast period — often the
+         majority of a DCF's total value, which is why it's so sensitive
+         to assumptions); Sensitivity Analysis (systematically testing how
+         changes in key assumptions, like growth rate or margin, move a
+         model's output); Three-Statement Model (a financial model that
+         links the income statement, balance sheet, and cash flow
+         statement so a change in one flows correctly through the others);
+         Accretion/Dilution Analysis (testing whether an acquisition will
+         increase or decrease the acquirer's earnings per share — a core
+         gating question in M&A deal approval); Sum-of-the-Parts Valuation
+         (valuing a multi-business company by valuing each segment
+         separately and adding them up, often revealing a conglomerate is
+         worth more broken up); Football Field Chart (a chart showing the
+         valuation range from several different methods side by side,
+         standard in every banker's pitch deck); Monte Carlo Simulation
+         (running thousands of randomized scenarios to model a realistic
+         range of financial outcomes instead of one single-point
+         estimate); Normalized Earnings (adjusting reported earnings to
+         strip out one-time items, revealing the business's true ongoing
+         profitability); Goodwill Impairment (a write-down taken when an
+         acquired business turns out to be worth less than what was paid
+         for it — a visible signal an M&A deal underperformed); Scenario
+         Analysis (modeling distinct best-case/base-case/worst-case sets of
+         assumptions, as opposed to sensitivity analysis's one-variable-at-
+         a-time approach). Working Capital, EBITDA, NPV, and other core
+         ratios remain valid fallback choices if none of the above fit
+         today's theme well.
        M&A, Dealmaking & Corporate Control: this category is especially
          valuable for MBA students and should appear in the rotation at
          least as often as the others, not treated as a rare bonus. Use the
