@@ -2,10 +2,10 @@ name: Send Morning Notification
 
 on:
   schedule:
-    # 02:00 UTC = 7:30 AM IST. Deliberately later than daily-edition.yml's
-    # 2:00 AM IST generation run, so content is guaranteed ready before this
+    # 01:00 UTC = 6:30 AM IST — after daily-edition.yml's 18:40 UTC
+    # (12:10 AM IST) run, so content is guaranteed ready before this
     # notification tells people to go read it.
-    - cron: "0 2 * * *"
+    - cron: "0 1 * * *"
   workflow_dispatch: {}
 
 jobs:
