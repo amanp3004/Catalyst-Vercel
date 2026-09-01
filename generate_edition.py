@@ -533,8 +533,9 @@ WORKFLOW:
      paragraphs, this is a quick-hit definition, not an essay), why it
      matters (1-2 sentences), one real-world example sentence naming a
      known company.
-   - editors_note: 2-3 short paragraphs, one thoughtful reflection that ties
-     the whole edition into one coherent story with one memorable idea.
+   - editors_note: EXACTLY 2 short paragraphs, no more — one thoughtful
+     reflection that ties the whole edition into one coherent story with
+     one memorable idea. Two paragraphs is enough; do not pad to three.
 
 STYLE: Clear, thoughtful, analytical, conversational, concise, confident
 without exaggeration. No buzzwords, no unnecessary adjectives, no
@@ -594,7 +595,7 @@ matching exactly this schema:
     "real_world_example": "string (1 sentence)",
     "reading_time": "string (e.g. '20 sec read')"
   },
-  "editors_note": {"paragraphs": ["string", "string", "string"]}
+  "editors_note": {"paragraphs": ["string", "string"]}
 }
 """
 
@@ -613,50 +614,81 @@ AI_THEME_PATTERN = re.compile(
 )
 
 
-def load_recent_history(lookback_days=35):
-    """Scan data/*.json for the last `lookback_days` (by IST date) and pull
-    out which Startup Breakdown companies, Builder's Lexicon terms, and
-    themes were already used. These are passed to Gemini as an explicit
-    exclusion list so the same company/term doesn't reappear within the
-    window, and so themes don't cluster around one topic (e.g. AI) purely
-    because that's what a naive re-run would default to.
+# Lightweight, append-only history files — just a JSON array of strings,
+# newest entry first, no other metadata. These exist specifically so term/
+# company anti-repetition doesn't depend on how many full edition JSON
+# files happen to still be on disk. Full edition files now get pruned down
+# to the last 7 (see prune_old_editions), which would otherwise silently
+# shrink the anti-repetition window from 35 days down to 7 — these files
+# keep the real history intact and cheap to check regardless of pruning.
+LEXICON_HISTORY_PATH = "data/lexicon_history.json"
+COMPANY_HISTORY_PATH = "data/company_history.json"
+LEXICON_CHECK_DEPTH = 30   # per spec: only the most recent 30 are ever checked
+COMPANY_CHECK_DEPTH = 35   # preserves the original ~35-day exclusion window
+
+
+def _load_history_list(path):
+    if not os.path.exists(path):
+        return []
+    try:
+        with open(path) as f:
+            data = json.load(f)
+        return data if isinstance(data, list) else []
+    except Exception as e:
+        print(f"[warn] couldn't read {path} ({e}) — treating as empty")
+        return []
+
+
+def _prepend_to_history_file(path, new_value):
+    """Add a new entry to the front of a history file. Deliberately does
+    NOT cap the file's own size — only how many entries get *checked* is
+    capped (LEXICON_CHECK_DEPTH / COMPANY_CHECK_DEPTH), per design. A plain
+    list of short strings stays tiny and fast to read even after years of
+    daily entries, so there's no real cost to letting it grow indefinitely,
+    and keeping full history on disk costs nothing and may be useful later.
     """
-    recent_companies, recent_terms, recent_themes = [], [], []
+    if not new_value:
+        return
+    existing = _load_history_list(path)
+    # Avoid piling up an immediate duplicate at the top (e.g. a manual re-run
+    # the same day) — but older repeats further down are left alone, since
+    # that's exactly what the exclusion-list check further up is for.
+    if existing and existing[0].lower() == new_value.lower():
+        return
+    existing.insert(0, new_value)
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(existing, f, indent=2)
 
-    if not os.path.isdir("data"):
-        return recent_companies, recent_terms, recent_themes
 
-    cutoff = datetime.datetime.now(IST).date() - datetime.timedelta(days=lookback_days)
+def load_recent_history():
+    """Returns (recent_companies, recent_terms, recent_themes) used to
+    build Gemini's exclusion lists. Terms and companies now come from their
+    own lightweight history files (see above), each capped to the number
+    of entries actually worth checking — not from scanning full edition
+    files, which are pruned to the last 7 days for performance and are no
+    longer a reliable source of 30-35 days of history. Themes still come
+    from the (pruned) full edition files, which is fine since the AI-
+    diversity check only ever needs the last 5 anyway.
+    """
+    recent_terms = _load_history_list(LEXICON_HISTORY_PATH)[:LEXICON_CHECK_DEPTH]
+    recent_companies = _load_history_list(COMPANY_HISTORY_PATH)[:COMPANY_CHECK_DEPTH]
 
-    for fname in sorted(os.listdir("data")):
-        m = re.match(r"^(\d{4}-\d{2}-\d{2})\.json$", fname)
-        if not m:
-            continue  # skips latest.json / index.json
-        try:
-            file_date = datetime.date.fromisoformat(m.group(1))
-        except ValueError:
-            continue
-        if file_date < cutoff:
-            continue
-
-        try:
-            with open(os.path.join("data", fname)) as f:
-                past = json.load(f)
-        except Exception as e:
-            print(f"[warn] couldn't read {fname} for history check: {e}")
-            continue
-
-        company = past.get("breakdown", {}).get("company")
-        if company:
-            recent_companies.append(company)
-
-        term = past.get("builder_lexicon", {}).get("term")
-        if term:
-            recent_terms.append(term)
-
-        theme = past.get("theme")
-        if theme:
-            recent_themes.append(theme)
+    recent_themes = []
+    if os.path.isdir("data"):
+        for fname in sorted(os.listdir("data")):
+            m = re.match(r"^(\d{4}-\d{2}-\d{2})\.json$", fname)
+            if not m:
+                continue  # skips latest.json / index.json / history files
+            try:
+                with open(os.path.join("data", fname)) as f:
+                    past = json.load(f)
+            except Exception as e:
+                print(f"[warn] couldn't read {fname} for history check: {e}")
+                continue
+            theme = past.get("theme")
+            if theme:
+                recent_themes.append(theme)
 
     return recent_companies, recent_terms, recent_themes
 
@@ -996,6 +1028,39 @@ def enrich_with_images(edition):
 # 4. WRITE OUTPUT
 # ---------------------------------------------------------------------------
 
+def prune_old_editions(keep=7):
+    """Delete dated edition JSON files beyond the most recent `keep`, and
+    trim data/index.json to match — the archive dropdown only ever shows
+    the last 7 days anyway, and older full edition files (each with
+    images, five sections of text, etc.) were the actual cause of
+    generate_edition.py slowing down as the data/ folder grew unbounded.
+    Term/company anti-repetition no longer depends on these files (see
+    load_recent_history), so this is safe to prune aggressively.
+    """
+    if not os.path.isdir("data"):
+        return
+
+    dated_files = []
+    for fname in os.listdir("data"):
+        m = re.match(r"^(\d{4}-\d{2}-\d{2})\.json$", fname)
+        if m:
+            dated_files.append(m.group(1))
+    dated_files.sort()
+
+    to_delete = dated_files[:-keep] if len(dated_files) > keep else []
+    for date_str in to_delete:
+        path = f"data/{date_str}.json"
+        try:
+            os.remove(path)
+            print(f"Pruned old edition file: {path}")
+        except OSError as e:
+            print(f"[warn] couldn't remove {path}: {e}")
+
+    kept_dates = sorted(dated_files[-keep:] if len(dated_files) > keep else dated_files)
+    with open("data/index.json", "w") as f:
+        json.dump(kept_dates, f, indent=2)
+
+
 def save_edition(edition):
     os.makedirs("data", exist_ok=True)
     date_path = f"data/{edition['date']}.json"
@@ -1006,17 +1071,13 @@ def save_edition(edition):
     with open("data/latest.json", "w") as f:
         json.dump(edition, f, indent=2)
 
-    # maintain an index of all editions for an archive page
-    index_path = "data/index.json"
-    archive = []
-    if os.path.exists(index_path):
-        with open(index_path) as f:
-            archive = json.load(f)
-    if edition["date"] not in archive:
-        archive.append(edition["date"])
-    archive = sorted(set(archive))
-    with open(index_path, "w") as f:
-        json.dump(archive, f, indent=2)
+    # Record this edition's term/company into their own lightweight,
+    # long-lived history files — independent of full-edition pruning below.
+    _prepend_to_history_file(LEXICON_HISTORY_PATH, edition.get("builder_lexicon", {}).get("term"))
+    _prepend_to_history_file(COMPANY_HISTORY_PATH, edition.get("breakdown", {}).get("company"))
+
+    # Keep only the last 7 full edition files (+ rewrites index.json to match).
+    prune_old_editions(keep=7)
 
     print(f"Saved edition for {edition['date']} -> {date_path}")
 
