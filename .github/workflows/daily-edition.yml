@@ -1,18 +1,13 @@
-name: Generate Daily Founder OS Edition
+name: Generate Daily Catalyst Edition
 
 on:
   schedule:
-    - cron: "30 20 * * *"
+    # 18:40 UTC = 12:10 AM IST (the following IST calendar day).
+    - cron: "40 18 * * *"
   workflow_dispatch: {}
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
   generate:
@@ -37,24 +32,14 @@ jobs:
 
       - name: Commit updated data
         run: |
-          git config user.name "founder-os-bot"
+          git config user.name "catalyst-bot"
           git config user.email "actions@github.com"
           git add data/
-          git diff --quiet && git diff --staged --quiet || git commit -m "Auto: today's Founder OS edition"
+          git diff --quiet && git diff --staged --quiet || git commit -m "Auto: today's Catalyst edition"
           git push
 
-      - name: Upload site artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-
-  # deploy:
-  #   needs: generate
-  #   runs-on: ubuntu-latest
-  #   environment:
-  #     name: github-pages
-  #     url: ${{ steps.deployment.outputs.page_url }}
-  #   steps:
-  #     - name: Deploy to GitHub Pages
-  #       id: deployment
-  #       uses: actions/deploy-pages@v4
+      # No deploy step needed — Vercel is connected directly to this repo
+      # and automatically redeploys on every push to main, including this
+      # commit. The old "Upload site artifact" / GitHub Pages deploy steps
+      # that used to live here were dead weight (added execution time for
+      # an artifact that was never actually deployed) and have been removed.
