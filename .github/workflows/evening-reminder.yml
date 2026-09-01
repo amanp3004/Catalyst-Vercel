@@ -2,10 +2,9 @@ name: Send Evening Reminder Notification
 
 on:
   schedule:
-    # 12:30 UTC = 6:00 PM IST. This is independent of the morning generation
-    # time — adjust freely to whatever hour makes sense for a "did you see
-    # this?" evening nudge.
-    - cron: "30 12 * * *"
+    # 11:45 UTC = 5:15 PM IST. Independent of the morning generation time —
+    # this is the "did you see this?" evening nudge.
+    - cron: "45 11 * * *"
   workflow_dispatch: {}
 
 jobs:
