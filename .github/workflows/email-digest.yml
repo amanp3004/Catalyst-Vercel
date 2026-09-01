@@ -2,11 +2,11 @@ name: Send Email Digest
 
 on:
   schedule:
-    # 22:30 UTC = 4:00 AM IST — exactly 2 hours after daily-edition.yml's
-    # 20:30 UTC (2:00 AM IST) run, giving generation time to fully finish
+    # 23:35 UTC = 5:05 AM IST — after daily-edition.yml's 18:40 UTC
+    # (12:10 AM IST) run, giving generation plenty of time to fully finish
     # and commit before the email goes out. If you change the generation
-    # workflow's cron time, update this one to match (+2 hours).
-    - cron: "30 22 * * *"
+    # workflow's cron time, update this one to match.
+    - cron: "35 23 * * *"
   workflow_dispatch: {}
 
 jobs:
