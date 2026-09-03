@@ -37,6 +37,20 @@
   .status.err{color:#8B3A3A;}
   #loginCard{max-width:360px; margin:80px auto 0;}
   .hidden{display:none;}
+  .tabs{display:flex; gap:8px; margin-bottom:20px;}
+  .tab-btn{font-family:'IBM Plex Mono', monospace; font-size:12px; text-transform:uppercase; letter-spacing:0.05em; background:none; border:1px solid var(--line); color:var(--muted); padding:8px 14px; border-radius:20px; cursor:pointer;}
+  .tab-btn.active{background:var(--forest); color:var(--paper); border-color:var(--forest);}
+  input[type=file]{width:100%; font-family:'Space Grotesk', sans-serif; font-size:13px; margin-bottom:14px;}
+  select{width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:6px; font-family:'Space Grotesk', sans-serif; font-size:14px; background:var(--paper); margin-bottom:14px;}
+  .founder-card{display:flex; gap:16px;}
+  .founder-photo-col{flex-shrink:0; width:96px; text-align:center;}
+  .founder-photo-col img{width:96px; height:96px; border-radius:10px; object-fit:cover; border:1px solid var(--line); background:var(--paper); display:block; margin-bottom:8px;}
+  .founder-photo-col input[type=file]{font-size:10.5px; margin-bottom:6px;}
+  .founder-fields{flex:1; min-width:0;}
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:0 12px;}
+  .field-label{font-family:'IBM Plex Mono', monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-bottom:4px; display:block;}
+  .last-featured{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); margin-bottom:10px;}
+  .toggle-row{display:flex; align-items:center; gap:8px; margin-bottom:14px; font-family:'IBM Plex Mono', monospace; font-size:12px;}
 </style>
 </head>
 <body>
@@ -56,16 +70,53 @@
 
   <div id="adminPanel" class="hidden">
     <h1>Catalyst Admin</h1>
-    <div class="sub">Manage the email lists the daily digest is sent to</div>
 
-    <div class="card">
-      <div class="list-name">Create a new list</div>
-      <label>List name (e.g. "IIM Udaipur E-Cell", "Investors")</label>
-      <input type="text" id="newListName" placeholder="List name">
-      <button onclick="createList()">Create list</button>
+    <div class="tabs">
+      <button class="tab-btn active" id="tabBtn-emails" onclick="switchTab('emails')">Email Lists</button>
+      <button class="tab-btn" id="tabBtn-founders" onclick="switchTab('founders')">Founders' Friday</button>
     </div>
 
-    <div id="listsContainer"></div>
+    <div id="tab-emails">
+      <div class="sub">Manage the email lists the daily digest is sent to</div>
+
+      <div class="card">
+        <div class="list-name">Create a new list</div>
+        <label>List name (e.g. "IIM Udaipur E-Cell", "Investors")</label>
+        <input type="text" id="newListName" placeholder="List name">
+        <button onclick="createList()">Create list</button>
+      </div>
+
+      <div id="listsContainer"></div>
+    </div>
+
+    <div id="tab-founders" class="hidden">
+      <div class="sub">Manage the roster that "Founders' Friday" picks from each week — only IIM Udaipur alumni or IIM Udaipur-incubated founders belong here.</div>
+
+      <div class="card">
+        <div class="list-name">Bulk upload from Excel</div>
+        <div class="sub" style="margin-bottom:14px;">
+          Uploading only ever <strong>adds new founders</strong> — anything already
+          in the roster is left exactly as it is, even if a row for them is in
+          the file again. Fix or update an existing founder in the roster list
+          below instead.
+        </div>
+        <div class="row" style="margin-bottom:16px;">
+          <button class="ghost" onclick="downloadFounderTemplate()">Download blank format</button>
+          <button class="ghost" onclick="downloadFoundersData()">Download current roster</button>
+        </div>
+        <label>Excel file (.xlsx)</label>
+        <input type="file" id="founderFile" accept=".xlsx,.xls">
+        <button onclick="uploadFounderFile()">Upload &amp; add new founders</button>
+        <div id="founderUploadStatus" class="status"></div>
+      </div>
+
+      <div class="card">
+        <div class="list-name">Add one founder manually</div>
+        <button class="ghost" onclick="addBlankFounder()">+ Add founder</button>
+      </div>
+
+      <div id="founderListContainer"></div>
+    </div>
 
     <button class="ghost" onclick="logout()" style="margin-top:10px;">Sign out</button>
   </div>
@@ -75,6 +126,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 // TODO: paste the SAME Firebase config used in index.html / sw.js
 const firebaseConfig = {
@@ -90,11 +142,28 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// Founder photos are hosted on Cloudinary's free tier (not Firebase Storage,
+// which requires the paid Blaze plan). This is an unsigned upload preset —
+// safe to keep visible in client-side code, it can't do anything beyond
+// accepting image uploads into this one folder.
+const CLOUDINARY_CLOUD_NAME = "nyfdso4y";
+const CLOUDINARY_UPLOAD_PRESET = "founder_photos";
+
 auth.onAuthStateChanged((user) => {
   document.getElementById("loginCard").classList.toggle("hidden", !!user);
   document.getElementById("adminPanel").classList.toggle("hidden", !user);
-  if (user) loadLists();
+  if (user) {
+    loadLists();
+    loadFounderList();
+  }
 });
+
+function switchTab(name) {
+  for (const t of ["emails", "founders"]) {
+    document.getElementById(`tab-${t}`).classList.toggle("hidden", t !== name);
+    document.getElementById(`tabBtn-${t}`).classList.toggle("active", t === name);
+  }
+}
 
 function login() {
   const email = document.getElementById("loginEmail").value.trim();
@@ -182,6 +251,288 @@ async function deleteList(docId, name) {
   if (!confirm(`Delete the list "${name}"? This can't be undone.`)) return;
   await db.collection("email_lists").doc(docId).delete();
   loadLists();
+}
+
+// ---------------------------------------------------------------------
+// Founders' Friday
+// ---------------------------------------------------------------------
+
+// Column order used for both the downloadable template and the exported
+// roster — keep these in sync with generate_edition.py's expected field
+// names (founder_name, company_name, company_domain, linkedin_url,
+// status, batch_or_year, what_it_does, why_it_matters, learning).
+const FOUNDER_COLUMNS = [
+  "founder_name", "company_name", "company_domain", "linkedin_url",
+  "status", "batch_or_year", "what_it_does", "why_it_matters", "learning",
+];
+
+function founderSlugId(founderName, companyName) {
+  const slug = (s) => (s || "").toString().trim().toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  const id = `${slug(founderName)}--${slug(companyName)}`;
+  return id.replace(/^-+|-+$/g, "") || `founder-${Date.now()}`;
+}
+
+function downloadFounderTemplate() {
+  const example = {
+    founder_name: "Jane Doe",
+    company_name: "Acme Startup",
+    company_domain: "acme.com",
+    linkedin_url: "https://www.linkedin.com/in/janedoe",
+    status: "alumnus  (or: incubated)",
+    batch_or_year: "2019  (grad year, or incubation batch/year)",
+    what_it_does: "One or two sentences on what the company does.",
+    why_it_matters: "One or two sentences on why it matters right now.",
+    learning: "A short, quotable lesson/learning from this founder.",
+  };
+  const ws = XLSX.utils.json_to_sheet([example], { header: FOUNDER_COLUMNS });
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Founders");
+  XLSX.writeFile(wb, "founders_template.xlsx");
+}
+
+async function downloadFoundersData() {
+  const snapshot = await db.collection("founders").orderBy("founder_name").get();
+  const rows = snapshot.docs.map((doc) => {
+    const d = doc.data();
+    const row = {};
+    for (const col of FOUNDER_COLUMNS) row[col] = d[col] || "";
+    row.active = d.active !== false;
+    row.last_featured = d.last_featured || "";
+    return row;
+  });
+  const ws = XLSX.utils.json_to_sheet(rows.length ? rows : [{}], {
+    header: [...FOUNDER_COLUMNS, "active", "last_featured"],
+  });
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Founders");
+  XLSX.writeFile(wb, `founders_roster_${new Date().toISOString().slice(0, 10)}.xlsx`);
+}
+
+async function uploadFounderFile() {
+  const fileInput = document.getElementById("founderFile");
+  const statusEl = document.getElementById("founderUploadStatus");
+  const file = fileInput.files[0];
+  if (!file) {
+    statusEl.textContent = "Choose a file first.";
+    statusEl.className = "status err";
+    return;
+  }
+  statusEl.textContent = "Reading file...";
+  statusEl.className = "status";
+
+  try {
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, { type: "array" });
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+    let added = 0, skippedExisting = 0, skippedInvalid = 0;
+
+    for (const row of rows) {
+      const founderName = String(row.founder_name || "").trim();
+      const companyName = String(row.company_name || "").trim();
+      if (!founderName || !companyName) {
+        skippedInvalid++;
+        continue;
+      }
+      const id = founderSlugId(founderName, companyName);
+      const existing = await db.collection("founders").doc(id).get();
+      if (existing.exists) {
+        // Existing content is never touched by the bulk upload, by design —
+        // edit it in the roster list below instead.
+        skippedExisting++;
+        continue;
+      }
+      const status = String(row.status || "").trim().toLowerCase().includes("incub") ? "incubated" : "alumnus";
+      await db.collection("founders").doc(id).set({
+        founder_name: founderName,
+        company_name: companyName,
+        company_domain: String(row.company_domain || "").trim(),
+        linkedin_url: String(row.linkedin_url || "").trim(),
+        status,
+        batch_or_year: String(row.batch_or_year || "").trim(),
+        what_it_does: String(row.what_it_does || "").trim(),
+        why_it_matters: String(row.why_it_matters || "").trim(),
+        learning: String(row.learning || "").trim(),
+        photo_url: "",
+        active: true,
+        last_featured: "",
+        created_at: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      added++;
+    }
+
+    statusEl.textContent = `Added ${added} new founder(s). Skipped ${skippedExisting} already in the roster` +
+      (skippedInvalid ? `, ${skippedInvalid} row(s) missing a name/company.` : ".");
+    statusEl.className = "status ok";
+    fileInput.value = "";
+    loadFounderList();
+  } catch (err) {
+    statusEl.textContent = "Upload failed: " + err.message;
+    statusEl.className = "status err";
+  }
+}
+
+async function loadFounderList() {
+  const container = document.getElementById("founderListContainer");
+  if (!container) return;
+  container.innerHTML = "Loading...";
+  const snapshot = await db.collection("founders").orderBy("founder_name").get();
+
+  if (snapshot.empty) {
+    container.innerHTML = `<div class="card"><span class="sub">No founders yet — upload an Excel file above, or add one manually.</span></div>`;
+    return;
+  }
+
+  container.innerHTML = "";
+  snapshot.forEach((doc) => container.appendChild(renderFounderCard(doc.id, doc.data())));
+}
+
+function renderFounderCard(docId, d) {
+  const card = document.createElement("div");
+  card.className = "card";
+  const safeId = docId.replace(/[^a-zA-Z0-9_-]/g, "_");
+  const photoSrc = d.photo_url || "";
+  card.innerHTML = `
+    <div class="founder-card">
+      <div class="founder-photo-col">
+        ${photoSrc
+          ? `<img id="photo-${safeId}" src="${photoSrc}" alt="${d.founder_name || ""}">`
+          : `<div id="photo-${safeId}" style="width:96px;height:96px;border-radius:10px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px;">No photo</div>`}
+        <input type="file" accept="image/*" onchange="uploadFounderPhoto('${docId}', '${safeId}', this)">
+      </div>
+      <div class="founder-fields">
+        <div class="list-head">
+          <div class="list-name">${d.founder_name || "(unnamed)"} — ${d.company_name || ""}</div>
+        </div>
+        ${d.last_featured ? `<div class="last-featured">Last featured: ${d.last_featured}</div>` : `<div class="last-featured">Never featured yet</div>`}
+
+        <div class="two-col">
+          <div><span class="field-label">Founder name</span><input type="text" id="f-name-${safeId}" value="${(d.founder_name || "").replace(/"/g, "&quot;")}"></div>
+          <div><span class="field-label">Company name</span><input type="text" id="f-company-${safeId}" value="${(d.company_name || "").replace(/"/g, "&quot;")}"></div>
+        </div>
+        <div class="two-col">
+          <div><span class="field-label">Company domain</span><input type="text" id="f-domain-${safeId}" value="${(d.company_domain || "").replace(/"/g, "&quot;")}" placeholder="acme.com"></div>
+          <div><span class="field-label">LinkedIn URL</span><input type="text" id="f-linkedin-${safeId}" value="${(d.linkedin_url || "").replace(/"/g, "&quot;")}" placeholder="https://linkedin.com/in/..."></div>
+        </div>
+        <div class="two-col">
+          <div>
+            <span class="field-label">Status</span>
+            <select id="f-status-${safeId}">
+              <option value="alumnus" ${d.status === "alumnus" ? "selected" : ""}>IIM Udaipur alumnus</option>
+              <option value="incubated" ${d.status === "incubated" ? "selected" : ""}>IIM Udaipur incubated</option>
+            </select>
+          </div>
+          <div><span class="field-label">Grad year / incubation batch</span><input type="text" id="f-batch-${safeId}" value="${(d.batch_or_year || "").replace(/"/g, "&quot;")}"></div>
+        </div>
+        <label>What it does</label>
+        <textarea id="f-what-${safeId}" style="min-height:60px;">${d.what_it_does || ""}</textarea>
+        <label>Why it matters</label>
+        <textarea id="f-why-${safeId}" style="min-height:60px;">${d.why_it_matters || ""}</textarea>
+        <label>Learning from the founder</label>
+        <textarea id="f-learning-${safeId}" style="min-height:60px;">${d.learning || ""}</textarea>
+
+        <div class="toggle-row">
+          <input type="checkbox" id="f-active-${safeId}" ${d.active !== false ? "checked" : ""}>
+          <label for="f-active-${safeId}" style="margin:0;">Active (eligible to be picked for an upcoming Friday)</label>
+        </div>
+
+        <div class="row">
+          <button onclick="saveFounder('${docId}', '${safeId}')">Save changes</button>
+          <button class="danger" onclick="deleteFounder('${docId}', '${safeId}')">Delete</button>
+        </div>
+        <div id="status-founder-${safeId}" class="status"></div>
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+function addBlankFounder() {
+  const id = founderSlugId("new-founder", Date.now().toString());
+  db.collection("founders").doc(id).set({
+    founder_name: "", company_name: "", company_domain: "", linkedin_url: "",
+    status: "alumnus", batch_or_year: "", what_it_does: "", why_it_matters: "",
+    learning: "", photo_url: "", active: true, last_featured: "",
+    created_at: firebase.firestore.FieldValue.serverTimestamp(),
+  }).then(loadFounderList);
+}
+
+async function uploadFounderPhoto(docId, safeId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById(`status-founder-${safeId}`);
+  statusEl.textContent = "Uploading photo...";
+  statusEl.className = "status";
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    // Group every founder photo under one Cloudinary folder, named by the
+    // Firestore doc id, so re-uploading a founder's photo overwrites the
+    // same asset instead of piling up duplicates.
+    formData.append("public_id", `founder-photos/${docId}`);
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+      { method: "POST", body: formData }
+    );
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      throw new Error(errBody?.error?.message || `Cloudinary upload failed (${res.status})`);
+    }
+    const data = await res.json();
+    const url = data.secure_url;
+
+    await db.collection("founders").doc(docId).update({ photo_url: url });
+    const photoEl = document.getElementById(`photo-${safeId}`);
+    if (photoEl.tagName === "IMG") {
+      photoEl.src = url;
+    } else {
+      const img = document.createElement("img");
+      img.id = `photo-${safeId}`;
+      img.src = url;
+      img.alt = "";
+      photoEl.replaceWith(img);
+    }
+    statusEl.textContent = "Photo uploaded.";
+    statusEl.className = "status ok";
+  } catch (err) {
+    statusEl.textContent = "Photo upload failed: " + err.message;
+    statusEl.className = "status err";
+  }
+}
+
+async function saveFounder(docId, safeId) {
+  const statusEl = document.getElementById(`status-founder-${safeId}`);
+  const get = (id) => document.getElementById(id).value.trim();
+  try {
+    await db.collection("founders").doc(docId).update({
+      founder_name: get(`f-name-${safeId}`),
+      company_name: get(`f-company-${safeId}`),
+      company_domain: get(`f-domain-${safeId}`),
+      linkedin_url: get(`f-linkedin-${safeId}`),
+      status: document.getElementById(`f-status-${safeId}`).value,
+      batch_or_year: get(`f-batch-${safeId}`),
+      what_it_does: get(`f-what-${safeId}`),
+      why_it_matters: get(`f-why-${safeId}`),
+      learning: get(`f-learning-${safeId}`),
+      active: document.getElementById(`f-active-${safeId}`).checked,
+    });
+    statusEl.textContent = "Saved.";
+    statusEl.className = "status ok";
+    loadFounderList();
+  } catch (err) {
+    statusEl.textContent = "Save failed: " + err.message;
+    statusEl.className = "status err";
+  }
+}
+
+async function deleteFounder(docId, safeId) {
+  if (!confirm("Delete this founder from the roster? This can't be undone.")) return;
+  await db.collection("founders").doc(docId).delete();
+  loadFounderList();
 }
 </script>
 
