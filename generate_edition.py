@@ -767,6 +767,40 @@ def collect_stories(limit_per_source=12):
 # 3. CURATE WITH GEMINI (free tier)
 # ---------------------------------------------------------------------------
 
+def _post_to_gemini_with_retry(url, payload, max_retries=4, initial_delay=2):
+    """POST to Gemini with retry + exponential backoff on transient
+    server-side errors (503 Service Unavailable, 429 rate limit, and other
+    5xx). These are infrastructure hiccups on Google's end — observed in
+    practice as a bare 503 that killed the whole run — unrelated to prompt
+    content or JSON quality, which is what curate_edition's own retry loop
+    already handles. Kept as a separate inner retry so a transient network
+    blip doesn't consume one of that loop's limited attempts, which exist
+    to handle a different class of problem (a bad generation, not a down
+    server).
+
+    Any non-retryable status (success, or a genuine 4xx like a bad request)
+    breaks out immediately — only 429/5xx trigger a sleep-and-retry.
+    """
+    delay = initial_delay
+    response = None
+    for attempt in range(1, max_retries + 1):
+        response = requests.post(url, json=payload, timeout=60)
+        if response.status_code not in (429, 500, 502, 503, 504):
+            break  # success, or a non-retryable error — stop here either way
+        if attempt < max_retries:
+            print(
+                f"[warn] Gemini API returned {response.status_code} "
+                f"(attempt {attempt}/{max_retries}). Retrying in {delay}s..."
+            )
+            time.sleep(delay)
+            delay *= 2  # exponential backoff: 2s, 4s, 8s, ...
+        # else: out of retries — fall through to raise_for_status() below,
+        # which raises the normal HTTPError so failures still look/behave
+        # exactly as they did before this change.
+    response.raise_for_status()
+    return response
+
+
 def curate_edition(stories, today):
     raw_dump = "\n".join(
         f"- [{s['source']}] {s['title']} — {s['summary']} ({s['url']})"
@@ -820,28 +854,24 @@ the exclusion lists above. Output only the JSON object."""
 
     for attempt in range(1, max_attempts + 1):
         user_prompt = build_prompt()
-        response = requests.post(
-            url,
-            json={
-                "system_instruction": {"parts": [{"text": MANIFESTO}]},
-                "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
-                "generationConfig": {
-                    "temperature": 0.7,
-                    "maxOutputTokens": 16384,
-                    "responseMimeType": "application/json",
-                    # gemini-2.5-flash has extended "thinking" enabled by
-                    # default, which draws from the same token budget as the
-                    # visible output. With a bigger schema (5 sections) and a
-                    # larger raw story pool to reason over, that reasoning was
-                    # consuming enough of the 8192-token budget to truncate the
-                    # JSON mid-string. Disabling it and raising the ceiling
-                    # fixes both the truncation and gives real headroom.
-                    "thinkingConfig": {"thinkingBudget": 0},
-                },
+        payload = {
+            "system_instruction": {"parts": [{"text": MANIFESTO}]},
+            "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
+            "generationConfig": {
+                "temperature": 0.7,
+                "maxOutputTokens": 16384,
+                "responseMimeType": "application/json",
+                # gemini-2.5-flash has extended "thinking" enabled by
+                # default, which draws from the same token budget as the
+                # visible output. With a bigger schema (5 sections) and a
+                # larger raw story pool to reason over, that reasoning was
+                # consuming enough of the 8192-token budget to truncate the
+                # JSON mid-string. Disabling it and raising the ceiling
+                # fixes both the truncation and gives real headroom.
+                "thinkingConfig": {"thinkingBudget": 0},
             },
-            timeout=60,
-        )
-        response.raise_for_status()
+        }
+        response = _post_to_gemini_with_retry(url, payload)
         data = response.json()
 
         text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
