@@ -58,6 +58,20 @@
   .read-more{font-family:'IBM Plex Mono', monospace; font-size:11px; text-decoration:none; color:var(--forest); display:inline-flex; align-items:center; gap:4px; border-bottom:1px solid var(--forest); padding-bottom:1px;}
   .read-more:hover{color:var(--signal-deep); border-color:var(--signal-deep);}
   .read-more svg{width:11px; height:11px;}
+  .founder-card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:24px;}
+  .founder-top{display:flex; align-items:center; gap:14px; margin-bottom:14px;}
+  .founder-avatar{width:60px; height:60px; border-radius:50%; object-fit:cover; border:1px solid var(--line); background:#F0EDE3; flex-shrink:0;}
+  .founder-id{flex:1; min-width:0;}
+  .founder-name-row{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .founder-name{font-family:'Fraunces', serif; font-weight:700; font-size:19px;}
+  .founder-linkedin{display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:7px; background:#0A66C2; flex-shrink:0; text-decoration:none;}
+  .founder-linkedin svg{width:18px; height:18px;}
+  .founder-linkedin:hover{background:#004182;}
+  .founder-badge{display:inline-block; margin-top:4px; font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:0.05em; text-transform:uppercase; background:#FBF3E2; color:var(--signal-deep); padding:3px 8px; border-radius:20px;}
+  .founder-note{font-size:13.5px; color:var(--muted); margin-bottom:14px;}
+  .founder-learning{background:#FBF3E2; border-left:3px solid var(--signal); padding:12px 16px; border-radius:4px;}
+  .founder-learning h4{font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--signal-deep); margin-bottom:6px;}
+  .founder-learning p{font-family:'Fraunces', serif; font-style:italic; font-size:15px;}
   .breakdown-card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:24px;}
   .breakdown-head{display:flex; align-items:center; gap:14px; margin-bottom:18px; padding-bottom:16px; border-bottom:1px dashed var(--line);}
   .breakdown-head img{width:52px; height:52px; border-radius:10px; border:1px solid var(--line);}
@@ -164,7 +178,8 @@ const ICONS = {
   trend: '<path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/>',
   lexicon: '<path d="M4 5.5C4 4.7 4.7 4 5.5 4H12v16H5.5c-.8 0-1.5-.7-1.5-1.5v-13z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H12v16h6.5c.8 0 1.5-.7 1.5-1.5v-13z"/>',
   note: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>',
-  link: '<path d="M7 17L17 7M7 7h10v10"/>'
+  link: '<path d="M7 17L17 7M7 7h10v10"/>',
+  founder: '<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0116 0v1"/>'
 };
 
 function icon(name, extraClass) {
@@ -336,6 +351,24 @@ function render(edition, opts) {
     </div>
   `).join('');
 
+  const fs = edition.founder_spotlight;
+  const founderHtml = fs ? `
+    <div class="founder-card">
+      <div class="founder-top">
+        <img class="founder-avatar" src="${fs.photo_url || fallbackAvatar(fs.name)}" alt="${fs.name}" onerror="this.onerror=null; this.src='${fallbackAvatar(fs.name)}'">
+        <div class="founder-id">
+          <div class="founder-name-row">
+            <div class="founder-name">${fs.name}</div>
+            ${fs.linkedin_url ? `<a class="founder-linkedin" href="${fs.linkedin_url}" target="_blank" rel="noopener" aria-label="LinkedIn profile"><svg viewBox="0 0 448 512" fill="#FFFFFF"><path d="M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.5 0 53.8a53.79 53.79 0 0 1 107.58 0c0 29.7-24.1 54.3-53.79 54.3zM447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.69 37.7-55.69 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.69-48.3 87.88-48.3 94 0 111.28 61.9 111.28 142.3V448z"/></svg></a>` : ''}
+          </div>
+          <div class="founder-badge">${fs.status === 'alumnus' ? `IIM Udaipur${fs.batch_or_year ? ' · Class of ' + fs.batch_or_year : ''}` : `IIM Udaipur Incubation Centre${fs.batch_or_year ? ' · ' + fs.batch_or_year : ''}`}</div>
+        </div>
+      </div>
+      ${fs.company ? `<div class="founder-note">This week's Startup Breakdown below features ${fs.company}${fs.name ? ' — ' + fs.name.split(' ')[0] + "'s venture" : ''}.</div>` : ''}
+      ${fs.learning ? `<div class="founder-learning"><h4>Learning From The Founder</h4><p>"${fs.learning}"</p></div>` : ''}
+    </div>
+  ` : '';
+
   const bd = edition.breakdown;
   const breakdownHtml = `
     <div class="breakdown-card">
@@ -405,6 +438,12 @@ function render(edition, opts) {
         <div class="section-label">${icon('brief')}Startup Brief</div>
         <div class="brief-grid">${briefHtml}</div>
       </section>
+      ${fs ? `
+      <section>
+        <div class="section-label">${icon('founder')}Founders' Friday</div>
+        ${founderHtml}
+      </section>
+      ` : ''}
       <section>
         <div class="section-label">${icon('breakdown')}Startup Breakdown</div>
         ${breakdownHtml}
