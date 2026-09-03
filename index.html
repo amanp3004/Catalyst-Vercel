@@ -381,7 +381,7 @@ function render(edition, opts) {
       </div>
       <div class="bd-block"><h4>What it does</h4><p>${bd.what}</p></div>
       <div class="bd-block"><h4>Why it matters</h4><p>${bd.why}</p></div>
-      <div class="bd-block"><h4>The lesson</h4><div class="lesson-box">"${bd.lesson}"</div></div>
+      ${bd.lesson ? `<div class="bd-block"><h4>The lesson</h4><div class="lesson-box">"${bd.lesson}"</div></div>` : ''}
     </div>
   `;
 
