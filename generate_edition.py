@@ -93,6 +93,13 @@ RSS_SOURCES = {
 
 HN_API = "https://hn.algolia.com/api/v1/search?tags=story&hitsPerPage=15"
 
+# Firestore collection that backs "Founders' Friday" — managed entirely by
+# admins via admin.html (bulk Excel upload + per-founder edit/photo form).
+# Deliberately NOT populated or written by Gemini: every fact shown about a
+# real named person comes only from what an admin typed or uploaded, so
+# there is no hallucination surface here at all.
+FOUNDERS_COLLECTION = "founders"
+
 MANIFESTO = """
 You are Atlas, the AI Editor-in-Chief of Catalyst, a daily newsletter for
 aspiring founders (audience: MBA students, e.g. Entrepreneurship Club, IIM
@@ -1055,6 +1062,107 @@ def enrich_with_images(edition):
 
 
 # ---------------------------------------------------------------------------
+# 3c. FOUNDERS' FRIDAY (admin-curated — no AI-generated facts about people)
+# ---------------------------------------------------------------------------
+
+def _get_firestore_client():
+    """Lazily init Firebase and return a Firestore client, or None if it
+    isn't configured. Founders' Friday is designed to degrade gracefully:
+    if FIREBASE_SERVICE_ACCOUNT_JSON isn't set (e.g. before an admin has
+    set anything up yet), Friday editions just run as normal editions
+    rather than failing the whole run.
+    """
+    raw = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON")
+    if not raw:
+        return None
+    try:
+        import firebase_admin
+        from firebase_admin import credentials, firestore
+        if not firebase_admin._apps:
+            cred = credentials.Certificate(json.loads(raw))
+            firebase_admin.initialize_app(cred)
+        return firestore.client()
+    except Exception as e:
+        print(f"[warn] couldn't initialize Firebase for Founders' Friday: {e}")
+        return None
+
+
+def pick_founder_spotlight():
+    """Pick the least-recently-featured active founder from the admin-
+    curated roster (never-featured founders — last_featured is empty —
+    sort first). Returns (doc_id, founder_dict) or (None, None) if there's
+    no roster yet or Firebase isn't configured.
+    """
+    db = _get_firestore_client()
+    if db is None:
+        print("[info] Firebase not configured — skipping Founders' Friday for today.")
+        return None, None
+    try:
+        docs = list(db.collection(FOUNDERS_COLLECTION).where("active", "==", True).stream())
+    except Exception as e:
+        print(f"[warn] couldn't query the founders roster: {e}")
+        return None, None
+    if not docs:
+        print("[info] No active founders in the roster yet — skipping Founders' Friday for today.")
+        return None, None
+    docs.sort(key=lambda d: d.to_dict().get("last_featured") or "")
+    chosen = docs[0]
+    return chosen.id, chosen.to_dict()
+
+
+def mark_founder_featured(doc_id, today):
+    db = _get_firestore_client()
+    if db is None or not doc_id:
+        return
+    try:
+        db.collection(FOUNDERS_COLLECTION).document(doc_id).update({"last_featured": today})
+    except Exception as e:
+        print(f"[warn] couldn't update last_featured for founder '{doc_id}': {e}")
+
+
+def apply_founder_spotlight(edition, today):
+    """On Fridays (IST) only: replace the AI-picked Startup Breakdown with
+    the featured founder's own startup, and attach a founder_spotlight
+    block for the frontend. Every field here comes straight from the
+    admin-curated Firestore doc — nothing is generated or rewritten by
+    Gemini, since that's exactly the hallucination risk this feature was
+    designed to avoid for real, named people.
+    """
+    weekday = datetime.datetime.strptime(today, "%Y-%m-%d").weekday()  # Monday=0 ... Friday=4
+    if weekday != 4:
+        return edition
+
+    doc_id, founder = pick_founder_spotlight()
+    if not founder:
+        return edition
+
+    status = (founder.get("status") or "").strip().lower()
+    category = "IIM Udaipur Incubated Startup" if status == "incubated" else "IIM Udaipur Alumnus Founder"
+
+    edition["founder_spotlight"] = {
+        "name": founder.get("founder_name", ""),
+        "linkedin_url": founder.get("linkedin_url", ""),
+        "photo_url": founder.get("photo_url", ""),
+        "company": founder.get("company_name", ""),
+        "status": status,
+        "batch_or_year": founder.get("batch_or_year", ""),
+        "learning": founder.get("learning", ""),
+    }
+    edition["breakdown"] = {
+        "company": founder.get("company_name", ""),
+        "domain": founder.get("company_domain", ""),
+        "category": category,
+        "what": founder.get("what_it_does", ""),
+        "why": founder.get("why_it_matters", ""),
+        "lesson": founder.get("learning", ""),
+    }
+
+    mark_founder_featured(doc_id, today)
+    print(f"Founders' Friday: featuring {founder.get('founder_name')} ({founder.get('company_name')}).")
+    return edition
+
+
+# ---------------------------------------------------------------------------
 # 4. WRITE OUTPUT
 # ---------------------------------------------------------------------------
 
@@ -1129,6 +1237,7 @@ if __name__ == "__main__":
     stories = collect_stories()
     print(f"Collected {len(stories)} raw stories. Curating with Gemini...")
     edition = curate_edition(stories, today)
+    edition = apply_founder_spotlight(edition, today)
     print("Fetching relevant images from Pexels...")
     edition = enrich_with_images(edition)
     save_edition(edition)
