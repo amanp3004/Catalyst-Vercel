@@ -1154,7 +1154,11 @@ def apply_founder_spotlight(edition, today):
         "category": category,
         "what": founder.get("what_it_does", ""),
         "why": founder.get("why_it_matters", ""),
-        "lesson": founder.get("learning", ""),
+        # No "lesson" here on purpose: on a Founders' Friday, the same
+        # learning already appears once, above, in the founder_spotlight
+        # block ("Learning From The Founder") — repeating it inside the
+        # Startup Breakdown card too would just duplicate the same line
+        # twice on the page.
     }
 
     mark_founder_featured(doc_id, today)
