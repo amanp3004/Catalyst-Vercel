@@ -51,9 +51,6 @@
   input[type=file]:hover::file-selector-button, input[type=file]:hover::-webkit-file-upload-button{background:var(--signal-deep);}
   .founder-upload-actions{display:flex; gap:10px; margin-bottom:18px;}
   .founder-upload-actions button{flex:1;}
-  .file-upload-row{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px;}
-  .file-upload-row input[type=file]{flex:1; min-width:200px; margin-bottom:0;}
-  .file-upload-row button{flex-shrink:0;}
   select{width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:6px; font-family:'Space Grotesk', sans-serif; font-size:14px; background:var(--paper); margin-bottom:14px;}
   .founder-card{display:flex; gap:16px;}
   .founder-photo-col{flex-shrink:0; width:96px; text-align:center;}
@@ -147,10 +144,8 @@
           <button class="ghost" onclick="downloadFoundersData()">Download current roster</button>
         </div>
         <label>Excel file (.xlsx)</label>
-        <div class="file-upload-row">
-          <input type="file" id="founderFile" accept=".xlsx,.xls">
-          <button onclick="uploadFounderFile()">Upload &amp; add new founders</button>
-        </div>
+        <input type="file" id="founderFile" accept=".xlsx,.xls">
+        <button onclick="uploadFounderFile()">Upload &amp; add new founders</button>
         <div id="founderUploadStatus" class="status"></div>
       </div>
 
