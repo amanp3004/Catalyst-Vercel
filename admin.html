@@ -40,12 +40,28 @@
   .tabs{display:flex; gap:8px; margin-bottom:20px;}
   .tab-btn{font-family:'IBM Plex Mono', monospace; font-size:12px; text-transform:uppercase; letter-spacing:0.05em; background:none; border:1px solid var(--line); color:var(--muted); padding:8px 14px; border-radius:20px; cursor:pointer;}
   .tab-btn.active{background:var(--forest); color:var(--paper); border-color:var(--forest);}
-  input[type=file]{width:100%; font-family:'Space Grotesk', sans-serif; font-size:13px; margin-bottom:14px;}
+  input[type=file]{
+    width:100%; font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted);
+    border:1px solid var(--line); border-radius:6px; padding:9px 10px; background:var(--paper); margin-bottom:14px;
+  }
+  input[type=file]::file-selector-button, input[type=file]::-webkit-file-upload-button{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em;
+    background:var(--forest); color:var(--paper); border:none; padding:7px 13px; border-radius:5px; cursor:pointer; margin-right:10px;
+  }
+  input[type=file]:hover::file-selector-button, input[type=file]:hover::-webkit-file-upload-button{background:var(--signal-deep);}
+  .founder-upload-actions{display:flex; gap:10px; margin-bottom:18px;}
+  .founder-upload-actions button{flex:1;}
+  .file-upload-row{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px;}
+  .file-upload-row input[type=file]{flex:1; min-width:200px; margin-bottom:0;}
+  .file-upload-row button{flex-shrink:0;}
   select{width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:6px; font-family:'Space Grotesk', sans-serif; font-size:14px; background:var(--paper); margin-bottom:14px;}
   .founder-card{display:flex; gap:16px;}
   .founder-photo-col{flex-shrink:0; width:96px; text-align:center;}
   .founder-photo-col img{width:96px; height:96px; border-radius:10px; object-fit:cover; border:1px solid var(--line); background:var(--paper); display:block; margin-bottom:8px;}
-  .founder-photo-col input[type=file]{font-size:10.5px; margin-bottom:6px;}
+  .founder-photo-col input[type=file]{font-size:9.5px; margin-bottom:6px; padding:5px 6px; border:none; background:none; text-align:center;}
+  .founder-photo-col input[type=file]::file-selector-button, .founder-photo-col input[type=file]::-webkit-file-upload-button{
+    font-size:9px; padding:5px 9px; margin-right:0; display:block; margin:0 auto 4px;
+  }
   .founder-fields{flex:1; min-width:0;}
   .two-col{display:grid; grid-template-columns:1fr 1fr; gap:0 12px;}
   .field-label{font-family:'IBM Plex Mono', monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-bottom:4px; display:block;}
@@ -126,13 +142,15 @@
           the file again. Fix or update an existing founder in the roster list
           below instead.
         </div>
-        <div class="row" style="margin-bottom:16px;">
+        <div class="founder-upload-actions">
           <button class="ghost" onclick="downloadFounderTemplate()">Download blank format</button>
           <button class="ghost" onclick="downloadFoundersData()">Download current roster</button>
         </div>
         <label>Excel file (.xlsx)</label>
-        <input type="file" id="founderFile" accept=".xlsx,.xls">
-        <button onclick="uploadFounderFile()">Upload &amp; add new founders</button>
+        <div class="file-upload-row">
+          <input type="file" id="founderFile" accept=".xlsx,.xls">
+          <button onclick="uploadFounderFile()">Upload &amp; add new founders</button>
+        </div>
         <div id="founderUploadStatus" class="status"></div>
       </div>
 
