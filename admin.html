@@ -65,9 +65,19 @@
   .last-featured{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); margin-bottom:10px;}
   .toggle-row{display:flex; align-items:center; gap:8px; margin-bottom:14px; font-family:'IBM Plex Mono', monospace; font-size:12px;}
 
-  .founder-controls{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px;}
-  .founder-controls input[type=text]{flex:2; min-width:200px; margin-bottom:0;}
-  .founder-controls select{flex:1; min-width:130px; margin-bottom:0;}
+  .founder-search-row{display:flex; gap:10px; margin-bottom:10px;}
+  .founder-search-row input[type=text]{flex:1; margin-bottom:0;}
+  .filter-toggle-btn{flex-shrink:0; width:42px; height:42px; border:1px solid var(--line); border-radius:6px; background:var(--card); display:flex; align-items:center; justify-content:center; position:relative; cursor:pointer; color:var(--ink); padding:0;}
+  .filter-toggle-btn:hover{background:var(--paper);}
+  .filter-toggle-btn.open{background:var(--forest); border-color:var(--forest); color:var(--paper);}
+  .filter-badge-dot{position:absolute; top:-4px; right:-4px; width:9px; height:9px; border-radius:50%; background:var(--signal); border:2px solid var(--paper); display:none;}
+  .filter-badge-dot.show{display:block;}
+  .founder-filter-panel{border:1px solid var(--line); border-radius:10px; background:var(--card); padding:16px; margin-bottom:10px; display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;}
+  .founder-filter-panel.hidden{display:none;}
+  .filter-field{flex:1; min-width:150px;}
+  .filter-field select{margin-bottom:0;}
+  .filter-clear{font-family:'IBM Plex Mono', monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--signal-deep); padding:8px 4px; cursor:pointer; white-space:nowrap; background:none; border:none;}
+  .filter-clear:hover{text-decoration:underline;}
   .founder-count{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); margin-bottom:14px;}
 
   .founder-row{background:var(--card); border:1px solid var(--line); border-radius:12px; margin-bottom:10px; overflow:hidden;}
@@ -145,7 +155,9 @@
         </div>
         <label>Excel file (.xlsx)</label>
         <input type="file" id="founderFile" accept=".xlsx,.xls">
-        <button onclick="uploadFounderFile()">Upload &amp; add new founders</button>
+        <div style="display:flex; justify-content:flex-end;">
+          <button onclick="uploadFounderFile()">Upload &amp; add new founders</button>
+        </div>
         <div id="founderUploadStatus" class="status"></div>
       </div>
 
@@ -154,24 +166,40 @@
         <button class="ghost" onclick="addBlankFounder()">+ Add founder</button>
       </div>
 
-      <div class="founder-controls">
+      <div class="founder-search-row">
         <input type="text" id="founderSearch" placeholder="Search by founder, startup, or domain..." oninput="onFounderFilterChange()">
-        <select id="founderStatusFilter" onchange="onFounderFilterChange()">
-          <option value="all">All statuses</option>
-          <option value="alumnus">IIM Udaipur alumnus</option>
-          <option value="incubated">IIM Udaipur incubated</option>
-        </select>
-        <select id="founderActiveFilter" onchange="onFounderFilterChange()">
-          <option value="all">Active + inactive</option>
-          <option value="active">Active only</option>
-          <option value="inactive">Inactive only</option>
-        </select>
-        <select id="founderSort" onchange="onFounderFilterChange()">
-          <option value="name">Sort: Name (A–Z)</option>
-          <option value="never_featured">Sort: Never featured first</option>
-          <option value="last_featured_old">Sort: Last featured (oldest first)</option>
-          <option value="last_featured_new">Sort: Last featured (most recent)</option>
-        </select>
+        <button type="button" class="filter-toggle-btn" id="filterToggleBtn" onclick="toggleFilterPanel()" aria-label="Filters">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+          <span class="filter-badge-dot" id="filterBadgeDot"></span>
+        </button>
+      </div>
+      <div class="founder-filter-panel hidden" id="founderFilterPanel">
+        <div class="filter-field">
+          <span class="field-label">Status</span>
+          <select id="founderStatusFilter" onchange="onFounderFilterChange()">
+            <option value="all">All statuses</option>
+            <option value="alumnus">IIM Udaipur alumnus</option>
+            <option value="incubated">IIM Udaipur incubated</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <span class="field-label">Active status</span>
+          <select id="founderActiveFilter" onchange="onFounderFilterChange()">
+            <option value="all">Active + inactive</option>
+            <option value="active">Active only</option>
+            <option value="inactive">Inactive only</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <span class="field-label">Sort by</span>
+          <select id="founderSort" onchange="onFounderFilterChange()">
+            <option value="name">Name (A–Z)</option>
+            <option value="never_featured">Never featured first</option>
+            <option value="last_featured_old">Last featured (oldest first)</option>
+            <option value="last_featured_new">Last featured (most recent)</option>
+          </select>
+        </div>
+        <button type="button" class="filter-clear" onclick="clearFounderFilters()">Clear filters</button>
       </div>
       <div class="founder-count" id="founderCount"></div>
 
@@ -453,7 +481,33 @@ async function loadFounderList() {
 // number that no longer has any results.
 function onFounderFilterChange() {
   founderCurrentPage = 1;
+  updateFilterBadge();
   renderFilteredFounders();
+}
+
+function toggleFilterPanel() {
+  const panel = document.getElementById("founderFilterPanel");
+  const btn = document.getElementById("filterToggleBtn");
+  panel.classList.toggle("hidden");
+  btn.classList.toggle("open", !panel.classList.contains("hidden"));
+}
+
+function clearFounderFilters() {
+  document.getElementById("founderSearch").value = "";
+  document.getElementById("founderStatusFilter").value = "all";
+  document.getElementById("founderActiveFilter").value = "all";
+  document.getElementById("founderSort").value = "name";
+  onFounderFilterChange();
+}
+
+// Badges the filter icon with a small dot whenever a status or active filter
+// is applied — so it's obvious something's filtered even once the panel is
+// closed again. Sort isn't included since it doesn't narrow the results.
+function updateFilterBadge() {
+  const statusFilter = document.getElementById("founderStatusFilter")?.value || "all";
+  const activeFilter = document.getElementById("founderActiveFilter")?.value || "all";
+  const isFiltered = statusFilter !== "all" || activeFilter !== "all";
+  document.getElementById("filterBadgeDot")?.classList.toggle("show", isFiltered);
 }
 
 function goToFounderPage(page) {
