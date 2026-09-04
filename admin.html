@@ -51,6 +51,32 @@
   .field-label{font-family:'IBM Plex Mono', monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-bottom:4px; display:block;}
   .last-featured{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); margin-bottom:10px;}
   .toggle-row{display:flex; align-items:center; gap:8px; margin-bottom:14px; font-family:'IBM Plex Mono', monospace; font-size:12px;}
+
+  .founder-controls{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px;}
+  .founder-controls input[type=text]{flex:2; min-width:200px; margin-bottom:0;}
+  .founder-controls select{flex:1; min-width:130px; margin-bottom:0;}
+  .founder-count{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); margin-bottom:14px;}
+
+  .founder-row{background:var(--card); border:1px solid var(--line); border-radius:12px; margin-bottom:10px; overflow:hidden;}
+  .founder-row-header{display:flex; align-items:center; gap:12px; padding:12px 16px; cursor:pointer; user-select:none;}
+  .founder-row-header:hover{background:var(--paper);}
+  .founder-thumb{width:36px; height:36px; border-radius:8px; object-fit:cover; border:1px solid var(--line); flex-shrink:0; background:var(--paper);}
+  .founder-thumb-placeholder{width:36px; height:36px; border-radius:8px; border:1px dashed var(--line); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--muted);}
+  .founder-row-title{flex:1; min-width:0;}
+  .founder-row-title .name{font-family:'Fraunces', serif; font-weight:700; font-size:14.5px;}
+  .founder-row-title .meta{font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--muted);}
+  .status-dot{display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:5px; flex-shrink:0;}
+  .status-dot.active{background:var(--forest);}
+  .status-dot.inactive{background:#B0A99A;}
+  .founder-chevron{flex-shrink:0; transition:transform 0.15s ease; color:var(--muted);}
+  .founder-row.expanded .founder-chevron{transform:rotate(90deg);}
+  .founder-row-body{display:none; padding:0 16px 20px; border-top:1px solid var(--line);}
+  .founder-row.expanded .founder-row-body{display:block; padding-top:16px;}
+
+  .founder-pagination{display:flex; align-items:center; justify-content:center; gap:14px; margin-top:16px;}
+  .founder-pagination button{padding:7px 14px;}
+  .founder-pagination button:disabled{opacity:0.35; cursor:not-allowed;}
+  .founder-pagination .page-indicator{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted);}
 </style>
 </head>
 <body>
@@ -114,6 +140,27 @@
         <div class="list-name">Add one founder manually</div>
         <button class="ghost" onclick="addBlankFounder()">+ Add founder</button>
       </div>
+
+      <div class="founder-controls">
+        <input type="text" id="founderSearch" placeholder="Search by founder, startup, or domain..." oninput="onFounderFilterChange()">
+        <select id="founderStatusFilter" onchange="onFounderFilterChange()">
+          <option value="all">All statuses</option>
+          <option value="alumnus">IIM Udaipur alumnus</option>
+          <option value="incubated">IIM Udaipur incubated</option>
+        </select>
+        <select id="founderActiveFilter" onchange="onFounderFilterChange()">
+          <option value="all">Active + inactive</option>
+          <option value="active">Active only</option>
+          <option value="inactive">Inactive only</option>
+        </select>
+        <select id="founderSort" onchange="onFounderFilterChange()">
+          <option value="name">Sort: Name (A–Z)</option>
+          <option value="never_featured">Sort: Never featured first</option>
+          <option value="last_featured_old">Sort: Last featured (oldest first)</option>
+          <option value="last_featured_new">Sort: Last featured (most recent)</option>
+        </select>
+      </div>
+      <div class="founder-count" id="founderCount"></div>
 
       <div id="founderListContainer"></div>
     </div>
@@ -374,79 +421,188 @@ async function uploadFounderFile() {
   }
 }
 
+let allFounders = []; // cached in memory after load, so search/filter/sort is instant client-side
+let founderCurrentPage = 1;
+const FOUNDERS_PER_PAGE = 20;
+
 async function loadFounderList() {
   const container = document.getElementById("founderListContainer");
   if (!container) return;
   container.innerHTML = "Loading...";
   const snapshot = await db.collection("founders").orderBy("founder_name").get();
+  allFounders = snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }));
+  founderCurrentPage = 1;
+  renderFilteredFounders();
+}
 
-  if (snapshot.empty) {
+// Search box / filter dropdowns / sort dropdown all call this — it resets
+// back to page 1 so a new search never leaves the admin stranded on a page
+// number that no longer has any results.
+function onFounderFilterChange() {
+  founderCurrentPage = 1;
+  renderFilteredFounders();
+}
+
+function goToFounderPage(page) {
+  founderCurrentPage = page;
+  renderFilteredFounders();
+}
+
+function renderFilteredFounders() {
+  const container = document.getElementById("founderListContainer");
+  const countEl = document.getElementById("founderCount");
+  if (!container) return;
+
+  if (allFounders.length === 0) {
     container.innerHTML = `<div class="card"><span class="sub">No founders yet — upload an Excel file above, or add one manually.</span></div>`;
+    countEl.textContent = "";
     return;
   }
 
+  const q = (document.getElementById("founderSearch")?.value || "").trim().toLowerCase();
+  const statusFilter = document.getElementById("founderStatusFilter")?.value || "all";
+  const activeFilter = document.getElementById("founderActiveFilter")?.value || "all";
+  const sortBy = document.getElementById("founderSort")?.value || "name";
+
+  let filtered = allFounders.filter(({ data: d }) => {
+    if (q) {
+      const haystack = [d.founder_name, d.company_name, d.company_domain, d.linkedin_url]
+        .filter(Boolean).join(" ").toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    if (statusFilter !== "all" && d.status !== statusFilter) return false;
+    const isActive = d.active !== false;
+    if (activeFilter === "active" && !isActive) return false;
+    if (activeFilter === "inactive" && isActive) return false;
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    const da = a.data, db_ = b.data;
+    if (sortBy === "name") {
+      return (da.founder_name || "").localeCompare(db_.founder_name || "");
+    }
+    if (sortBy === "never_featured") {
+      const af = da.last_featured || "";
+      const bf = db_.last_featured || "";
+      if (!af && bf) return -1;
+      if (af && !bf) return 1;
+      return af.localeCompare(bf);
+    }
+    if (sortBy === "last_featured_old") {
+      return (da.last_featured || "").localeCompare(db_.last_featured || "");
+    }
+    if (sortBy === "last_featured_new") {
+      return (db_.last_featured || "").localeCompare(da.last_featured || "");
+    }
+    return 0;
+  });
+
+  const totalResults = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalResults / FOUNDERS_PER_PAGE));
+  if (founderCurrentPage > totalPages) founderCurrentPage = totalPages;
+  if (founderCurrentPage < 1) founderCurrentPage = 1;
+
+  const startIdx = (founderCurrentPage - 1) * FOUNDERS_PER_PAGE;
+  const pageItems = filtered.slice(startIdx, startIdx + FOUNDERS_PER_PAGE);
+
+  if (totalResults === 0) {
+    countEl.textContent = "";
+    container.innerHTML = `<div class="card"><span class="sub">No founders match your search/filters.</span></div>`;
+    return;
+  }
+
+  countEl.textContent = `Showing ${startIdx + 1}–${Math.min(startIdx + FOUNDERS_PER_PAGE, totalResults)} of ${totalResults} founder(s)`;
   container.innerHTML = "";
-  snapshot.forEach((doc) => container.appendChild(renderFounderCard(doc.id, doc.data())));
+  pageItems.forEach(({ id, data }) => container.appendChild(renderFounderCard(id, data)));
+
+  if (totalPages > 1) {
+    const pager = document.createElement("div");
+    pager.className = "founder-pagination";
+    pager.innerHTML = `
+      <button class="ghost" ${founderCurrentPage <= 1 ? "disabled" : ""} onclick="goToFounderPage(${founderCurrentPage - 1})">&larr; Prev</button>
+      <span class="page-indicator">Page ${founderCurrentPage} of ${totalPages}</span>
+      <button class="ghost" ${founderCurrentPage >= totalPages ? "disabled" : ""} onclick="goToFounderPage(${founderCurrentPage + 1})">Next &rarr;</button>
+    `;
+    container.appendChild(pager);
+  }
+}
+
+function toggleFounderRow(safeId) {
+  document.getElementById(`row-${safeId}`)?.classList.toggle("expanded");
 }
 
 function renderFounderCard(docId, d) {
-  const card = document.createElement("div");
-  card.className = "card";
+  const row = document.createElement("div");
+  row.className = "founder-row";
+  row.id = `row-${docId.replace(/[^a-zA-Z0-9_-]/g, "_")}`;
   const safeId = docId.replace(/[^a-zA-Z0-9_-]/g, "_");
   const photoSrc = d.photo_url || "";
-  card.innerHTML = `
-    <div class="founder-card">
-      <div class="founder-photo-col">
-        ${photoSrc
-          ? `<img id="photo-${safeId}" src="${photoSrc}" alt="${d.founder_name || ""}">`
-          : `<div id="photo-${safeId}" style="width:96px;height:96px;border-radius:10px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px;">No photo</div>`}
-        <input type="file" accept="image/*" onchange="uploadFounderPhoto('${docId}', '${safeId}', this)">
+  const isActive = d.active !== false;
+  const statusLabel = d.status === "incubated" ? "IIM Udaipur incubated" : "IIM Udaipur alumnus";
+
+  row.innerHTML = `
+    <div class="founder-row-header" onclick="toggleFounderRow('${safeId}')">
+      ${photoSrc
+        ? `<img class="founder-thumb" src="${photoSrc}" alt="">`
+        : `<div class="founder-thumb-placeholder">—</div>`}
+      <div class="founder-row-title">
+        <div class="name"><span class="status-dot ${isActive ? "active" : "inactive"}"></span>${d.founder_name || "(unnamed)"} — ${d.company_name || ""}</div>
+        <div class="meta">${statusLabel}${d.batch_or_year ? " · " + d.batch_or_year : ""} · ${d.last_featured ? "Last featured " + d.last_featured : "Never featured"}</div>
       </div>
-      <div class="founder-fields">
-        <div class="list-head">
-          <div class="list-name">${d.founder_name || "(unnamed)"} — ${d.company_name || ""}</div>
+      <svg class="founder-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="founder-row-body">
+      <div class="founder-card">
+        <div class="founder-photo-col">
+          ${photoSrc
+            ? `<img id="photo-${safeId}" src="${photoSrc}" alt="${d.founder_name || ""}">`
+            : `<div id="photo-${safeId}" style="width:96px;height:96px;border-radius:10px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px;">No photo</div>`}
+          <input type="file" accept="image/*" onchange="uploadFounderPhoto('${docId}', '${safeId}', this)">
         </div>
-        ${d.last_featured ? `<div class="last-featured">Last featured: ${d.last_featured}</div>` : `<div class="last-featured">Never featured yet</div>`}
+        <div class="founder-fields">
+          ${d.last_featured ? `<div class="last-featured">Last featured: ${d.last_featured}</div>` : `<div class="last-featured">Never featured yet</div>`}
 
-        <div class="two-col">
-          <div><span class="field-label">Founder name</span><input type="text" id="f-name-${safeId}" value="${(d.founder_name || "").replace(/"/g, "&quot;")}"></div>
-          <div><span class="field-label">Company name</span><input type="text" id="f-company-${safeId}" value="${(d.company_name || "").replace(/"/g, "&quot;")}"></div>
-        </div>
-        <div class="two-col">
-          <div><span class="field-label">Company domain</span><input type="text" id="f-domain-${safeId}" value="${(d.company_domain || "").replace(/"/g, "&quot;")}" placeholder="acme.com"></div>
-          <div><span class="field-label">LinkedIn URL</span><input type="text" id="f-linkedin-${safeId}" value="${(d.linkedin_url || "").replace(/"/g, "&quot;")}" placeholder="https://linkedin.com/in/..."></div>
-        </div>
-        <div class="two-col">
-          <div>
-            <span class="field-label">Status</span>
-            <select id="f-status-${safeId}">
-              <option value="alumnus" ${d.status === "alumnus" ? "selected" : ""}>IIM Udaipur alumnus</option>
-              <option value="incubated" ${d.status === "incubated" ? "selected" : ""}>IIM Udaipur incubated</option>
-            </select>
+          <div class="two-col">
+            <div><span class="field-label">Founder name</span><input type="text" id="f-name-${safeId}" value="${(d.founder_name || "").replace(/"/g, "&quot;")}"></div>
+            <div><span class="field-label">Company name</span><input type="text" id="f-company-${safeId}" value="${(d.company_name || "").replace(/"/g, "&quot;")}"></div>
           </div>
-          <div><span class="field-label">Grad year / incubation batch</span><input type="text" id="f-batch-${safeId}" value="${(d.batch_or_year || "").replace(/"/g, "&quot;")}"></div>
-        </div>
-        <label>What it does</label>
-        <textarea id="f-what-${safeId}" style="min-height:60px;">${d.what_it_does || ""}</textarea>
-        <label>Why it matters</label>
-        <textarea id="f-why-${safeId}" style="min-height:60px;">${d.why_it_matters || ""}</textarea>
-        <label>Learning from the founder</label>
-        <textarea id="f-learning-${safeId}" style="min-height:60px;">${d.learning || ""}</textarea>
+          <div class="two-col">
+            <div><span class="field-label">Company domain</span><input type="text" id="f-domain-${safeId}" value="${(d.company_domain || "").replace(/"/g, "&quot;")}" placeholder="acme.com"></div>
+            <div><span class="field-label">LinkedIn URL</span><input type="text" id="f-linkedin-${safeId}" value="${(d.linkedin_url || "").replace(/"/g, "&quot;")}" placeholder="https://linkedin.com/in/..."></div>
+          </div>
+          <div class="two-col">
+            <div>
+              <span class="field-label">Status</span>
+              <select id="f-status-${safeId}">
+                <option value="alumnus" ${d.status === "alumnus" ? "selected" : ""}>IIM Udaipur alumnus</option>
+                <option value="incubated" ${d.status === "incubated" ? "selected" : ""}>IIM Udaipur incubated</option>
+              </select>
+            </div>
+            <div><span class="field-label">Grad year / incubation batch</span><input type="text" id="f-batch-${safeId}" value="${(d.batch_or_year || "").replace(/"/g, "&quot;")}"></div>
+          </div>
+          <label>What it does</label>
+          <textarea id="f-what-${safeId}" style="min-height:60px;">${d.what_it_does || ""}</textarea>
+          <label>Why it matters</label>
+          <textarea id="f-why-${safeId}" style="min-height:60px;">${d.why_it_matters || ""}</textarea>
+          <label>Learning from the founder</label>
+          <textarea id="f-learning-${safeId}" style="min-height:60px;">${d.learning || ""}</textarea>
 
-        <div class="toggle-row">
-          <input type="checkbox" id="f-active-${safeId}" ${d.active !== false ? "checked" : ""}>
-          <label for="f-active-${safeId}" style="margin:0;">Active (eligible to be picked for an upcoming Friday)</label>
-        </div>
+          <div class="toggle-row">
+            <input type="checkbox" id="f-active-${safeId}" ${d.active !== false ? "checked" : ""}>
+            <label for="f-active-${safeId}" style="margin:0;">Active (eligible to be picked for an upcoming Friday)</label>
+          </div>
 
-        <div class="row">
-          <button onclick="saveFounder('${docId}', '${safeId}')">Save changes</button>
-          <button class="danger" onclick="deleteFounder('${docId}', '${safeId}')">Delete</button>
+          <div class="row">
+            <button onclick="saveFounder('${docId}', '${safeId}')">Save changes</button>
+            <button class="danger" onclick="deleteFounder('${docId}', '${safeId}')">Delete</button>
+          </div>
+          <div id="status-founder-${safeId}" class="status"></div>
         </div>
-        <div id="status-founder-${safeId}" class="status"></div>
       </div>
     </div>
   `;
-  return card;
+  return row;
 }
 
 function addBlankFounder() {
