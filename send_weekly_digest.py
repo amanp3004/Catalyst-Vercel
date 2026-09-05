@@ -451,10 +451,23 @@ def build_html(news, startups, lexicon, date_range_label, closing_quote, closing
     startup_rows = ""
     for i, s in enumerate(startups):
         border = "border-bottom:1px solid #D8D2C2;" if i < len(startups) - 1 else ""
+        # Real favicon via Google's favicon service when a domain exists
+        # (same source index.html already uses successfully — Clearbit's
+        # old Logo API shut down Dec 2025), falling back to a real
+        # generated-initials image when it doesn't. Both are plain <img>
+        # tags — the previous version used a flexbox <div> as a fallback
+        # "icon," and flexbox doesn't render in most email clients
+        # (Outlook especially just drops it), which is why it looked
+        # broken in the actual sent email.
+        logo_url = (
+            f"https://www.google.com/s2/favicons?domain={s['domain']}&sz=128"
+            if s.get("domain")
+            else f"https://ui-avatars.com/api/?name={requests.utils.quote(s['company'])}&background=2C4A3B&color=F6F3EC&size=128&bold=true"
+        )
         startup_rows += f"""
         <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px; padding-bottom:12px; {border}">
           <tr>
-            <td width="44" valign="top"><div style="width:44px; height:44px; border-radius:6px; background:#EDEAE0; display:flex; align-items:center; justify-content:center; font-family:Georgia,serif; font-weight:700; color:#2C4A3B;">{(s['company'][:1] or '?').upper()}</div></td>
+            <td width="44" valign="top"><img src="{logo_url}" width="44" height="44" style="display:block; border-radius:6px; object-fit:cover; background:#EDEAE0;"></td>
             <td width="12"></td>
             <td valign="top">
               <div style="font-family:Georgia,serif; font-weight:700; font-size:14px; color:#16261F; margin-bottom:3px;">{s['company']}</div>
