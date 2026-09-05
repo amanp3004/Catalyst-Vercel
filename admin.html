@@ -229,9 +229,12 @@
       <div id="weeklySaveStatus" class="status"></div>
 
       <div class="card">
-        <div class="list-name">Closing line</div>
-        <div class="sub" style="margin-bottom:10px;">Shown at the bottom of the email, right before the "Curated by Atlas" footer.</div>
-        <input type="text" id="weeklyClosingLine" value="Now, go build.">
+        <div class="list-name">Closing quote</div>
+        <div class="sub" style="margin-bottom:10px;">Shown at the bottom of the email, right before the "Curated by Atlas" footer. Attribution is optional \u2014 leave it blank for a plain closing line with no named source.</div>
+        <label>Quote</label>
+        <input type="text" id="weeklyClosingQuote" value="Now, go build.">
+        <label>Attributed to (optional)</label>
+        <input type="text" id="weeklyClosingAttribution" placeholder="e.g. Steve Jobs">
       </div>
 
       <div class="card">
@@ -892,7 +895,8 @@ async function loadWeeklyDigestTab() {
       weeklySelectedNews = new Set(data.selected_news || []);
       weeklySelectedStartups = new Set(data.selected_startups || []);
       weeklySelectedLexicon = new Set(data.selected_lexicon || []);
-      document.getElementById("weeklyClosingLine").value = data.closing_line || "Now, go build.";
+      document.getElementById("weeklyClosingQuote").value = data.closing_quote || "Now, go build.";
+      document.getElementById("weeklyClosingAttribution").value = data.closing_attribution || "";
     } else {
       weeklySelectedNews = new Set(weeklyNewsPool.map((i) => i.key));
       weeklySelectedStartups = new Set(weeklyStartupPool.map((i) => i.key));
@@ -977,7 +981,8 @@ async function saveWeeklySelection() {
       selected_news: Array.from(weeklySelectedNews),
       selected_startups: Array.from(weeklySelectedStartups),
       selected_lexicon: Array.from(weeklySelectedLexicon),
-      closing_line: document.getElementById("weeklyClosingLine").value.trim() || "Now, go build.",
+      closing_quote: document.getElementById("weeklyClosingQuote").value.trim() || "Now, go build.",
+      closing_attribution: document.getElementById("weeklyClosingAttribution").value.trim() || "",
       updated_at: firebase.firestore.FieldValue.serverTimestamp(),
     });
     weeklyHasSavedSelection = true;
