@@ -509,7 +509,7 @@ def build_html(news, startups, lexicon, date_range_label, closing_quote, closing
         <td align="right"><img src="{SAKSHAM_LOGO_URL}" alt="Saksham" height="28" style="display:block;"></td>
       </tr>
     </table>
-    <div style="font-size:10.5px; color:#6B7268; margin-top:8px; letter-spacing:0.03em;">WEEKLY ROUNDUP FOR MBA BUILDERS &middot; {date_range_label.upper()}</div>
+    <div style="font-size:10.5px; color:#6B7268; margin-top:8px; letter-spacing:0.03em;">THIS WEEK'S EDITION FOR BUILDERS &middot; {date_range_label.upper()}</div>
   </td></tr>
 
   <tr><td style="padding:18px 30px 4px;">
