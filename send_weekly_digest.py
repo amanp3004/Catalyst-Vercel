@@ -1,7 +1,10 @@
 """
-send_weekly_digest.py — builds and sends the Saturday "Catalyst Weekly"
-email: a curated set of this week's news, startups, and vocabulary terms
-for an IIM Udaipur / MBA student audience.
+send_weekly_digest.py — builds and sends the "Catalyst Weekly" email: a
+curated set of the past week's news, startups, and vocabulary terms for
+an IIM Udaipur / MBA student audience. Triggered manually (GitHub Actions
+"Run workflow", no fixed schedule) once an admin has curated the week's
+picks in admin.html's "Weekly Digest" tab — or run as-is to let Gemini
+auto-curate instead.
 
 Two ways this week's content gets chosen, in priority order:
 
@@ -124,10 +127,9 @@ def lexicon_key(date_str, term):
 
 
 def collect_week(days=7):
-    """Walk backwards `days` calendar days from yesterday (IST) — since
-    this script runs Saturday morning, that's last Saturday through
-    yesterday's Friday, the week that just concluded. Pulls every Startup
-    Brief item, every day's Startup Breakdown (as a "startup"), and every
+    """Walk backwards `days` calendar days from yesterday, relative to
+    whenever this actually runs (this is manually triggered now, not on a
+    fixed schedule). Pulls every Startup Brief item, every day's Startup Breakdown (as a "startup"), and every
     day's Builder's Lexicon term out of each day's already-published
     edition. Missing days (a failed generation, a day before launch, a
     day generate_edition.py's own pruning already removed) are skipped
@@ -187,21 +189,21 @@ def collect_week(days=7):
 
 
 def load_admin_selection():
-    """Look up this week's admin-curated pick from admin.html's "Weekly
-    Digest" tab, keyed by TODAY's date (this script only ever runs on a
-    Saturday, and admin.html computes the same upcoming-Saturday date as
-    its doc id regardless of which day of the week an admin opens the
-    tab, so the two always agree on which document represents "this
-    week"). Returns (selected_news_keys, selected_startup_keys,
+    """Look up the admin-curated pick from admin.html's "Weekly Digest"
+    tab. Stored under a single fixed doc id ("current"), not a computed
+    date — since this workflow is now only ever triggered manually (no
+    cron schedule), there's no fixed day of the week to key off. An admin
+    curates, then triggers the send; whatever's under "current" is what
+    goes out. Returns (selected_news_keys, selected_startup_keys,
     selected_lexicon_keys, closing_line_or_None, doc_exists).
 
     doc_exists matters: it's what distinguishes "an admin opened the tab
     and explicitly unchecked everything" (respect that — send with zero
-    of that section) from "no admin ever touched this week at all" (fall
-    back to full auto-curation instead of sending an empty section).
+    of that section) from "no admin ever touched this at all" (fall back
+    to full auto-curation instead of sending an empty section).
     """
     db = _get_firestore_client()
-    doc = db.collection(WEEKLY_SELECTIONS_COLLECTION).document(today_ist()).get()
+    doc = db.collection(WEEKLY_SELECTIONS_COLLECTION).document("current").get()
     if not doc.exists:
         return [], [], [], None, False
     data = doc.to_dict()
