@@ -1,14 +1,14 @@
 """
 edition_utils.py — shared helpers for every script that consumes today's
 generated edition (send_email_digest.py, send_morning_notification.py,
-send_evening_reminder.py).
+send_evening_reminder.py, send_weekly_digest.py).
 
-The one thing all three scripts need in common: don't send anything unless
-today's edition actually exists and was actually generated today. Without
-this check, if generate_edition.py ever fails outright (as opposed to
-deliberately skipping via the same-day lock), data/latest.json would still
-hold yesterday's (or older) content, and every downstream script would
-silently re-send stale content as if it were new.
+The one thing all three daily-cadence scripts need in common: don't send
+anything unless today's edition actually exists and was actually generated
+today. Without this check, if generate_edition.py ever fails outright (as
+opposed to deliberately skipping via the same-day lock), data/latest.json
+would still hold yesterday's (or older) content, and every downstream
+script would silently re-send stale content as if it were new.
 """
 
 import json
@@ -61,3 +61,20 @@ def load_todays_edition(path="data/latest.json"):
         )
 
     return edition
+
+
+def load_edition_for_date(date_str, folder="data"):
+    """Load the edition for a specific past date (YYYY-MM-DD), or None if
+    that day's file doesn't exist. Unlike load_todays_edition(), this
+    doesn't raise — used by send_weekly_digest.py, which deliberately
+    spans 7 calendar days and needs to skip any day that never generated
+    (a failed run, a day before the site launched, etc.) rather than fail
+    the whole weekly send over one missing day.
+    """
+    try:
+        with open(f"{folder}/{date_str}.json") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return None
+    except json.JSONDecodeError:
+        return None
