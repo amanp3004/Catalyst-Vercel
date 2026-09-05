@@ -1170,14 +1170,22 @@ def apply_founder_spotlight(edition, today):
 # 4. WRITE OUTPUT
 # ---------------------------------------------------------------------------
 
-def prune_old_editions(keep=7):
+def prune_old_editions(keep=8):
     """Delete dated edition JSON files beyond the most recent `keep`, and
     trim data/index.json to match — the archive dropdown only ever shows
-    the last 7 days anyway, and older full edition files (each with
+    the last several days anyway, and older full edition files (each with
     images, five sections of text, etc.) were the actual cause of
     generate_edition.py slowing down as the data/ folder grew unbounded.
     Term/company anti-repetition no longer depends on these files (see
     load_recent_history), so this is safe to prune aggressively.
+
+    keep=8, not 7: this function runs as part of TODAY's generation, before
+    send_weekly_digest.py runs later that same Saturday morning wanting the
+    past 7 days ending YESTERDAY (Sat-through-Fri). If today's own prune
+    only kept 7 days ending today, it would have already deleted the oldest
+    day the weekly digest needs (last Saturday) before the weekly script
+    ever gets a chance to read it. Keeping 8 days ending today guarantees
+    that 7-day window (ending yesterday) is always still on disk.
     """
     if not os.path.isdir("data"):
         return
@@ -1219,7 +1227,7 @@ def save_edition(edition):
     _prepend_to_history_file(COMPANY_HISTORY_PATH, edition.get("breakdown", {}).get("company"))
 
     # Keep only the last 7 full edition files (+ rewrites index.json to match).
-    prune_old_editions(keep=7)
+    prune_old_editions(keep=8)
 
     print(f"Saved edition for {edition['date']} -> {date_path}")
 
