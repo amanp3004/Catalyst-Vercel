@@ -216,10 +216,10 @@
     <div id="tab-weekly" class="hidden">
       <div class="sub">
         Pick this week's picks for Saturday's email &mdash; any number of news
-        stories and startups. Founder vocabulary terms are pulled in
-        automatically from this week's editions; nothing to select there.
-        If nothing is saved here by Saturday morning, Gemini picks a
-        reasonable set itself so the email still goes out.
+        stories, startups, and vocabulary terms. All three come pre-checked
+        below; uncheck anything you don't want. If nothing is saved here
+        by Saturday morning, Gemini picks a reasonable set itself so the
+        email still goes out.
       </div>
 
       <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
@@ -229,6 +229,12 @@
       <div id="weeklySaveStatus" class="status"></div>
 
       <div class="card">
+        <div class="list-name">Closing line</div>
+        <div class="sub" style="margin-bottom:10px;">Shown at the bottom of the email, right before the "Curated by Atlas" footer.</div>
+        <input type="text" id="weeklyClosingLine" value="Now, go build.">
+      </div>
+
+      <div class="card">
         <div class="list-name">News pool (this week)</div>
         <div id="weeklyNewsPool"></div>
       </div>
@@ -236,6 +242,11 @@
       <div class="card">
         <div class="list-name">Startups pool (this week's Startup Breakdowns)</div>
         <div id="weeklyStartupPool"></div>
+      </div>
+
+      <div class="card">
+        <div class="list-name">Vocabulary pool (this week's Builder's Lexicon terms)</div>
+        <div id="weeklyLexiconPool"></div>
       </div>
     </div>
 
@@ -799,8 +810,11 @@ async function deleteFounder(docId, safeId) {
 let weeklyDigestLoaded = false;
 let weeklyNewsPool = [];      // [{key, title, summary, domain, image, date}]
 let weeklyStartupPool = [];   // [{key, company, what, date}]
+let weeklyLexiconPool = [];   // [{key, term, definition, date}]
 let weeklySelectedNews = new Set();
 let weeklySelectedStartups = new Set();
+let weeklySelectedLexicon = new Set();
+let weeklyHasSavedSelection = false; // did a doc already exist for this week?
 let weeklyDocId = null;       // the upcoming Saturday's date — must match
                                // send_weekly_digest.py's today_ist() lookup
                                // exactly, since that script only ever runs
@@ -817,6 +831,7 @@ function getUpcomingSaturdayId() {
 
 function newsKey(dateStr, title) { return `${dateStr}::${title}`; }
 function startupKey(dateStr, company) { return `${dateStr}::${company}`; }
+function lexiconKey(dateStr, term) { return `${dateStr}::${term}`; }
 
 async function loadWeeklyDigestTab() {
   weeklyDigestLoaded = true;
@@ -840,6 +855,7 @@ async function loadWeeklyDigestTab() {
 
   weeklyNewsPool = [];
   weeklyStartupPool = [];
+  weeklyLexiconPool = [];
 
   await Promise.all(dateStrs.map(async (dateStr) => {
     try {
@@ -859,19 +875,35 @@ async function loadWeeklyDigestTab() {
           key: startupKey(dateStr, bd.company), company: bd.company, what: bd.what || "", date: dateStr,
         });
       }
+      const lex = edition.builder_lexicon || {};
+      if (lex.term) {
+        weeklyLexiconPool.push({
+          key: lexiconKey(dateStr, lex.term), term: lex.term, definition: lex.definition || "", date: dateStr,
+        });
+      }
     } catch (e) {
       // malformed or missing file for this day — skip, same as the
       // Python side's load_edition_for_date() graceful behavior.
     }
   }));
 
-  // Pre-check whatever was already saved for this week, if anything.
+  // Pre-check whatever was already saved for this week, if anything —
+  // otherwise default to everything selected (matching the previous
+  // "automatic" behavior for anything an admin doesn't actively touch).
+  weeklyHasSavedSelection = false;
   try {
     const doc = await db.collection("weekly_digest_selections").doc(weeklyDocId).get();
     if (doc.exists) {
+      weeklyHasSavedSelection = true;
       const data = doc.data();
       weeklySelectedNews = new Set(data.selected_news || []);
       weeklySelectedStartups = new Set(data.selected_startups || []);
+      weeklySelectedLexicon = new Set(data.selected_lexicon || []);
+      document.getElementById("weeklyClosingLine").value = data.closing_line || "Now, go build.";
+    } else {
+      weeklySelectedNews = new Set(weeklyNewsPool.map((i) => i.key));
+      weeklySelectedStartups = new Set(weeklyStartupPool.map((i) => i.key));
+      weeklySelectedLexicon = new Set(weeklyLexiconPool.map((i) => i.key));
     }
   } catch (e) {
     console.error("Couldn't load existing weekly selection:", e);
@@ -883,6 +915,7 @@ async function loadWeeklyDigestTab() {
 function renderWeeklyPools() {
   const newsContainer = document.getElementById("weeklyNewsPool");
   const startupContainer = document.getElementById("weeklyStartupPool");
+  const lexiconContainer = document.getElementById("weeklyLexiconPool");
 
   newsContainer.innerHTML = weeklyNewsPool.length
     ? weeklyNewsPool.map((item) => renderPoolRow(item.key, item.title, `${item.date} \u00b7 ${item.domain}`, item.image, weeklySelectedNews)).join("")
@@ -891,6 +924,10 @@ function renderWeeklyPools() {
   startupContainer.innerHTML = weeklyStartupPool.length
     ? weeklyStartupPool.map((item) => renderPoolRow(item.key, item.company, `${item.date} \u00b7 Startup Breakdown`, "", weeklySelectedStartups)).join("")
     : `<span class="sub">No Startup Breakdowns found in this week's editions.</span>`;
+
+  lexiconContainer.innerHTML = weeklyLexiconPool.length
+    ? weeklyLexiconPool.map((item) => renderPoolRow(item.key, item.term, item.definition, "", weeklySelectedLexicon)).join("")
+    : `<span class="sub">No Builder's Lexicon terms found in this week's editions.</span>`;
 
   updateWeeklySelectionCount();
 }
@@ -913,9 +950,14 @@ function renderPoolRow(key, title, meta, imageUrl, selectedSet) {
   `;
 }
 
+function weeklySetForKey(key) {
+  if (weeklyNewsPool.some((i) => i.key === key)) return weeklySelectedNews;
+  if (weeklyStartupPool.some((i) => i.key === key)) return weeklySelectedStartups;
+  return weeklySelectedLexicon;
+}
+
 function toggleWeeklyItem(key, rowEl) {
-  const inNews = weeklyNewsPool.some((i) => i.key === key);
-  const set = inNews ? weeklySelectedNews : weeklySelectedStartups;
+  const set = weeklySetForKey(key);
   if (set.has(key)) {
     set.delete(key);
     rowEl.classList.remove("selected");
@@ -930,7 +972,7 @@ function toggleWeeklyItem(key, rowEl) {
 
 function updateWeeklySelectionCount() {
   document.getElementById("weeklySelectionCount").textContent =
-    `Selected: ${weeklySelectedNews.size} news stories \u00b7 ${weeklySelectedStartups.size} startups \u00b7 for Saturday ${weeklyDocId}`;
+    `Selected: ${weeklySelectedNews.size} news \u00b7 ${weeklySelectedStartups.size} startups \u00b7 ${weeklySelectedLexicon.size} vocabulary terms \u00b7 for Saturday ${weeklyDocId}`;
 }
 
 async function saveWeeklySelection() {
@@ -941,8 +983,11 @@ async function saveWeeklySelection() {
     await db.collection("weekly_digest_selections").doc(weeklyDocId).set({
       selected_news: Array.from(weeklySelectedNews),
       selected_startups: Array.from(weeklySelectedStartups),
+      selected_lexicon: Array.from(weeklySelectedLexicon),
+      closing_line: document.getElementById("weeklyClosingLine").value.trim() || "Now, go build.",
       updated_at: firebase.firestore.FieldValue.serverTimestamp(),
     });
+    weeklyHasSavedSelection = true;
     statusEl.textContent = `Saved for Saturday ${weeklyDocId}.`;
     statusEl.className = "status ok";
   } catch (e) {
