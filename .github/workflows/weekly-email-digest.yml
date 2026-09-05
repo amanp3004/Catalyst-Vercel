@@ -1,13 +1,9 @@
 name: Send Weekly Email Digest
 
 on:
-  schedule:
-    # 01:15 UTC = 6:45 AM IST, every Saturday only (day-of-week 6 = Saturday).
-    # Runs after daily-edition.yml's 18:40 UTC (12:10 AM IST) generation, so
-    # that day's edition — including any Founders' Friday content carried
-    # over from the day before, if that's how your content cadence works —
-    # is already committed before this sends.
-    - cron: "15 1 * * 6"
+  # No schedule — this only runs when manually triggered from the Actions
+  # tab ("Run workflow"), after you've curated the week's picks (or left
+  # them for Gemini to auto-curate) in admin.html's "Weekly Digest" tab.
   workflow_dispatch: {}
 
 jobs:
