@@ -100,6 +100,12 @@
   .founder-pagination button{padding:7px 14px;}
   .founder-pagination button:disabled{opacity:0.35; cursor:not-allowed;}
   .founder-pagination .page-indicator{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted);}
+  .pool-row{display:flex; align-items:center; gap:10px; background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:8px; cursor:pointer;}
+  .pool-row.selected{border-color:var(--forest); background:#EDF3EF;}
+  .pool-row input[type=checkbox]{flex-shrink:0; margin:0;}
+  .pool-row img{width:36px; height:36px; border-radius:6px; object-fit:cover; flex-shrink:0; background:var(--card);}
+  .pool-row .pool-title{font-size:13px; font-weight:500;}
+  .pool-row .pool-meta{font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--muted);}
 </style>
 </head>
 <body>
@@ -123,6 +129,7 @@
     <div class="tabs">
       <button class="tab-btn active" id="tabBtn-emails" onclick="switchTab('emails')">Email Lists</button>
       <button class="tab-btn" id="tabBtn-founders" onclick="switchTab('founders')">Founders' Friday</button>
+      <button class="tab-btn" id="tabBtn-weekly" onclick="switchTab('weekly')">Weekly Digest</button>
     </div>
 
     <div id="tab-emails">
@@ -206,6 +213,32 @@
       <div id="founderListContainer"></div>
     </div>
 
+    <div id="tab-weekly" class="hidden">
+      <div class="sub">
+        Pick this week's picks for Saturday's email &mdash; any number of news
+        stories and startups. Founder vocabulary terms are pulled in
+        automatically from this week's editions; nothing to select there.
+        If nothing is saved here by Saturday morning, Gemini picks a
+        reasonable set itself so the email still goes out.
+      </div>
+
+      <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div id="weeklySelectionCount" style="font-family:'IBM Plex Mono', monospace; font-size:12px;">Loading this week's pool...</div>
+        <button onclick="saveWeeklySelection()">Save this week's picks</button>
+      </div>
+      <div id="weeklySaveStatus" class="status"></div>
+
+      <div class="card">
+        <div class="list-name">News pool (this week)</div>
+        <div id="weeklyNewsPool"></div>
+      </div>
+
+      <div class="card">
+        <div class="list-name">Startups pool (this week's Startup Breakdowns)</div>
+        <div id="weeklyStartupPool"></div>
+      </div>
+    </div>
+
     <button class="ghost" onclick="logout()" style="margin-top:10px;">Sign out</button>
   </div>
 
@@ -247,10 +280,11 @@ auth.onAuthStateChanged((user) => {
 });
 
 function switchTab(name) {
-  for (const t of ["emails", "founders"]) {
+  for (const t of ["emails", "founders", "weekly"]) {
     document.getElementById(`tab-${t}`).classList.toggle("hidden", t !== name);
     document.getElementById(`tabBtn-${t}`).classList.toggle("active", t === name);
   }
+  if (name === "weekly" && !weeklyDigestLoaded) loadWeeklyDigestTab();
 }
 
 function login() {
@@ -756,6 +790,165 @@ async function deleteFounder(docId, safeId) {
   if (!confirm("Delete this founder from the roster? This can't be undone.")) return;
   await db.collection("founders").doc(docId).delete();
   loadFounderList();
+}
+
+// ---------------------------------------------------------------------
+// Weekly Digest curation tab
+// ---------------------------------------------------------------------
+
+let weeklyDigestLoaded = false;
+let weeklyNewsPool = [];      // [{key, title, summary, domain, image, date}]
+let weeklyStartupPool = [];   // [{key, company, what, date}]
+let weeklySelectedNews = new Set();
+let weeklySelectedStartups = new Set();
+let weeklyDocId = null;       // the upcoming Saturday's date — must match
+                               // send_weekly_digest.py's today_ist() lookup
+                               // exactly, since that script only ever runs
+                               // ON a Saturday and looks up this same id.
+
+function getUpcomingSaturdayId() {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun ... 6=Sat
+  const daysUntilSat = (6 - day + 7) % 7; // 0 if today already is Saturday
+  const sat = new Date(now);
+  sat.setDate(now.getDate() + daysUntilSat);
+  return sat.toISOString().slice(0, 10);
+}
+
+function newsKey(dateStr, title) { return `${dateStr}::${title}`; }
+function startupKey(dateStr, company) { return `${dateStr}::${company}`; }
+
+async function loadWeeklyDigestTab() {
+  weeklyDigestLoaded = true;
+  document.getElementById("weeklySelectionCount").textContent = "Loading this week's pool...";
+
+  weeklyDocId = getUpcomingSaturdayId();
+  // The digest script wants "past 7 days ending yesterday" relative to
+  // that Saturday — i.e. the Saturday before it through the Friday
+  // right before weeklyDocId. Same math as collect_week() in
+  // send_weekly_digest.py, kept in sync deliberately.
+  const saturday = new Date(weeklyDocId + "T00:00:00");
+  const endDate = new Date(saturday);
+  endDate.setDate(saturday.getDate() - 1);
+
+  const dateStrs = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(endDate);
+    d.setDate(endDate.getDate() - i);
+    dateStrs.push(d.toISOString().slice(0, 10));
+  }
+
+  weeklyNewsPool = [];
+  weeklyStartupPool = [];
+
+  await Promise.all(dateStrs.map(async (dateStr) => {
+    try {
+      const res = await fetch(`data/${dateStr}.json?v=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) return; // that day's file doesn't exist (pruned, or never generated) — skip
+      const edition = await res.json();
+      for (const item of (edition.brief || [])) {
+        if (!item.title) continue;
+        weeklyNewsPool.push({
+          key: newsKey(dateStr, item.title), title: item.title, summary: item.summary || "",
+          domain: item.domain || "", image: item.image || "", date: dateStr,
+        });
+      }
+      const bd = edition.breakdown || {};
+      if (bd.company) {
+        weeklyStartupPool.push({
+          key: startupKey(dateStr, bd.company), company: bd.company, what: bd.what || "", date: dateStr,
+        });
+      }
+    } catch (e) {
+      // malformed or missing file for this day — skip, same as the
+      // Python side's load_edition_for_date() graceful behavior.
+    }
+  }));
+
+  // Pre-check whatever was already saved for this week, if anything.
+  try {
+    const doc = await db.collection("weekly_digest_selections").doc(weeklyDocId).get();
+    if (doc.exists) {
+      const data = doc.data();
+      weeklySelectedNews = new Set(data.selected_news || []);
+      weeklySelectedStartups = new Set(data.selected_startups || []);
+    }
+  } catch (e) {
+    console.error("Couldn't load existing weekly selection:", e);
+  }
+
+  renderWeeklyPools();
+}
+
+function renderWeeklyPools() {
+  const newsContainer = document.getElementById("weeklyNewsPool");
+  const startupContainer = document.getElementById("weeklyStartupPool");
+
+  newsContainer.innerHTML = weeklyNewsPool.length
+    ? weeklyNewsPool.map((item) => renderPoolRow(item.key, item.title, `${item.date} \u00b7 ${item.domain}`, item.image, weeklySelectedNews)).join("")
+    : `<span class="sub">No news found in this week's editions.</span>`;
+
+  startupContainer.innerHTML = weeklyStartupPool.length
+    ? weeklyStartupPool.map((item) => renderPoolRow(item.key, item.company, `${item.date} \u00b7 Startup Breakdown`, "", weeklySelectedStartups)).join("")
+    : `<span class="sub">No Startup Breakdowns found in this week's editions.</span>`;
+
+  updateWeeklySelectionCount();
+}
+
+function renderPoolRow(key, title, meta, imageUrl, selectedSet) {
+  const isSelected = selectedSet.has(key);
+  const safeKey = key.replace(/'/g, "\\'");
+  const img = imageUrl
+    ? `<img src="${imageUrl}" alt="">`
+    : `<div style="width:36px;height:36px;border-radius:6px;background:var(--card);flex-shrink:0;"></div>`;
+  return `
+    <div class="pool-row ${isSelected ? "selected" : ""}" onclick="toggleWeeklyItem('${safeKey}', this)">
+      <input type="checkbox" ${isSelected ? "checked" : ""} onclick="event.stopPropagation(); toggleWeeklyItem('${safeKey}', this.closest('.pool-row'))">
+      ${img}
+      <div style="flex:1; min-width:0;">
+        <div class="pool-title">${title}</div>
+        <div class="pool-meta">${meta}</div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleWeeklyItem(key, rowEl) {
+  const inNews = weeklyNewsPool.some((i) => i.key === key);
+  const set = inNews ? weeklySelectedNews : weeklySelectedStartups;
+  if (set.has(key)) {
+    set.delete(key);
+    rowEl.classList.remove("selected");
+    rowEl.querySelector("input[type=checkbox]").checked = false;
+  } else {
+    set.add(key);
+    rowEl.classList.add("selected");
+    rowEl.querySelector("input[type=checkbox]").checked = true;
+  }
+  updateWeeklySelectionCount();
+}
+
+function updateWeeklySelectionCount() {
+  document.getElementById("weeklySelectionCount").textContent =
+    `Selected: ${weeklySelectedNews.size} news stories \u00b7 ${weeklySelectedStartups.size} startups \u00b7 for Saturday ${weeklyDocId}`;
+}
+
+async function saveWeeklySelection() {
+  const statusEl = document.getElementById("weeklySaveStatus");
+  statusEl.textContent = "Saving...";
+  statusEl.className = "status";
+  try {
+    await db.collection("weekly_digest_selections").doc(weeklyDocId).set({
+      selected_news: Array.from(weeklySelectedNews),
+      selected_startups: Array.from(weeklySelectedStartups),
+      updated_at: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    statusEl.textContent = `Saved for Saturday ${weeklyDocId}.`;
+    statusEl.className = "status ok";
+  } catch (e) {
+    statusEl.textContent = "Save failed: " + e.message;
+    statusEl.className = "status err";
+  }
 }
 </script>
 
