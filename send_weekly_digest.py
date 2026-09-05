@@ -195,7 +195,7 @@ def load_admin_selection():
     cron schedule), there's no fixed day of the week to key off. An admin
     curates, then triggers the send; whatever's under "current" is what
     goes out. Returns (selected_news_keys, selected_startup_keys,
-    selected_lexicon_keys, closing_line_or_None, doc_exists).
+    selected_lexicon_keys, closing_quote_or_None, closing_attribution, doc_exists).
 
     doc_exists matters: it's what distinguishes "an admin opened the tab
     and explicitly unchecked everything" (respect that — send with zero
@@ -205,13 +205,14 @@ def load_admin_selection():
     db = _get_firestore_client()
     doc = db.collection(WEEKLY_SELECTIONS_COLLECTION).document("current").get()
     if not doc.exists:
-        return [], [], [], None, False
+        return [], [], [], None, "", False
     data = doc.to_dict()
     return (
         data.get("selected_news", []) or [],
         data.get("selected_startups", []) or [],
         data.get("selected_lexicon", []) or [],
-        data.get("closing_line") or None,
+        data.get("closing_quote") or None,
+        data.get("closing_attribution") or "",
         True,
     )
 
@@ -391,7 +392,7 @@ def format_date_range(start_date_str, end_date_str):
     return f"{start.strftime('%b %d')} \u2013 {end.strftime('%b %d, %Y')}"
 
 
-def build_text(news, startups, lexicon, date_range_label, closing_line):
+def build_text(news, startups, lexicon, date_range_label, closing_quote, closing_attribution):
     lines = [f"CATALYST WEEKLY \u2014 {date_range_label}", ""]
     lines.append("THIS WEEK'S TOP STORIES")
     lines.append("-" * 40)
@@ -418,14 +419,16 @@ def build_text(news, startups, lexicon, date_range_label, closing_line):
             lines.append(t["expansion"])
             lines.append("")
 
-    lines.append(closing_line)
+    lines.append(closing_quote)
+    if closing_attribution:
+        lines.append(f"\u2014 {closing_attribution}")
     lines.append("")
     lines.append("Curated by Atlas \u2014 Our AI Editor")
     lines.append(f"To stop receiving this, reply to this email or contact {GMAIL_ADDRESS}.")
     return "\n".join(lines)
 
 
-def build_html(news, startups, lexicon, date_range_label, closing_line):
+def build_html(news, startups, lexicon, date_range_label, closing_quote, closing_attribution):
     news_rows = ""
     for i, item in enumerate(news):
         reverse = (i % 2 == 1)
@@ -504,7 +507,8 @@ def build_html(news, startups, lexicon, date_range_label, closing_line):
   {lexicon_section}
 
   <tr><td style="padding:20px 30px 4px; text-align:center;">
-    <div style="font-family:Georgia,serif; font-weight:700; font-style:italic; font-size:15px; color:#16261F;">{closing_line}</div>
+    <div style="font-family:Georgia,serif; font-weight:700; font-style:italic; font-size:16px; color:#16261F; line-height:1.5; max-width:480px; margin:0 auto;">&ldquo;{closing_quote}&rdquo;</div>
+    {f'<div style="font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#6B7268; margin-top:8px; letter-spacing:0.02em;">&mdash; {closing_attribution}</div>' if closing_attribution else ''}
   </td></tr>
 
   <tr><td style="padding:8px 30px 24px; text-align:center;">
@@ -532,7 +536,8 @@ def send_to_recipient(server, subject, text_body, html_body, recipient):
     server.sendmail(GMAIL_ADDRESS, [recipient], msg.as_string())
 
 
-CLOSING_LINE = "Now, go build."
+CLOSING_QUOTE_DEFAULT = "Now, go build."
+CLOSING_ATTRIBUTION_DEFAULT = ""
 
 if __name__ == "__main__":
     news_pool, startup_pool, lexicon_terms, start_date_str, end_date_str, days_found = collect_week()
@@ -550,7 +555,7 @@ if __name__ == "__main__":
         print("No email recipients found across any list — nothing to send.")
         raise SystemExit(0)
 
-    selected_news_keys, selected_startup_keys, selected_lexicon_keys, custom_closing_line, doc_exists = load_admin_selection()
+    selected_news_keys, selected_startup_keys, selected_lexicon_keys, custom_closing_quote, custom_closing_attribution, doc_exists = load_admin_selection()
     if doc_exists:
         print(f"Using admin-curated selection: {len(selected_news_keys)} news key(s), "
               f"{len(selected_startup_keys)} startup key(s), {len(selected_lexicon_keys)} lexicon key(s).")
@@ -558,21 +563,23 @@ if __name__ == "__main__":
             news_pool, startup_pool, lexicon_terms,
             selected_news_keys, selected_startup_keys, selected_lexicon_keys,
         )
-        closing_line = custom_closing_line or CLOSING_LINE
+        closing_quote = custom_closing_quote or CLOSING_QUOTE_DEFAULT
+        closing_attribution = custom_closing_attribution
     else:
         print("No admin selection found for this week — auto-curating with Gemini.")
         news, startups = auto_curate(news_pool, startup_pool)
         # lexicon_terms stays as everything collect_week() found — the
         # original "automatic, include everything that showed up this
         # week" behavior, unchanged for weeks nobody's curated yet.
-        closing_line = CLOSING_LINE
+        closing_quote = CLOSING_QUOTE_DEFAULT
+        closing_attribution = CLOSING_ATTRIBUTION_DEFAULT
 
     print(f"Final selection: {len(news)} news item(s), {len(startups)} startup(s), {len(lexicon_terms)} vocabulary term(s).")
 
     news, lexicon_terms = add_framing_and_vocabulary(news, lexicon_terms)
 
-    html_body = build_html(news, startups, lexicon_terms, date_range_label, closing_line)
-    text_body = build_text(news, startups, lexicon_terms, date_range_label, closing_line)
+    html_body = build_html(news, startups, lexicon_terms, date_range_label, closing_quote, closing_attribution)
+    text_body = build_text(news, startups, lexicon_terms, date_range_label, closing_quote, closing_attribution)
     subject = f"Catalyst Weekly \u2014 {date_range_label}"
 
     print(f"Sending to {len(recipients)} recipient(s) across all lists...")
