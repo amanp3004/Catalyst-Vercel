@@ -815,19 +815,14 @@ let weeklySelectedNews = new Set();
 let weeklySelectedStartups = new Set();
 let weeklySelectedLexicon = new Set();
 let weeklyHasSavedSelection = false; // did a doc already exist for this week?
-let weeklyDocId = null;       // the upcoming Saturday's date — must match
-                               // send_weekly_digest.py's today_ist() lookup
-                               // exactly, since that script only ever runs
-                               // ON a Saturday and looks up this same id.
 
-function getUpcomingSaturdayId() {
-  const now = new Date();
-  const day = now.getDay(); // 0=Sun ... 6=Sat
-  const daysUntilSat = (6 - day + 7) % 7; // 0 if today already is Saturday
-  const sat = new Date(now);
-  sat.setDate(now.getDate() + daysUntilSat);
-  return sat.toISOString().slice(0, 10);
-}
+// Fixed doc id, not a computed date. There's only ever one "next send"
+// waiting to go out — since this now only fires when an admin manually
+// clicks "Run workflow" on GitHub (any day, not just Saturday), there's
+// no fixed day of the week to compute a key from anymore. Curate here,
+// then trigger the workflow; whatever's saved under this one doc is
+// exactly what the next run will use.
+const WEEKLY_DOC_ID = "current";
 
 function newsKey(dateStr, title) { return `${dateStr}::${title}`; }
 function startupKey(dateStr, company) { return `${dateStr}::${company}`; }
@@ -837,14 +832,12 @@ async function loadWeeklyDigestTab() {
   weeklyDigestLoaded = true;
   document.getElementById("weeklySelectionCount").textContent = "Loading this week's pool...";
 
-  weeklyDocId = getUpcomingSaturdayId();
-  // The digest script wants "past 7 days ending yesterday" relative to
-  // that Saturday — i.e. the Saturday before it through the Friday
-  // right before weeklyDocId. Same math as collect_week() in
-  // send_weekly_digest.py, kept in sync deliberately.
-  const saturday = new Date(weeklyDocId + "T00:00:00");
-  const endDate = new Date(saturday);
-  endDate.setDate(saturday.getDate() - 1);
+  // Past 7 days ending yesterday, relative to right now — matches
+  // send_weekly_digest.py's own collect_week() window exactly, so the
+  // pool you see here is the same pool the script will pick from
+  // whenever it's actually triggered.
+  const endDate = new Date();
+  endDate.setDate(endDate.getDate() - 1);
 
   const dateStrs = [];
   for (let i = 0; i < 7; i++) {
@@ -892,7 +885,7 @@ async function loadWeeklyDigestTab() {
   // "automatic" behavior for anything an admin doesn't actively touch).
   weeklyHasSavedSelection = false;
   try {
-    const doc = await db.collection("weekly_digest_selections").doc(weeklyDocId).get();
+    const doc = await db.collection("weekly_digest_selections").doc(WEEKLY_DOC_ID).get();
     if (doc.exists) {
       weeklyHasSavedSelection = true;
       const data = doc.data();
@@ -972,7 +965,7 @@ function toggleWeeklyItem(key, rowEl) {
 
 function updateWeeklySelectionCount() {
   document.getElementById("weeklySelectionCount").textContent =
-    `Selected: ${weeklySelectedNews.size} news \u00b7 ${weeklySelectedStartups.size} startups \u00b7 ${weeklySelectedLexicon.size} vocabulary terms \u00b7 for Saturday ${weeklyDocId}`;
+    `Selected: ${weeklySelectedNews.size} news \u00b7 ${weeklySelectedStartups.size} startups \u00b7 ${weeklySelectedLexicon.size} vocabulary terms \u00b7 for the next send`;
 }
 
 async function saveWeeklySelection() {
@@ -980,7 +973,7 @@ async function saveWeeklySelection() {
   statusEl.textContent = "Saving...";
   statusEl.className = "status";
   try {
-    await db.collection("weekly_digest_selections").doc(weeklyDocId).set({
+    await db.collection("weekly_digest_selections").doc(WEEKLY_DOC_ID).set({
       selected_news: Array.from(weeklySelectedNews),
       selected_startups: Array.from(weeklySelectedStartups),
       selected_lexicon: Array.from(weeklySelectedLexicon),
@@ -988,7 +981,7 @@ async function saveWeeklySelection() {
       updated_at: firebase.firestore.FieldValue.serverTimestamp(),
     });
     weeklyHasSavedSelection = true;
-    statusEl.textContent = `Saved for Saturday ${weeklyDocId}.`;
+    statusEl.textContent = `Saved for the next send.`;
     statusEl.className = "status ok";
   } catch (e) {
     statusEl.textContent = "Save failed: " + e.message;
