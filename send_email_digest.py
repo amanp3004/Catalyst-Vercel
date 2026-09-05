@@ -112,9 +112,6 @@ def build_text(edition):
     lines.append(f"Read today's full edition: {SITE_URL}")
     lines.append("")
     lines.append("Curated by Atlas — Our AI Editor")
-    lines.append(
-        f"To stop receiving this, reply to this email or contact {GMAIL_ADDRESS}."
-    )
     return "\n".join(lines)
 
 
