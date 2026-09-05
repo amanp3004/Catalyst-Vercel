@@ -119,6 +119,10 @@ def startup_key(date_str, company):
     return f"{date_str}::{company}"
 
 
+def lexicon_key(date_str, term):
+    return f"{date_str}::{term}"
+
+
 def collect_week(days=7):
     """Walk backwards `days` calendar days from yesterday (IST) — since
     this script runs Saturday morning, that's last Saturday through
@@ -173,6 +177,7 @@ def collect_week(days=7):
         lex = edition.get("builder_lexicon", {})
         if lex.get("term"):
             lexicon_terms.append({
+                "key": lexicon_key(d.isoformat(), lex["term"]),
                 "term": lex.get("term", ""),
                 "definition": lex.get("definition", ""),
                 "date": d.isoformat(),
@@ -187,16 +192,26 @@ def load_admin_selection():
     Saturday, and admin.html computes the same upcoming-Saturday date as
     its doc id regardless of which day of the week an admin opens the
     tab, so the two always agree on which document represents "this
-    week"). Returns (selected_news_keys, selected_startup_keys) — both
-    empty lists if no selection was ever saved, which signals the caller
-    to fall back to full auto-curation.
+    week"). Returns (selected_news_keys, selected_startup_keys,
+    selected_lexicon_keys, closing_line_or_None, doc_exists).
+
+    doc_exists matters: it's what distinguishes "an admin opened the tab
+    and explicitly unchecked everything" (respect that — send with zero
+    of that section) from "no admin ever touched this week at all" (fall
+    back to full auto-curation instead of sending an empty section).
     """
     db = _get_firestore_client()
     doc = db.collection(WEEKLY_SELECTIONS_COLLECTION).document(today_ist()).get()
     if not doc.exists:
-        return [], []
+        return [], [], [], None, False
     data = doc.to_dict()
-    return data.get("selected_news", []) or [], data.get("selected_startups", []) or []
+    return (
+        data.get("selected_news", []) or [],
+        data.get("selected_startups", []) or [],
+        data.get("selected_lexicon", []) or [],
+        data.get("closing_line") or None,
+        True,
+    )
 
 
 def _post_to_gemini_with_retry(url, payload, max_retries=4, initial_delay=2):
@@ -243,8 +258,8 @@ def _call_gemini_json(system_instruction, user_prompt, max_tokens=4096):
         return None
 
 
-def resolve_selection(news_pool, startup_pool, selected_news_keys, selected_startup_keys):
-    """Turn a saved admin selection (a list of keys) back into the real
+def resolve_selection(news_pool, startup_pool, lexicon_pool, selected_news_keys, selected_startup_keys, selected_lexicon_keys):
+    """Turn a saved admin selection (lists of keys) back into the real
     pool items they refer to. Keys with no matching pool item (e.g. the
     admin selected something from a day that generate_edition.py's own
     pruning has since deleted) are silently dropped rather than crashing.
@@ -252,9 +267,11 @@ def resolve_selection(news_pool, startup_pool, selected_news_keys, selected_star
     """
     news_by_key = {item["key"]: item for item in news_pool}
     startup_by_key = {item["key"]: item for item in startup_pool}
+    lexicon_by_key = {item["key"]: item for item in lexicon_pool}
     news = [news_by_key[k] for k in selected_news_keys if k in news_by_key]
     startups = [startup_by_key[k] for k in selected_startup_keys if k in startup_by_key]
-    return news, startups
+    lexicon = [lexicon_by_key[k] for k in selected_lexicon_keys if k in lexicon_by_key]
+    return news, startups, lexicon
 
 
 def auto_curate(news_pool, startup_pool, max_news=6, max_startups=3):
@@ -531,21 +548,29 @@ if __name__ == "__main__":
         print("No email recipients found across any list — nothing to send.")
         raise SystemExit(0)
 
-    selected_news_keys, selected_startup_keys = load_admin_selection()
-    if selected_news_keys or selected_startup_keys:
+    selected_news_keys, selected_startup_keys, selected_lexicon_keys, custom_closing_line, doc_exists = load_admin_selection()
+    if doc_exists:
         print(f"Using admin-curated selection: {len(selected_news_keys)} news key(s), "
-              f"{len(selected_startup_keys)} startup key(s).")
-        news, startups = resolve_selection(news_pool, startup_pool, selected_news_keys, selected_startup_keys)
+              f"{len(selected_startup_keys)} startup key(s), {len(selected_lexicon_keys)} lexicon key(s).")
+        news, startups, lexicon_terms = resolve_selection(
+            news_pool, startup_pool, lexicon_terms,
+            selected_news_keys, selected_startup_keys, selected_lexicon_keys,
+        )
+        closing_line = custom_closing_line or CLOSING_LINE
     else:
         print("No admin selection found for this week — auto-curating with Gemini.")
         news, startups = auto_curate(news_pool, startup_pool)
+        # lexicon_terms stays as everything collect_week() found — the
+        # original "automatic, include everything that showed up this
+        # week" behavior, unchanged for weeks nobody's curated yet.
+        closing_line = CLOSING_LINE
 
-    print(f"Final selection: {len(news)} news item(s), {len(startups)} startup(s).")
+    print(f"Final selection: {len(news)} news item(s), {len(startups)} startup(s), {len(lexicon_terms)} vocabulary term(s).")
 
     news, lexicon_terms = add_framing_and_vocabulary(news, lexicon_terms)
 
-    html_body = build_html(news, startups, lexicon_terms, date_range_label, CLOSING_LINE)
-    text_body = build_text(news, startups, lexicon_terms, date_range_label, CLOSING_LINE)
+    html_body = build_html(news, startups, lexicon_terms, date_range_label, closing_line)
+    text_body = build_text(news, startups, lexicon_terms, date_range_label, closing_line)
     subject = f"Catalyst Weekly \u2014 {date_range_label}"
 
     print(f"Sending to {len(recipients)} recipient(s) across all lists...")
