@@ -728,7 +728,7 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch((err) => {
 // server-side only in api/auth-callback.js, is). TODO: paste your real
 // OAuth Client ID from Google Cloud Console → APIs & Services →
 // Credentials.
-const GOOGLE_OAUTH_CLIENT_ID = "824503074306-nsbq7lktf04i0c3mje5end2k4di0q09h.apps.googleusercontent.com";
+const GOOGLE_OAUTH_CLIENT_ID = "TODO_PASTE_YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com";
 
 // Handles the server-side sign-in flow's hand-off: api/auth-callback.js
 // redirects back here with a ready-to-use Firebase custom token in the
@@ -926,32 +926,37 @@ function confirmBookmarkSignIn() {
 }
 
 async function performBookmarkToggle(type, key, data) {
+  if (!currentUser) return;
+
   const set = getBookmarkSet(type);
   const isRemoving = set.has(key);
-  const docRef = db.collection("user_bookmarks").doc(currentUser.uid);
 
+  // Optimistic UI update — happens instantly, before any network round
+  // trip. The Firestore read+write below can take a noticeable moment on
+  // a slower connection; the heart shouldn't sit unfilled that whole time
+  // when the outcome is already known locally.
+  if (isRemoving) set.delete(key); else set.add(key);
+  refreshAllHeartUI();
+  renderBookmarksTab();
+
+  const docRef = db.collection("user_bookmarks").doc(currentUser.uid);
   try {
+    const doc = await docRef.get();
+    const existing = (doc.exists ? doc.data()[type] : []) || [];
     if (isRemoving) {
-      set.delete(key);
-      const doc = await docRef.get();
-      const existing = (doc.exists ? doc.data()[type] : []) || [];
       await docRef.set({ [type]: existing.filter((i) => i.key !== key) }, { merge: true });
-    } else {
-      set.add(key);
-      const doc = await docRef.get();
-      const existing = (doc.exists ? doc.data()[type] : []) || [];
-      if (!existing.some((i) => i.key === key)) {
-        await docRef.set({ [type]: [...existing, { key, ...data }] }, { merge: true });
-      }
+    } else if (!existing.some((i) => i.key === key)) {
+      await docRef.set({ [type]: [...existing, { key, ...data }] }, { merge: true });
     }
   } catch (e) {
     console.error("Couldn't update bookmark:", e);
-    // revert the optimistic local change on failure
+    // The write actually failed — correct the optimistic change now that
+    // we know it didn't stick, rather than leaving the UI showing
+    // something that isn't really saved.
     if (isRemoving) set.add(key); else set.delete(key);
+    refreshAllHeartUI();
+    renderBookmarksTab();
   }
-
-  refreshAllHeartUI();
-  renderBookmarksTab();
 }
 
 function refreshAllHeartUI() {
