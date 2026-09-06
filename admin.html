@@ -130,7 +130,7 @@
       <button class="tab-btn active" id="tabBtn-emails" onclick="switchTab('emails')">Email Lists</button>
       <button class="tab-btn" id="tabBtn-founders" onclick="switchTab('founders')">Founders' Friday</button>
       <button class="tab-btn" id="tabBtn-weekly" onclick="switchTab('weekly')">Weekly Digest</button>
-      <button class="tab-btn" id="tabBtn-history" onclick="switchTab('history')">Send History</button>
+      <button class="tab-btn" id="tabBtn-history" onclick="switchTab('history')">Weekly Digest History</button>
     </div>
 
     <div id="tab-emails">
@@ -239,6 +239,25 @@
         <input type="text" id="weeklyClosingQuote" value="Now, go build.">
         <label>Attributed to (optional)</label>
         <input type="text" id="weeklyClosingAttribution" placeholder="e.g. Steve Jobs">
+      </div>
+
+      <div class="card">
+        <div class="list-name">Preview, copy, or download this email</div>
+        <div class="sub" style="margin-bottom:10px;">
+          Builds the exact email layout from whatever's checked below \u2014 useful
+          if you want to paste it straight into your own email client instead
+          of triggering the automated send. Note: this shows plain summaries
+          and definitions, not Gemini's "why it matters" lines or expanded
+          vocabulary explanations \u2014 those are written live during the real
+          send and aren't available here.
+        </div>
+        <div class="row">
+          <button class="ghost" onclick="previewWeeklyEmail()">Preview</button>
+          <button class="ghost" onclick="copyWeeklyEmailHtml()">Copy HTML to clipboard</button>
+          <button class="ghost" onclick="downloadWeeklyEmailHtml()">Download .html file</button>
+        </div>
+        <div id="weeklyEmailPreviewStatus" class="status"></div>
+        <div id="weeklyEmailPreviewFrame"></div>
       </div>
 
       <div class="card">
@@ -1069,6 +1088,224 @@ function clearWeeklySelections() {
   weeklySelectedStartups.clear();
   weeklySelectedLexicon.clear();
   renderWeeklyPools();
+}
+
+// ---------------------------------------------------------------------
+// Preview / copy / download the email built from current selections
+// (a manual-send fallback, e.g. pasting straight into Gmail/Outlook) —
+// JS port of build_html()/build_text() in send_weekly_digest.py. Keep
+// these in sync if that file's layout ever changes.
+// ---------------------------------------------------------------------
+
+function formatDateRangeLabel(startDate, endDate) {
+  const monthDay = (d) => d.toLocaleDateString("en-US", { month: "short" }) + " " + String(d.getDate()).padStart(2, "0");
+  if (startDate.getMonth() === endDate.getMonth()) {
+    return `${monthDay(startDate)}\u2013${String(endDate.getDate()).padStart(2, "0")}, ${endDate.getFullYear()}`;
+  }
+  return `${monthDay(startDate)} \u2013 ${monthDay(endDate)}, ${endDate.getFullYear()}`;
+}
+
+function getSelectedWeeklyContent() {
+  const news = weeklyNewsPool.filter((i) => weeklySelectedNews.has(i.key));
+  const startups = weeklyStartupPool.filter((i) => weeklySelectedStartups.has(i.key));
+  // No live Gemini call available client-side, so "expansion" just falls
+  // back to the original definition — exactly what send_weekly_digest.py
+  // itself falls back to if its own Gemini call fails.
+  const lexicon = weeklyLexiconPool.filter((i) => weeklySelectedLexicon.has(i.key)).map((t) => ({ ...t, expansion: t.definition }));
+
+  const endDate = new Date();
+  endDate.setDate(endDate.getDate() - 1);
+  const startDate = new Date(endDate);
+  startDate.setDate(endDate.getDate() - 6);
+
+  return {
+    news, startups, lexicon,
+    dateRangeLabel: formatDateRangeLabel(startDate, endDate),
+    closingQuote: document.getElementById("weeklyClosingQuote").value.trim() || "Now, go build.",
+    closingAttribution: document.getElementById("weeklyClosingAttribution").value.trim(),
+  };
+}
+
+function buildWeeklyEmailHtml(content) {
+  const { news, startups, lexicon, dateRangeLabel, closingQuote, closingAttribution } = content;
+  const sakshamLogoUrl = `${window.location.origin}/icons/partners/saksham.png`;
+
+  let newsRows = "";
+  news.forEach((item, i) => {
+    const reverse = i % 2 === 1;
+    const imgCell = item.image ? `<td width="80" valign="top"><img src="${item.image}" width="80" height="80" style="display:block; border-radius:6px; object-fit:cover;"></td>` : "";
+    const textCell = `<td valign="top">
+      <div style="font-family:Georgia,serif; font-weight:700; font-size:15px; color:#16261F; margin-bottom:4px;">${item.title}</div>
+      <div style="font-size:13px; color:#333; line-height:1.45;">${item.why_it_matters ? `<b>Why it matters:</b> ${item.why_it_matters}` : item.summary}</div>
+    </td>`;
+    const spacer = imgCell ? `<td width="14"></td>` : "";
+    const cells = reverse ? `${textCell}${spacer}${imgCell}` : `${imgCell}${spacer}${textCell}`;
+    const border = i < news.length - 1 ? "border-bottom:1px solid #D8D2C2;" : "";
+    newsRows += `
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px; padding-bottom:16px; ${border}">
+          <tr>${cells}</tr>
+        </table>`;
+  });
+
+  let startupRows = "";
+  startups.forEach((s, i) => {
+    const border = i < startups.length - 1 ? "border-bottom:1px solid #D8D2C2;" : "";
+    const logoUrl = s.domain
+      ? `https://www.google.com/s2/favicons?domain=${s.domain}&sz=128`
+      : `https://ui-avatars.com/api/?name=${encodeURIComponent(s.company)}&background=2C4A3B&color=F6F3EC&size=128&bold=true`;
+    startupRows += `
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px; padding-bottom:12px; ${border}">
+          <tr>
+            <td width="44" valign="top"><img src="${logoUrl}" width="44" height="44" style="display:block; border-radius:6px; object-fit:cover; background:#EDEAE0;"></td>
+            <td width="12"></td>
+            <td valign="top">
+              <div style="font-family:Georgia,serif; font-weight:700; font-size:14px; color:#16261F; margin-bottom:3px;">${s.company}</div>
+              <div style="font-size:12.5px; color:#333; line-height:1.45;">${s.what}</div>
+            </td>
+          </tr>
+        </table>`;
+  });
+
+  const lexiconHtml = lexicon.map((t) => `
+      <div style="margin-bottom:14px;">
+        <div style="font-family:Georgia,serif; font-weight:700; font-size:15px; color:#16261F; margin-bottom:3px;">${t.term}</div>
+        <div style="font-size:12.5px; color:#333; line-height:1.5;">${t.expansion}</div>
+      </div>
+    `).join("");
+
+  const startupsSection = startups.length ? `
+  <tr><td style="padding:20px 30px 4px;">
+    <div style="font-size:10.5px; text-transform:uppercase; letter-spacing:0.07em; color:#B87A1E; margin-bottom:12px;">Startups on our radar</div>
+    ${startupRows}
+  </td></tr>` : "";
+
+  const lexiconSection = lexicon.length ? `
+  <tr><td style="padding:20px 30px 4px;">
+    <div style="font-size:10.5px; text-transform:uppercase; letter-spacing:0.07em; color:#B87A1E; margin-bottom:12px;">Add this to your founder vocabulary</div>
+    ${lexiconHtml}
+  </td></tr>` : "";
+
+  return `
+<html>
+<body style="margin:0; padding:0; background:#F6F3EC; font-family:Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F6F3EC; padding:30px 0;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#FFFFFF; border-radius:10px; overflow:hidden;">
+
+  <tr><td style="padding:24px 30px 14px; border-bottom:3px solid #16261F;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td style="font-family:Georgia,serif; font-weight:700; font-size:26px; color:#16261F;">Catalyst<span style="color:#B87A1E;">.</span></td>
+        <td align="right"><img src="${sakshamLogoUrl}" alt="Saksham" height="28" style="display:block;"></td>
+      </tr>
+    </table>
+    <div style="font-size:10.5px; color:#6B7268; margin-top:8px; letter-spacing:0.03em;">THIS WEEK'S EDITION FOR BUILDERS &middot; ${dateRangeLabel.toUpperCase()}</div>
+  </td></tr>
+
+  <tr><td style="padding:18px 30px 4px;">
+    <div style="font-size:10.5px; text-transform:uppercase; letter-spacing:0.07em; color:#B87A1E; margin-bottom:12px;">This week's top stories</div>
+    ${newsRows}
+  </td></tr>
+  ${startupsSection}
+  ${lexiconSection}
+
+  <tr><td style="padding:20px 30px 4px; text-align:center;">
+    <div style="font-family:Georgia,serif; font-weight:700; font-style:italic; font-size:16px; color:#16261F; line-height:1.5; max-width:480px; margin:0 auto;">&ldquo;${closingQuote}&rdquo;</div>
+    ${closingAttribution ? `<div style="font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#6B7268; margin-top:8px; letter-spacing:0.02em;">&mdash; ${closingAttribution}</div>` : ""}
+  </td></tr>
+
+  <tr><td style="padding:8px 30px 24px; text-align:center;">
+    <div style="font-size:10.5px; color:#6B7268;">Curated by Atlas &mdash; Our AI Editor</div>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>
+`;
+}
+
+function buildWeeklyEmailText(content) {
+  const { news, startups, lexicon, dateRangeLabel, closingQuote, closingAttribution } = content;
+  const lines = [`CATALYST WEEKLY \u2014 ${dateRangeLabel}`, "", "THIS WEEK'S TOP STORIES", "-".repeat(40)];
+  news.forEach((item) => {
+    lines.push(item.title);
+    lines.push(item.summary);
+    if (item.why_it_matters) lines.push(`Why it matters: ${item.why_it_matters}`);
+    lines.push("");
+  });
+  if (startups.length) {
+    lines.push("STARTUPS ON OUR RADAR", "-".repeat(40));
+    startups.forEach((s) => { lines.push(s.company); lines.push(s.what); lines.push(""); });
+  }
+  if (lexicon.length) {
+    lines.push("ADD THIS TO YOUR FOUNDER VOCABULARY", "-".repeat(40));
+    lexicon.forEach((t) => { lines.push(t.term); lines.push(t.expansion); lines.push(""); });
+  }
+  lines.push(closingQuote);
+  if (closingAttribution) lines.push(`\u2014 ${closingAttribution}`);
+  lines.push("", "Curated by Atlas \u2014 Our AI Editor");
+  return lines.join("\n");
+}
+
+function weeklyContentIsEmpty(content) {
+  return content.news.length === 0 && content.startups.length === 0 && content.lexicon.length === 0;
+}
+
+function previewWeeklyEmail() {
+  const content = getSelectedWeeklyContent();
+  const statusEl = document.getElementById("weeklyEmailPreviewStatus");
+  if (weeklyContentIsEmpty(content)) {
+    statusEl.textContent = "Nothing is checked yet \u2014 select some news, startups, or vocabulary first.";
+    statusEl.className = "status err";
+    return;
+  }
+  statusEl.textContent = "";
+  const frameContainer = document.getElementById("weeklyEmailPreviewFrame");
+  frameContainer.innerHTML = `<iframe id="weeklyPreviewIframe" style="width:100%; height:600px; border:1px solid var(--line); border-radius:8px; margin-top:14px;"></iframe>`;
+  document.getElementById("weeklyPreviewIframe").srcdoc = buildWeeklyEmailHtml(content);
+}
+
+async function copyWeeklyEmailHtml() {
+  const content = getSelectedWeeklyContent();
+  const statusEl = document.getElementById("weeklyEmailPreviewStatus");
+  if (weeklyContentIsEmpty(content)) {
+    statusEl.textContent = "Nothing is checked yet \u2014 select some news, startups, or vocabulary first.";
+    statusEl.className = "status err";
+    return;
+  }
+  try {
+    const htmlBlob = new Blob([buildWeeklyEmailHtml(content)], { type: "text/html" });
+    const textBlob = new Blob([buildWeeklyEmailText(content)], { type: "text/plain" });
+    await navigator.clipboard.write([new ClipboardItem({ "text/html": htmlBlob, "text/plain": textBlob })]);
+    statusEl.textContent = "Copied \u2014 paste directly into your email compose window (Gmail, Outlook, etc).";
+    statusEl.className = "status ok";
+  } catch (e) {
+    statusEl.textContent = "Copy failed: " + e.message + " \u2014 try Download instead.";
+    statusEl.className = "status err";
+  }
+}
+
+function downloadWeeklyEmailHtml() {
+  const content = getSelectedWeeklyContent();
+  const statusEl = document.getElementById("weeklyEmailPreviewStatus");
+  if (weeklyContentIsEmpty(content)) {
+    statusEl.textContent = "Nothing is checked yet \u2014 select some news, startups, or vocabulary first.";
+    statusEl.className = "status err";
+    return;
+  }
+  const blob = new Blob([buildWeeklyEmailHtml(content)], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `catalyst-weekly-${content.dateRangeLabel.replace(/[^a-zA-Z0-9]/g, "-")}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  statusEl.textContent = "Downloaded.";
+  statusEl.className = "status ok";
 }
 
 function renderWeeklyPools() {
