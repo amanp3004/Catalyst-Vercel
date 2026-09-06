@@ -174,13 +174,21 @@
   .bookmarks-empty{font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--muted); padding:20px 0;}
   .bookmark-section-title{font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--signal-deep); margin:28px 0 14px;}
   .bookmark-section-title:first-child{margin-top:0;}
-  .bookmark-item{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:10px; display:flex; gap:12px; align-items:flex-start;}
-  .bookmark-item img{width:48px; height:48px; border-radius:8px; object-fit:cover; flex-shrink:0; background:var(--paper);}
+  .bookmark-item{background:var(--card); border:1px solid var(--line); border-radius:10px; margin-bottom:10px; overflow:hidden;}
+  .bookmark-item-header{display:flex; gap:12px; align-items:center; padding:14px 16px; cursor:pointer;}
+  .bookmark-item-header img{width:48px; height:48px; border-radius:8px; object-fit:cover; flex-shrink:0; background:var(--paper);}
   .bookmark-item-body{flex:1; min-width:0;}
   .bookmark-item-title{font-family:'Fraunces', serif; font-weight:700; font-size:15px; margin-bottom:3px;}
   .bookmark-item-meta{font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--muted);}
+  .bookmark-chevron{flex-shrink:0; transition:transform 0.15s ease; color:var(--muted);}
+  .bookmark-item.expanded .bookmark-chevron{transform:rotate(90deg);}
   .bookmark-remove-btn{background:none; border:none; color:var(--muted); cursor:pointer; padding:4px; flex-shrink:0;}
   .bookmark-remove-btn:hover{color:#B0453D;}
+  .bookmark-item-expanded{display:none; padding:0 16px 16px; border-top:1px solid var(--line);}
+  .bookmark-item.expanded .bookmark-item-expanded{display:block; padding-top:14px;}
+  .bookmark-expanded-text{font-size:13.5px; color:var(--ink); line-height:1.5; margin-bottom:10px;}
+  .bookmark-external-link{display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:var(--forest); text-decoration:underline;}
+  .bookmark-no-link{font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--muted); font-style:italic;}
 </style>
 </head>
 <body>
@@ -463,7 +471,7 @@ function render(edition, opts) {
           <a class="read-more" href="${item.url}" target="_blank" rel="noopener">Read more ${icon('link')}</a>
         </div>
       </div>
-      ${heartButtonHtml('news', bmKey(edition.date, item.title), { title: item.title, summary: item.summary, domain: item.domain, image: item.image, date: edition.date })}
+      ${heartButtonHtml('news', bmKey(edition.date, item.title), { title: item.title, summary: item.summary, domain: item.domain, image: item.image, url: item.url, date: edition.date })}
     </div>
   `).join('');
 
@@ -869,15 +877,34 @@ function signOut() {
   auth.signOut();
 }
 
+// Bookmarks live as one Firestore document PER item, under
+// user_bookmarks/{uid}/{type}/{hashKey(key)} — not as an array field on a
+// single shared document. Arrays-in-one-document is a well-documented
+// Firestore anti-pattern for exactly the failure this fixes: two rapid
+// toggles both read the same "before" array, then whichever write lands
+// last silently overwrites the other's change. Independent documents
+// can't collide with each other that way, and this removes the need for
+// a read-before-write at all — each toggle is just one plain set/delete.
+function hashKey(key) {
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) {
+    hash = (hash << 5) - hash + key.charCodeAt(i);
+    hash |= 0;
+  }
+  return "k" + Math.abs(hash).toString(36);
+}
+
 async function loadBookmarks() {
   if (!currentUser) return;
   try {
-    const doc = await db.collection("user_bookmarks").doc(currentUser.uid).get();
-    const data = doc.exists ? doc.data() : {};
-    bookmarkedNews = new Set((data.news || []).map((i) => i.key));
-    bookmarkedStartups = new Set((data.startups || []).map((i) => i.key));
-    bookmarkedFounders = new Set((data.founders || []).map((i) => i.key));
-    bookmarkedLexicon = new Set((data.lexicon || []).map((i) => i.key));
+    const types = ["news", "startups", "founders", "lexicon"];
+    const snapshots = await Promise.all(
+      types.map((t) => db.collection("user_bookmarks").doc(currentUser.uid).collection(t).get())
+    );
+    bookmarkedNews = new Set(snapshots[0].docs.map((d) => d.data().key));
+    bookmarkedStartups = new Set(snapshots[1].docs.map((d) => d.data().key));
+    bookmarkedFounders = new Set(snapshots[2].docs.map((d) => d.data().key));
+    bookmarkedLexicon = new Set(snapshots[3].docs.map((d) => d.data().key));
     bookmarksLoaded = true;
   } catch (e) {
     console.error("Couldn't load bookmarks:", e);
@@ -932,21 +959,21 @@ async function performBookmarkToggle(type, key, data) {
   const isRemoving = set.has(key);
 
   // Optimistic UI update — happens instantly, before any network round
-  // trip. The Firestore read+write below can take a noticeable moment on
-  // a slower connection; the heart shouldn't sit unfilled that whole time
-  // when the outcome is already known locally.
+  // trip; corrected back only if the write below genuinely fails.
   if (isRemoving) set.delete(key); else set.add(key);
   refreshAllHeartUI();
   renderBookmarksTab();
 
-  const docRef = db.collection("user_bookmarks").doc(currentUser.uid);
+  // One independent document per bookmark — no read needed, and no way
+  // for two concurrent toggles (even on the exact same item) to race each
+  // other into a lost update, since each write only ever touches this one
+  // document, never a shared array on someone else's document too.
+  const docRef = db.collection("user_bookmarks").doc(currentUser.uid).collection(type).doc(hashKey(key));
   try {
-    const doc = await docRef.get();
-    const existing = (doc.exists ? doc.data()[type] : []) || [];
     if (isRemoving) {
-      await docRef.set({ [type]: existing.filter((i) => i.key !== key) }, { merge: true });
-    } else if (!existing.some((i) => i.key === key)) {
-      await docRef.set({ [type]: [...existing, { key, ...data }] }, { merge: true });
+      await docRef.delete();
+    } else {
+      await docRef.set({ key, ...data });
     }
   } catch (e) {
     console.error("Couldn't update bookmark:", e);
@@ -1002,39 +1029,80 @@ function renderBookmarksTab() {
   }
 
   const sections = [
-    { title: "News", type: "news", set: bookmarkedNews },
-    { title: "Startups", type: "startups", set: bookmarkedStartups },
-    { title: "Founders", type: "founders", set: bookmarkedFounders },
-    { title: "Builder's Lexicon", type: "lexicon", set: bookmarkedLexicon },
+    { title: "News", type: "news" },
+    { title: "Startups", type: "startups" },
+    { title: "Founders", type: "founders" },
+    { title: "Builder's Lexicon", type: "lexicon" },
   ];
 
-  db.collection("user_bookmarks").doc(currentUser.uid).get().then((doc) => {
-    const data = doc.exists ? doc.data() : {};
+  Promise.all(
+    sections.map((s) => db.collection("user_bookmarks").doc(currentUser.uid).collection(s.type).get())
+  ).then((snapshots) => {
     let html = "";
     let anyBookmarks = false;
 
-    for (const section of sections) {
-      const items = data[section.type] || [];
-      if (items.length === 0) continue;
+    sections.forEach((section, idx) => {
+      const items = snapshots[idx].docs.map((d) => d.data());
+      if (items.length === 0) return;
       anyBookmarks = true;
       html += `<div class="bookmark-section-title">${section.title}</div>`;
-      html += items.map((item) => `
-        <div class="bookmark-item">
-          ${item.image ? `<img src="${item.image}" alt="">` : ""}
-          <div class="bookmark-item-body">
-            <div class="bookmark-item-title">${item.title || item.name || item.company || item.term || ""}</div>
-            <div class="bookmark-item-meta">${item.date || ""}${item.domain ? " · " + item.domain : ""}</div>
-          </div>
-          <button class="bookmark-remove-btn" data-bookmark-type="${section.type}" data-bookmark-key="${encodeURIComponent(item.key)}"
-            onclick="removeBookmarkFromList(this)" aria-label="Remove bookmark">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </button>
-        </div>
-      `).join("");
-    }
+      html += items.map((item, i) => renderBookmarkAccordionRow(section.type, item, i)).join("");
+    });
 
     container.innerHTML = anyBookmarks ? html : `<div class="bookmarks-empty">No bookmarks yet — tap the heart on anything in Home to save it here.</div>`;
   });
+}
+
+function bookmarkExpandedContent(type, item) {
+  if (type === "news") {
+    return `
+      <div class="bookmark-expanded-text">${escapeHtml(item.summary || "")}</div>
+      ${item.url
+        ? `<a class="bookmark-external-link" href="${item.url}" target="_blank" rel="noopener">Read full article &rarr;</a>`
+        : `<div class="bookmark-no-link">No link saved for this one — it was bookmarked before this was added. Re-bookmark it from Home to get the link.</div>`}
+    `;
+  }
+  if (type === "startups") {
+    const websiteUrl = item.domain ? `https://${item.domain}` : "";
+    return `
+      <div class="bookmark-expanded-text">${escapeHtml(item.what || "")}</div>
+      ${websiteUrl ? `<a class="bookmark-external-link" href="${websiteUrl}" target="_blank" rel="noopener">Visit ${escapeHtml(item.company || "website")} &rarr;</a>` : ""}
+    `;
+  }
+  if (type === "founders") {
+    return `
+      ${item.company ? `<div class="bookmark-expanded-text">${escapeHtml(item.company)}</div>` : ""}
+      ${item.learning ? `<div class="bookmark-expanded-text" style="font-style:italic;">&ldquo;${escapeHtml(item.learning)}&rdquo;</div>` : ""}
+      ${item.linkedin_url ? `<a class="bookmark-external-link" href="${item.linkedin_url}" target="_blank" rel="noopener">View LinkedIn profile &rarr;</a>` : ""}
+    `;
+  }
+  if (type === "lexicon") {
+    return `<div class="bookmark-expanded-text">${escapeHtml(item.definition || "")}</div>`;
+  }
+  return "";
+}
+
+function renderBookmarkAccordionRow(type, item, index) {
+  const title = item.title || item.name || item.company || item.term || "";
+  const meta = `${item.date || ""}${item.domain ? " · " + item.domain : ""}`;
+  const rowId = `bm-${type}-${index}`;
+  return `
+    <div class="bookmark-item" id="${rowId}">
+      <div class="bookmark-item-header" onclick="document.getElementById('${rowId}').classList.toggle('expanded')">
+        ${item.image ? `<img src="${item.image}" alt="">` : ""}
+        <div class="bookmark-item-body">
+          <div class="bookmark-item-title">${escapeHtml(title)}</div>
+          <div class="bookmark-item-meta">${escapeHtml(meta)}</div>
+        </div>
+        <svg class="bookmark-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        <button class="bookmark-remove-btn" data-bookmark-type="${type}" data-bookmark-key="${encodeURIComponent(item.key)}"
+          onclick="event.stopPropagation(); removeBookmarkFromList(this)" aria-label="Remove bookmark">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="bookmark-item-expanded">${bookmarkExpandedContent(type, item)}</div>
+    </div>
+  `;
 }
 
 if ("serviceWorker" in navigator) {
