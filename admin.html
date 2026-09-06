@@ -100,6 +100,15 @@
   .founder-pagination button{padding:7px 14px;}
   .founder-pagination button:disabled{opacity:0.35; cursor:not-allowed;}
   .founder-pagination .page-indicator{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted);}
+
+  .modal-overlay{position:fixed; inset:0; background:rgba(22,38,31,0.6); display:flex; align-items:center; justify-content:center; z-index:1000; padding:24px;}
+  .modal-overlay.hidden{display:none;}
+  .modal-box{background:var(--paper); border-radius:12px; width:100%; max-width:680px; height:85vh; max-height:800px; display:flex; flex-direction:column; overflow:hidden;}
+  .modal-box-header{display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line); flex-shrink:0;}
+  .modal-box-header .title{font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted);}
+  .modal-close-btn{background:none; border:none; font-size:20px; line-height:1; cursor:pointer; color:var(--muted); padding:0 4px;}
+  .modal-close-btn:hover{color:var(--ink);}
+  .modal-box iframe{flex:1; width:100%; border:none;}
   .pool-row{display:flex; align-items:center; gap:10px; background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:8px; cursor:pointer;}
   .pool-row.selected{border-color:var(--forest); background:#EDF3EF;}
   .pool-row input[type=checkbox]{flex-shrink:0; margin:0;}
@@ -246,14 +255,14 @@
         <div class="sub" style="margin-bottom:10px;">
           Builds the exact email layout from whatever's checked below \u2014 useful
           if you want to paste it straight into your own email client instead
-          of triggering the automated send. Preview opens in a new window,
-          so it won't stretch this page. Note: this shows plain summaries
+          of triggering the automated send. Preview opens in a popup \u2014 click
+          anywhere outside it to close. Note: this shows plain summaries
           and definitions, not Gemini's "why it matters" lines or expanded
           vocabulary explanations \u2014 those are written live during the real
           send and aren't available here.
         </div>
         <div class="row">
-          <button class="ghost" onclick="previewWeeklyEmail()">Preview (opens new window)</button>
+          <button class="ghost" onclick="previewWeeklyEmail()">Preview</button>
           <button class="ghost" onclick="copyWeeklyEmailHtml()">Copy HTML to clipboard</button>
           <button class="ghost" onclick="downloadWeeklyEmailHtml()">Download .html file</button>
         </div>
@@ -287,6 +296,16 @@
     <button class="ghost" onclick="logout()" style="margin-top:10px;">Sign out</button>
   </div>
 
+</div>
+
+<div class="modal-overlay hidden" id="weeklyPreviewModal" onclick="if (event.target === this) closeWeeklyPreviewModal()">
+  <div class="modal-box">
+    <div class="modal-box-header">
+      <span class="title">Email preview</span>
+      <button class="modal-close-btn" onclick="closeWeeklyPreviewModal()" aria-label="Close">&times;</button>
+    </div>
+    <iframe id="weeklyPreviewIframe"></iframe>
+  </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1262,17 +1281,13 @@ function previewWeeklyEmail() {
     return;
   }
   statusEl.textContent = "";
-  const blob = new Blob([buildWeeklyEmailHtml(content)], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
-  const popup = window.open(url, "_blank", "width=680,height=800");
-  if (!popup) {
-    statusEl.textContent = "Your browser blocked the popup \u2014 allow popups for this site and try again.";
-    statusEl.className = "status err";
-    return;
-  }
-  // Revoke once the popup's had a chance to load it; the object URL only
-  // needs to live long enough for the new window to fetch it once.
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  document.getElementById("weeklyPreviewIframe").srcdoc = buildWeeklyEmailHtml(content);
+  document.getElementById("weeklyPreviewModal").classList.remove("hidden");
+}
+
+function closeWeeklyPreviewModal() {
+  document.getElementById("weeklyPreviewModal").classList.add("hidden");
+  document.getElementById("weeklyPreviewIframe").srcdoc = ""; // free the rendered content
 }
 
 async function copyWeeklyEmailHtml() {
