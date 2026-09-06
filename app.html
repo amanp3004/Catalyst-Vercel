@@ -725,6 +725,14 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch((err) => {
   console.error("Couldn't set auth persistence:", err);
 });
 
+// Catches errors specific to the redirect-based sign-in flow (the popup
+// flow has its own inline .catch() instead) — this fires once, on the
+// page load right after Google redirects back.
+auth.getRedirectResult().catch((err) => {
+  console.error("Redirect sign-in failed:", err);
+  alert("Sign-in failed: " + err.message);
+});
+
 // ---------------------------------------------------------------------
 // Auth + bookmarks (Google Sign-In only for now; Apple can be added later
 // as a second firebase.auth.OAuthProvider('apple.com') button once an
@@ -737,7 +745,26 @@ let bookmarkedStartups = new Set();
 let bookmarkedFounders = new Set();
 let bookmarkedLexicon = new Set();
 let bookmarksLoaded = false;
-let pendingBookmarkAction = null; // set when a signed-out user clicks a heart, replayed after sign-in
+
+// Persisted via sessionStorage rather than a plain JS variable — a
+// redirect-based sign-in (used on mobile/PWA, see shouldUseRedirectAuth
+// below) fully reloads the page, wiping any in-memory variable. This
+// survives that reload and works identically for the popup flow too.
+const PENDING_BOOKMARK_KEY = "catalystPendingBookmark";
+function setPendingBookmarkAction(action) {
+  sessionStorage.setItem(PENDING_BOOKMARK_KEY, JSON.stringify(action));
+}
+function getPendingBookmarkAction() {
+  try {
+    const raw = sessionStorage.getItem(PENDING_BOOKMARK_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+function clearPendingBookmarkAction() {
+  sessionStorage.removeItem(PENDING_BOOKMARK_KEY);
+}
 
 auth.onAuthStateChanged(async (user) => {
   currentUser = user;
@@ -751,10 +778,10 @@ auth.onAuthStateChanged(async (user) => {
       </div>
     `;
     await loadBookmarks();
-    if (pendingBookmarkAction) {
-      const action = pendingBookmarkAction;
-      pendingBookmarkAction = null;
-      performBookmarkToggle(action.type, action.key, action.data);
+    const pending = getPendingBookmarkAction();
+    if (pending) {
+      clearPendingBookmarkAction();
+      performBookmarkToggle(pending.type, pending.key, pending.data);
     }
   } else {
     topBar.innerHTML = `<button class="auth-btn" id="signInBtn" onclick="signInWithGoogle()">Sign in with Google</button>`;
@@ -770,12 +797,32 @@ auth.onAuthStateChanged(async (user) => {
   }
 });
 
+// Popups are unreliable inside installed PWAs and many mobile browsers —
+// especially once Google's own 2-step verification prompt requires
+// switching to the Gmail app and back, which can sever a popup's link
+// back to the opening page entirely. Redirect navigates the whole page to
+// Google and back instead, which survives that app-switch cleanly. Popup
+// stays the default on desktop, where it's a nicer non-navigating UX and
+// doesn't have this failure mode.
+function shouldUseRedirectAuth() {
+  const isStandalonePwa = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  return isStandalonePwa || isMobileDevice;
+}
+
 function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch((err) => {
-    console.error("Sign-in failed:", err);
-    alert("Sign-in failed: " + err.message);
-  });
+  if (shouldUseRedirectAuth()) {
+    auth.signInWithRedirect(provider).catch((err) => {
+      console.error("Sign-in redirect failed:", err);
+      alert("Sign-in failed: " + err.message);
+    });
+  } else {
+    auth.signInWithPopup(provider).catch((err) => {
+      console.error("Sign-in failed:", err);
+      alert("Sign-in failed: " + err.message);
+    });
+  }
 }
 
 function signOut() {
@@ -818,7 +865,7 @@ function escapeHtml(str) {
 
 function toggleBookmark(type, key, data) {
   if (!currentUser) {
-    pendingBookmarkAction = { type, key, data };
+    setPendingBookmarkAction({ type, key, data });
     const label = data.title || data.company || data.name || data.term || "this";
     document.getElementById("bookmarkPromptText").innerHTML =
       `Want to bookmark <b>"${escapeHtml(label)}"</b> to read later?`;
@@ -830,12 +877,12 @@ function toggleBookmark(type, key, data) {
 
 function closeBookmarkPrompt() {
   document.getElementById("bookmarkPromptOverlay").classList.add("hidden");
-  pendingBookmarkAction = null; // declined — don't replay it after some later, unrelated sign-in
+  clearPendingBookmarkAction(); // declined — don't replay it after some later, unrelated sign-in
 }
 
 function confirmBookmarkSignIn() {
   document.getElementById("bookmarkPromptOverlay").classList.add("hidden");
-  signInWithGoogle(); // pendingBookmarkAction stays set — onAuthStateChanged replays it on success
+  signInWithGoogle(); // the pending action stays in sessionStorage — replayed once signed in, even across a redirect's full page reload
 }
 
 async function performBookmarkToggle(type, key, data) {
