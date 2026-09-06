@@ -717,21 +717,49 @@ const VAPID_KEY = "BEavfMHZXr8KqpXrSgf9SrwHLI2KdYHuNM34o0mPTfZrjYdef2qUcIsPlX9zG
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
+
 // Explicit, not just relying on the default — LOCAL persistence survives
-// page reloads and browser restarts. Setting this explicitly (rather than
-// trusting the SDK default) avoids a possible race where a sign-in
-// completes before the default persistence mode has fully initialized.
+// page reloads and browser restarts.
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch((err) => {
   console.error("Couldn't set auth persistence:", err);
 });
 
-// Catches errors specific to the redirect-based sign-in flow (the popup
-// flow has its own inline .catch() instead) — this fires once, on the
-// page load right after Google redirects back.
-auth.getRedirectResult().catch((err) => {
-  console.error("Redirect sign-in failed:", err);
-  alert("Sign-in failed: " + err.message);
-});
+// The client_id here is not secret (only the client_secret, used
+// server-side only in api/auth-callback.js, is). TODO: paste your real
+// OAuth Client ID from Google Cloud Console → APIs & Services →
+// Credentials.
+const GOOGLE_OAUTH_CLIENT_ID = "TODO_PASTE_YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com";
+
+// Handles the server-side sign-in flow's hand-off: api/auth-callback.js
+// redirects back here with a ready-to-use Firebase custom token in the
+// URL fragment (never sent to any server, fragments never leave the
+// browser) rather than relying on any client-side storage surviving the
+// round trip. signInWithCustomToken() itself is a plain SDK call with no
+// cross-origin navigation involved, so LOCAL persistence works normally.
+(function handleCustomTokenFromRedirect() {
+  const hash = window.location.hash;
+  if (hash.startsWith("#customToken=")) {
+    const token = decodeURIComponent(hash.slice("#customToken=".length));
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+    auth.signInWithCustomToken(token).catch((err) => {
+      console.error("Custom token sign-in failed:", err);
+      alert("Sign-in failed: " + err.message);
+    });
+  }
+})();
+
+// Surfaces an error from api/auth-callback.js if the server-side exchange
+// itself failed (e.g. the user cancelled on Google's consent screen).
+(function handleAuthErrorFromRedirect() {
+  const params = new URLSearchParams(window.location.search);
+  const authError = params.get("authError");
+  if (authError) {
+    alert("Sign-in failed: " + authError);
+    params.delete("authError");
+    const cleanQuery = params.toString();
+    history.replaceState(null, "", window.location.pathname + (cleanQuery ? "?" + cleanQuery : ""));
+  }
+})();
 
 // ---------------------------------------------------------------------
 // Auth + bookmarks (Google Sign-In only for now; Apple can be added later
@@ -746,8 +774,8 @@ let bookmarkedFounders = new Set();
 let bookmarkedLexicon = new Set();
 let bookmarksLoaded = false;
 
-// Persisted via sessionStorage rather than a plain JS variable — a
-// redirect-based sign-in (used on mobile/PWA, see shouldUseRedirectAuth
+// Persisted via sessionStorage rather than a plain JS variable — the
+// server-side sign-in flow (used on mobile/PWA, see shouldUseServerSideAuth
 // below) fully reloads the page, wiping any in-memory variable. This
 // survives that reload and works identically for the popup flow too.
 const PENDING_BOOKMARK_KEY = "catalystPendingBookmark";
@@ -804,25 +832,37 @@ auth.onAuthStateChanged(async (user) => {
 // Google and back instead, which survives that app-switch cleanly. Popup
 // stays the default on desktop, where it's a nicer non-navigating UX and
 // doesn't have this failure mode.
-function shouldUseRedirectAuth() {
+// Popups (and Firebase's own signInWithRedirect) are unreliable inside
+// installed PWAs on both iOS and Android — confirmed by testing, not just
+// theory: sign-in completes but the resulting session doesn't stick,
+// even across a full app close/reopen. Mobile/PWA gets the server-side
+// flow instead (see api/auth-callback.js), which needs no client-side
+// storage to survive the round trip. Desktop keeps the simpler,
+// already-working client-only popup.
+function shouldUseServerSideAuth() {
   const isStandalonePwa = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
   const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   return isStandalonePwa || isMobileDevice;
 }
 
 function signInWithGoogle() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  if (shouldUseRedirectAuth()) {
-    auth.signInWithRedirect(provider).catch((err) => {
-      console.error("Sign-in redirect failed:", err);
-      alert("Sign-in failed: " + err.message);
+  if (shouldUseServerSideAuth()) {
+    const redirectUri = `${window.location.origin}/api/auth-callback`;
+    const params = new URLSearchParams({
+      client_id: GOOGLE_OAUTH_CLIENT_ID,
+      redirect_uri: redirectUri,
+      response_type: "code",
+      scope: "openid email profile",
+      prompt: "select_account",
     });
-  } else {
-    auth.signInWithPopup(provider).catch((err) => {
-      console.error("Sign-in failed:", err);
-      alert("Sign-in failed: " + err.message);
-    });
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+    return;
   }
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch((err) => {
+    console.error("Sign-in failed:", err);
+    alert("Sign-in failed: " + err.message);
+  });
 }
 
 function signOut() {
