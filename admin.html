@@ -10,7 +10,7 @@
   :root{ --ink:#16261F; --paper:#F6F3EC; --card:#FFFFFF; --signal:#E0A339; --signal-deep:#B87A1E; --line:#D8D2C2; --forest:#2C4A3B; --muted:#6B7268; }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{background:var(--paper); color:var(--ink); font-family:'Space Grotesk', sans-serif; line-height:1.5; padding-bottom:80px;}
-  .wrap{max-width:720px; margin:0 auto; padding:40px 24px;}
+  .wrap{max-width:1100px; margin:0 auto; padding:40px 24px;}
   h1{font-family:'Fraunces', serif; font-size:28px; margin-bottom:6px;}
   .sub{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted); margin-bottom:32px;}
   .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:24px; margin-bottom:20px;}
@@ -115,6 +115,8 @@
   .pool-row img{width:36px; height:36px; border-radius:6px; object-fit:cover; flex-shrink:0; background:var(--card);}
   .pool-row .pool-title{font-size:13px; font-weight:500;}
   .pool-row .pool-meta{font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--muted);}
+  #weeklyNewsPool, #weeklyStartupPool, #weeklyLexiconPool{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:8px; align-items:start;}
+  #weeklyNewsPool .pool-row, #weeklyStartupPool .pool-row, #weeklyLexiconPool .pool-row{margin-bottom:0;}
 </style>
 </head>
 <body>
