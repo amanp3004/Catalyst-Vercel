@@ -130,6 +130,7 @@
       <button class="tab-btn active" id="tabBtn-emails" onclick="switchTab('emails')">Email Lists</button>
       <button class="tab-btn" id="tabBtn-founders" onclick="switchTab('founders')">Founders' Friday</button>
       <button class="tab-btn" id="tabBtn-weekly" onclick="switchTab('weekly')">Weekly Digest</button>
+      <button class="tab-btn" id="tabBtn-history" onclick="switchTab('history')">Send History</button>
     </div>
 
     <div id="tab-emails">
@@ -216,13 +217,11 @@
     <div id="tab-weekly" class="hidden">
       <div class="sub">
         Pick any number of news stories, startups, and vocabulary terms for
-        the next send. All three come pre-checked below; uncheck anything
-        you don't want. If nothing is saved here before the workflow is
+        the next send. Nothing is pre-checked below \u2014 check whatever you
+        want included. If nothing is saved here before the workflow is
         triggered, Gemini picks a reasonable set itself so the email still
         goes out.
       </div>
-
-      <div id="weeklyLastSentBanner"></div>
 
       <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
         <div id="weeklySelectionCount" style="font-family:'IBM Plex Mono', monospace; font-size:12px;">Loading this week's pool...</div>
@@ -256,10 +255,12 @@
         <div class="list-name">Vocabulary pool (this week's Builder's Lexicon terms)</div>
         <div id="weeklyLexiconPool"></div>
       </div>
+    </div>
 
+    <div id="tab-history" class="hidden">
+      <div class="sub">Every past send, with exactly what went out in each. Click one to expand it.</div>
+      <div id="weeklyLastSentBanner"></div>
       <div class="card">
-        <div class="list-name">Send history</div>
-        <div class="sub" style="margin-bottom:10px;">Every past send, with exactly what went out in each. Click one to expand it.</div>
         <div id="weeklyArchiveContainer"><span class="sub">Loading...</span></div>
       </div>
     </div>
@@ -304,12 +305,19 @@ auth.onAuthStateChanged((user) => {
   }
 });
 
+let historyLoaded = false;
+
 function switchTab(name) {
-  for (const t of ["emails", "founders", "weekly"]) {
+  for (const t of ["emails", "founders", "weekly", "history"]) {
     document.getElementById(`tab-${t}`).classList.toggle("hidden", t !== name);
     document.getElementById(`tabBtn-${t}`).classList.toggle("active", t === name);
   }
   if (name === "weekly" && !weeklyDigestLoaded) loadWeeklyDigestTab();
+  if (name === "history" && !historyLoaded) {
+    historyLoaded = true;
+    loadWeeklyLastSentBanner();
+    loadWeeklyArchive();
+  }
 }
 
 function login() {
@@ -365,6 +373,15 @@ async function loadLists() {
         <button class="danger" onclick="deleteList('${doc.id}', '${data.name.replace(/'/g, "\\'")}')">Delete list</button>
       </div>
       <div id="status-${doc.id}" class="status"></div>
+
+      <div style="margin-top:16px; padding-top:16px; border-top:1px dashed var(--line);">
+        <label>Bulk upload from Excel/CSV \u2014 adds new emails only, never removes existing ones</label>
+        <input type="file" id="emailFile-${doc.id}" accept=".xlsx,.xls,.csv">
+        <div style="display:flex; justify-content:flex-end;">
+          <button onclick="uploadEmailsForList('${doc.id}')">Upload &amp; add emails</button>
+        </div>
+        <div id="uploadStatus-${doc.id}" class="status"></div>
+      </div>
     `;
     container.appendChild(card);
   });
@@ -398,6 +415,67 @@ async function deleteList(docId, name) {
   if (!confirm(`Delete the list "${name}"? This can't be undone.`)) return;
   await db.collection("email_lists").doc(docId).delete();
   loadLists();
+}
+
+// Pulls every valid-looking email out of every cell of every sheet in the
+// uploaded file, regardless of column layout — a real institutional
+// export might have Name/Email/Batch columns in any order, so rather than
+// requiring a specific header, this just extracts anything that matches
+// an email pattern anywhere in the file.
+function extractEmailsFromWorkbook(workbook) {
+  const found = [];
+  for (const sheetName of workbook.SheetNames) {
+    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1, defval: "" });
+    for (const row of rows) {
+      for (const cell of row) {
+        found.push(String(cell));
+      }
+    }
+  }
+  return parseEmails(found.join("\n"));
+}
+
+async function uploadEmailsForList(docId) {
+  const fileInput = document.getElementById(`emailFile-${docId}`);
+  const statusEl = document.getElementById(`uploadStatus-${docId}`);
+  const file = fileInput.files[0];
+  if (!file) {
+    statusEl.textContent = "Choose a file first.";
+    statusEl.className = "status err";
+    return;
+  }
+  statusEl.textContent = "Reading file...";
+  statusEl.className = "status";
+
+  try {
+    const buf = await file.arrayBuffer();
+    const workbook = XLSX.read(buf, { type: "array" });
+    const newEmails = extractEmailsFromWorkbook(workbook);
+
+    if (newEmails.length === 0) {
+      statusEl.textContent = "No valid email addresses found in that file.";
+      statusEl.className = "status err";
+      return;
+    }
+
+    const docRef = db.collection("email_lists").doc(docId);
+    const snapshot = await docRef.get();
+    const existing = new Set((snapshot.data().emails || []).map((e) => e.toLowerCase()));
+    const merged = new Set(existing);
+    let added = 0;
+    for (const email of newEmails) {
+      if (!existing.has(email)) { merged.add(email); added++; }
+    }
+
+    await docRef.update({ emails: Array.from(merged).sort() });
+    statusEl.textContent = `Added ${added} new email(s). Skipped ${newEmails.length - added} already in the list.`;
+    statusEl.className = "status ok";
+    fileInput.value = "";
+    loadLists();
+  } catch (err) {
+    statusEl.textContent = "Upload failed: " + err.message;
+    statusEl.className = "status err";
+  }
 }
 
 // ---------------------------------------------------------------------
@@ -909,17 +987,21 @@ async function loadWeeklyDigestTab() {
       document.getElementById("weeklyClosingQuote").value = data.closing_quote || "Now, go build.";
       document.getElementById("weeklyClosingAttribution").value = data.closing_attribution || "";
     } else {
-      weeklySelectedNews = new Set(weeklyNewsPool.map((i) => i.key));
-      weeklySelectedStartups = new Set(weeklyStartupPool.map((i) => i.key));
-      weeklySelectedLexicon = new Set(weeklyLexiconPool.map((i) => i.key));
+      // No saved selection for this week (either nobody's curated yet, or
+      // it was just cleared after a successful send) — start with
+      // nothing checked rather than pre-selecting everything. If nothing
+      // ever gets saved before the next trigger, send_weekly_digest.py
+      // still falls back to Gemini auto-curation on its own, so this is
+      // purely about what the admin sees when they open the tab.
+      weeklySelectedNews = new Set();
+      weeklySelectedStartups = new Set();
+      weeklySelectedLexicon = new Set();
     }
   } catch (e) {
     console.error("Couldn't load existing weekly selection:", e);
   }
 
   renderWeeklyPools();
-  loadWeeklyLastSentBanner();
-  loadWeeklyArchive();
 }
 
 async function loadWeeklyLastSentBanner() {
