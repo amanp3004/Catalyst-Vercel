@@ -54,6 +54,7 @@ from edition_utils import today_ist, load_edition_for_date
 
 MODEL = os.environ.get("FOUNDEROS_MODEL", "gemini-2.5-flash")
 WEEKLY_SELECTIONS_COLLECTION = "weekly_digest_selections"
+WEEKLY_ARCHIVE_COLLECTION = "weekly_digest_archive"
 
 
 def _clean_credential(value):
@@ -384,6 +385,36 @@ etc). Respond with ONLY valid JSON, no markdown fences, matching:
     return framed_news, expanded_lexicon
 
 
+def archive_this_send(news, startups, lexicon, date_range_label, closing_quote, closing_attribution):
+    """Record exactly what went out in this send, as a permanent history
+    entry admin.html can show under "Send history." Stores real values
+    (titles/companies/terms), not just the reference keys — the source
+    day's file could get deleted by generate_edition.py's own pruning
+    later, and the archive should still mean something when that happens.
+    """
+    db = _get_firestore_client()
+    db.collection(WEEKLY_ARCHIVE_COLLECTION).add({
+        "sent_at": firestore.SERVER_TIMESTAMP,
+        "date_range_label": date_range_label,
+        "news": [{"title": n["title"], "domain": n.get("domain", ""), "date": n["date"]} for n in news],
+        "startups": [{"company": s["company"], "date": s["date"]} for s in startups],
+        "lexicon": [{"term": t["term"], "date": t["date"]} for t in lexicon],
+        "closing_quote": closing_quote,
+        "closing_attribution": closing_attribution,
+    })
+
+
+def clear_current_selection():
+    """Delete this week's curated selection after a successful send, so
+    admin.html's Weekly Digest tab naturally resets to its default state
+    (fresh pools, everything pre-checked) next time it's opened — rather
+    than showing what looks like an untouched, ready-to-edit selection
+    that's actually already gone out.
+    """
+    db = _get_firestore_client()
+    db.collection(WEEKLY_SELECTIONS_COLLECTION).document("current").delete()
+
+
 def format_date_range(start_date_str, end_date_str):
     start = datetime.date.fromisoformat(start_date_str)
     end = datetime.date.fromisoformat(end_date_str)
@@ -424,7 +455,6 @@ def build_text(news, startups, lexicon, date_range_label, closing_quote, closing
         lines.append(f"\u2014 {closing_attribution}")
     lines.append("")
     lines.append("Curated by Atlas \u2014 Our AI Editor")
-    lines.append(f"To stop receiving this, reply to this email or contact {GMAIL_ADDRESS}.")
     return "\n".join(lines)
 
 
@@ -526,7 +556,6 @@ def build_html(news, startups, lexicon, date_range_label, closing_quote, closing
 
   <tr><td style="padding:8px 30px 24px; text-align:center;">
     <div style="font-size:10.5px; color:#6B7268;">Curated by Atlas &mdash; Our AI Editor</div>
-    <div style="font-size:10px; color:#9B9584; margin-top:8px;">To stop receiving this, reply to this email.</div>
   </td></tr>
 
 </table>
@@ -604,3 +633,11 @@ if __name__ == "__main__":
             print(f"Sent to {recipient} ({i}/{len(recipients)})")
 
     print("Done.")
+
+    # Only archive + clear the selection once every recipient actually got
+    # the email — if the SMTP loop above raised partway through, this
+    # code is never reached, and the selection stays intact so a re-run
+    # doesn't silently skip content nobody actually received yet.
+    archive_this_send(news, startups, lexicon_terms, date_range_label, closing_quote, closing_attribution)
+    clear_current_selection()
+    print("Archived this send and cleared the current selection.")
