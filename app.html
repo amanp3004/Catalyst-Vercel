@@ -152,6 +152,15 @@
   .bottom-nav-btn svg{width:22px; height:22px; stroke:currentColor; stroke-width:2; fill:none;}
   .bottom-nav-btn.active{color:var(--forest);}
   .bottom-nav-btn.active svg{fill:var(--forest); stroke:var(--forest);}
+
+  .bookmark-prompt-overlay{position:fixed; inset:0; background:rgba(22,38,31,0.6); display:flex; align-items:center; justify-content:center; z-index:1100; padding:24px;}
+  .bookmark-prompt-overlay.hidden{display:none;}
+  .bookmark-prompt-box{background:var(--paper); border-radius:14px; padding:30px; max-width:340px; width:100%; text-align:center;}
+  .bookmark-prompt-box .brand{font-size:24px; margin-bottom:14px;}
+  .bookmark-prompt-box p{font-size:14px; color:var(--ink); margin-bottom:22px; line-height:1.5;}
+  .bookmark-prompt-box .google-btn{width:100%; justify-content:center; background:var(--forest); color:var(--paper); border:none; padding:11px 16px; border-radius:24px; font-family:'Space Grotesk', sans-serif; font-size:14px; font-weight:600; cursor:pointer;}
+  .bookmark-prompt-box .google-btn:hover{background:var(--signal-deep);}
+  .bookmark-prompt-cancel{display:block; margin:14px auto 0; background:none; border:none; color:var(--muted); font-size:12px; text-decoration:underline; cursor:pointer;}
   .main-tab-btn{font-family:'IBM Plex Mono', monospace; font-size:12px; text-transform:uppercase; letter-spacing:0.05em; background:none; border:1px solid var(--line); color:var(--muted); padding:9px 18px; border-radius:20px; cursor:pointer;}
   .main-tab-btn.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
   .main-tab-panel.hidden{display:none;}
@@ -226,6 +235,15 @@
       Bookmarks
     </button>
   </nav>
+
+  <div class="bookmark-prompt-overlay hidden" id="bookmarkPromptOverlay" onclick="if (event.target === this) closeBookmarkPrompt()">
+    <div class="bookmark-prompt-box">
+      <div class="brand">Catalyst<span class="mark">.</span></div>
+      <p id="bookmarkPromptText">Want to bookmark this to read later?</p>
+      <button class="google-btn" onclick="confirmBookmarkSignIn()">Sign in with Google</button>
+      <button class="bookmark-prompt-cancel" onclick="closeBookmarkPrompt()">Not now</button>
+    </div>
+  </div>
 
   <div class="contact-footer">
     <div class="contact-title">Feedback & Suggestions</div>
@@ -729,7 +747,7 @@ auth.onAuthStateChanged(async (user) => {
     if (pendingBookmarkAction) {
       const action = pendingBookmarkAction;
       pendingBookmarkAction = null;
-      toggleBookmark(action.type, action.key, action.data);
+      performBookmarkToggle(action.type, action.key, action.data);
     }
   } else {
     topBar.innerHTML = `<button class="auth-btn" id="signInBtn" onclick="signInWithGoogle()">Sign in with Google</button>`;
@@ -780,12 +798,40 @@ function getBookmarkSet(type) {
 // (title/image/etc) — needed because the source day's data file can get
 // pruned later by generate_edition.py, same reasoning as the weekly
 // digest archive: bookmarks must not go blank when that happens.
-async function toggleBookmark(type, key, data) {
+// Escapes text before it's inserted via innerHTML — a real article title
+// could contain <, >, or & characters, which would otherwise break the
+// layout or, worse, execute as real HTML/JS if a source ever contained a
+// crafted string. textContent-round-trip is the standard safe way to do
+// this without a library.
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str == null ? "" : String(str);
+  return div.innerHTML;
+}
+
+function toggleBookmark(type, key, data) {
   if (!currentUser) {
     pendingBookmarkAction = { type, key, data };
-    signInWithGoogle();
+    const label = data.title || data.company || data.name || data.term || "this";
+    document.getElementById("bookmarkPromptText").innerHTML =
+      `Want to bookmark <b>"${escapeHtml(label)}"</b> to read later?`;
+    document.getElementById("bookmarkPromptOverlay").classList.remove("hidden");
     return;
   }
+  performBookmarkToggle(type, key, data);
+}
+
+function closeBookmarkPrompt() {
+  document.getElementById("bookmarkPromptOverlay").classList.add("hidden");
+  pendingBookmarkAction = null; // declined — don't replay it after some later, unrelated sign-in
+}
+
+function confirmBookmarkSignIn() {
+  document.getElementById("bookmarkPromptOverlay").classList.add("hidden");
+  signInWithGoogle(); // pendingBookmarkAction stays set — onAuthStateChanged replays it on success
+}
+
+async function performBookmarkToggle(type, key, data) {
   const set = getBookmarkSet(type);
   const isRemoving = set.has(key);
   const docRef = db.collection("user_bookmarks").doc(currentUser.uid);
