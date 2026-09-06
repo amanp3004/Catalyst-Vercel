@@ -339,13 +339,35 @@ const db = firebase.firestore();
 const CLOUDINARY_CLOUD_NAME = "nyfdso4y";
 const CLOUDINARY_UPLOAD_PRESET = "founder_photos";
 
-auth.onAuthStateChanged((user) => {
-  document.getElementById("loginCard").classList.toggle("hidden", !!user);
-  document.getElementById("adminPanel").classList.toggle("hidden", !user);
-  if (user) {
-    loadLists();
-    loadFounderList();
+auth.onAuthStateChanged(async (user) => {
+  if (!user) {
+    document.getElementById("loginCard").classList.toggle("hidden", false);
+    document.getElementById("adminPanel").classList.toggle("hidden", true);
+    return;
   }
+
+  // Being signed in isn't the same as being an admin anymore — app.html
+  // now offers Google Sign-In too, and that's the same Firebase project,
+  // so anyone who bookmarked a news article there would otherwise count
+  // as "signed in" here as well. Confirm real admin access by attempting
+  // an actual admin-only read; a permission-denied error here means the
+  // Firestore rules' isAdmin() check rejected them — not a bug, that's
+  // the rule working correctly. Sign them back out and say why, rather
+  // than leaving a half-broken panel with silent failed loads.
+  try {
+    await db.collection("email_lists").limit(1).get();
+  } catch (e) {
+    document.getElementById("loginStatus").textContent =
+      "This Google account isn't an approved admin. Contact whoever manages Catalyst's Firebase project to be added.";
+    document.getElementById("loginStatus").className = "status err";
+    await auth.signOut();
+    return;
+  }
+
+  document.getElementById("loginCard").classList.toggle("hidden", true);
+  document.getElementById("adminPanel").classList.toggle("hidden", false);
+  loadLists();
+  loadFounderList();
 });
 
 let historyLoaded = false;
