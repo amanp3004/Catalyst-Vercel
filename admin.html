@@ -115,7 +115,10 @@
   .pool-row img{width:36px; height:36px; border-radius:6px; object-fit:cover; flex-shrink:0; background:var(--card);}
   .pool-row .pool-title{font-size:13px; font-weight:500;}
   .pool-row .pool-meta{font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--muted);}
-  #weeklyNewsPool, #weeklyStartupPool, #weeklyLexiconPool{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:8px; align-items:start;}
+  #weeklyNewsPool, #weeklyStartupPool, #weeklyLexiconPool{display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; align-items:start;}
+  @media (max-width: 640px){
+    #weeklyNewsPool, #weeklyStartupPool, #weeklyLexiconPool{grid-template-columns:1fr;}
+  }
   #weeklyNewsPool .pool-row, #weeklyStartupPool .pool-row, #weeklyLexiconPool .pool-row{margin-bottom:0;}
 </style>
 </head>
@@ -244,15 +247,6 @@
       <div id="weeklySaveStatus" class="status"></div>
 
       <div class="card">
-        <div class="list-name">Closing quote</div>
-        <div class="sub" style="margin-bottom:10px;">Shown at the bottom of the email, right before the "Curated by Atlas" footer. Attribution is optional \u2014 leave it blank for a plain closing line with no named source.</div>
-        <label>Quote</label>
-        <input type="text" id="weeklyClosingQuote" value="Now, go build.">
-        <label>Attributed to (optional)</label>
-        <input type="text" id="weeklyClosingAttribution" placeholder="e.g. Steve Jobs">
-      </div>
-
-      <div class="card">
         <div class="list-name">Preview, copy, or download this email</div>
         <div class="sub" style="margin-bottom:10px;">
           Builds the exact email layout from whatever's checked below \u2014 useful
@@ -269,6 +263,15 @@
           <button class="ghost" onclick="downloadWeeklyEmailHtml()">Download .html file</button>
         </div>
         <div id="weeklyEmailPreviewStatus" class="status"></div>
+      </div>
+
+      <div class="card">
+        <div class="list-name">Closing quote</div>
+        <div class="sub" style="margin-bottom:10px;">Shown at the bottom of the email, right before the "Curated by Atlas" footer. Attribution is optional \u2014 leave it blank for a plain closing line with no named source.</div>
+        <label>Quote</label>
+        <input type="text" id="weeklyClosingQuote" value="Now, go build.">
+        <label>Attributed to (optional)</label>
+        <input type="text" id="weeklyClosingAttribution" placeholder="e.g. Steve Jobs">
       </div>
 
       <div class="card">
