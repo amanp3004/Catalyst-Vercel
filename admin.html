@@ -215,16 +215,21 @@
 
     <div id="tab-weekly" class="hidden">
       <div class="sub">
-        Pick this week's picks for Saturday's email &mdash; any number of news
-        stories, startups, and vocabulary terms. All three come pre-checked
-        below; uncheck anything you don't want. If nothing is saved here
-        by Saturday morning, Gemini picks a reasonable set itself so the
-        email still goes out.
+        Pick any number of news stories, startups, and vocabulary terms for
+        the next send. All three come pre-checked below; uncheck anything
+        you don't want. If nothing is saved here before the workflow is
+        triggered, Gemini picks a reasonable set itself so the email still
+        goes out.
       </div>
+
+      <div id="weeklyLastSentBanner"></div>
 
       <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
         <div id="weeklySelectionCount" style="font-family:'IBM Plex Mono', monospace; font-size:12px;">Loading this week's pool...</div>
-        <button onclick="saveWeeklySelection()">Save this week's picks</button>
+        <div class="row" style="margin:0;">
+          <button class="ghost" onclick="clearWeeklySelections()">Clear all selections</button>
+          <button onclick="saveWeeklySelection()">Save this week's picks</button>
+        </div>
       </div>
       <div id="weeklySaveStatus" class="status"></div>
 
@@ -250,6 +255,12 @@
       <div class="card">
         <div class="list-name">Vocabulary pool (this week's Builder's Lexicon terms)</div>
         <div id="weeklyLexiconPool"></div>
+      </div>
+
+      <div class="card">
+        <div class="list-name">Send history</div>
+        <div class="sub" style="margin-bottom:10px;">Every past send, with exactly what went out in each. Click one to expand it.</div>
+        <div id="weeklyArchiveContainer"><span class="sub">Loading...</span></div>
       </div>
     </div>
 
@@ -906,6 +917,75 @@ async function loadWeeklyDigestTab() {
     console.error("Couldn't load existing weekly selection:", e);
   }
 
+  renderWeeklyPools();
+  loadWeeklyLastSentBanner();
+  loadWeeklyArchive();
+}
+
+async function loadWeeklyLastSentBanner() {
+  const el = document.getElementById("weeklyLastSentBanner");
+  try {
+    const snapshot = await db.collection("weekly_digest_archive").orderBy("sent_at", "desc").limit(1).get();
+    if (snapshot.empty) { el.innerHTML = ""; return; }
+    const d = snapshot.docs[0].data();
+    const sentAt = d.sent_at?.toDate ? d.sent_at.toDate().toLocaleString() : "recently";
+    el.innerHTML = `<div class="card" style="border-color:var(--forest); background:#EDF3EF;">
+      <span style="font-family:'IBM Plex Mono', monospace; font-size:12px;">
+        &#10003; Last digest sent ${sentAt} \u2014 ${d.news?.length || 0} news \u00b7 ${d.startups?.length || 0} startups \u00b7 ${d.lexicon?.length || 0} vocabulary terms
+      </span>
+    </div>`;
+  } catch (e) {
+    el.innerHTML = "";
+  }
+}
+
+async function loadWeeklyArchive() {
+  const container = document.getElementById("weeklyArchiveContainer");
+  try {
+    const snapshot = await db.collection("weekly_digest_archive").orderBy("sent_at", "desc").limit(20).get();
+    if (snapshot.empty) {
+      container.innerHTML = `<span class="sub">No sends yet.</span>`;
+      return;
+    }
+    container.innerHTML = "";
+    snapshot.forEach((doc) => container.appendChild(renderArchiveRow(doc.id, doc.data())));
+  } catch (e) {
+    container.innerHTML = `<span class="sub">Couldn't load send history: ${e.message}</span>`;
+  }
+}
+
+function renderArchiveRow(docId, d) {
+  const row = document.createElement("div");
+  row.className = "founder-row";
+  const safeId = docId.replace(/[^a-zA-Z0-9_-]/g, "_");
+  row.id = `archive-row-${safeId}`;
+  const sentAt = d.sent_at?.toDate ? d.sent_at.toDate().toLocaleString() : "unknown time";
+  const newsList = (d.news || []).map((n) => `<li>${n.title}</li>`).join("");
+  const startupList = (d.startups || []).map((s) => `<li>${s.company}</li>`).join("");
+  const lexiconList = (d.lexicon || []).map((t) => `<li>${t.term}</li>`).join("");
+  row.innerHTML = `
+    <div class="founder-row-header" onclick="document.getElementById('archive-row-${safeId}').classList.toggle('expanded')">
+      <div class="founder-row-title">
+        <div class="name">${d.date_range_label || "Untitled send"}</div>
+        <div class="meta">Sent ${sentAt} \u00b7 ${(d.news||[]).length} news \u00b7 ${(d.startups||[]).length} startups \u00b7 ${(d.lexicon||[]).length} terms</div>
+      </div>
+      <svg class="founder-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="founder-row-body">
+      ${newsList ? `<div class="field-label">News</div><ul style="margin:0 0 12px 18px; padding:0; font-size:13px;">${newsList}</ul>` : ""}
+      ${startupList ? `<div class="field-label">Startups</div><ul style="margin:0 0 12px 18px; padding:0; font-size:13px;">${startupList}</ul>` : ""}
+      ${lexiconList ? `<div class="field-label">Vocabulary</div><ul style="margin:0 0 12px 18px; padding:0; font-size:13px;">${lexiconList}</ul>` : ""}
+      ${d.closing_quote ? `<div class="field-label">Closing quote</div><div style="font-size:13px; font-style:italic;">"${d.closing_quote}"${d.closing_attribution ? ` \u2014 ${d.closing_attribution}` : ""}</div>` : ""}
+    </div>
+  `;
+  return row;
+}
+
+function clearWeeklySelections() {
+  if (!confirm("Clear all selected news, startups, and vocabulary terms? You'll still need to click Save for this to take effect.")) return;
+  weeklySelectedNews.clear();
+  weeklySelectedStartups.clear();
+  weeklySelectedLexicon.clear();
   renderWeeklyPools();
 }
 
