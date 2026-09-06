@@ -205,8 +205,24 @@ WORKFLOW:
      "North Star Metric", an org-design story → "Span of Control"). Do NOT
      limit this to startup/VC jargon — draw from across ALL of these
      functions, rotating which function gets featured rather than
-     defaulting to fundraising/growth terms every time. As with the M&A
-     category, use the reference definition below as accuracy ground truth
+     defaulting to fundraising/growth terms every time.
+     STRICT REQUIREMENT — NO RAW AI/TECH JARGON: the term must be a real
+     business/management/strategy/finance/marketing/supply-chain/ops
+     concept — never a raw AI/ML implementation term. Banned examples:
+     Hallucination, Fine-Tuning, Transformer, Neural Network, Training
+     Data, Prompt Engineering, API, Algorithm, Inference, Embedding,
+     Token, Parameter, Overfitting — these are technical vocabulary, not
+     business concepts, and most educated readers already know what they
+     mean; defining them teaches nothing an IIM/MBA reader doesn't already
+     have. This rule applies EVEN IF today's theme is AI-related: on an
+     AI-themed day, pick the business lens ON that story instead (e.g.
+     "Vertical Integration", "Network Effects", "Moat", "Category Design",
+     "Platform Strategy" — whichever genuinely fits), never the AI
+     technology's own internal vocabulary. If you cannot find a business
+     concept that authentically complements today's theme, pick the best
+     general-purpose one from the categories below rather than reaching
+     for technical jargon as a fallback.
+     As with the M&A category, use the reference definition below as accuracy ground truth
      for each term, but rewrite it in Catalyst's own voice rather than
      copying it verbatim, and still add your own "why it matters" and
      real-world example as usual:
@@ -620,6 +636,20 @@ AI_THEME_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+# Code-level enforcement for the Builder's Lexicon "no raw AI/ML jargon"
+# rule — see the matching prompt instruction above. "token" was deliberately
+# left out despite being common ML vocabulary: it also appears in
+# legitimate business terms like "Token Economy" (a real crypto/business
+# concept), and that false-positive risk outweighs catching the rare case
+# of someone picking bare "Token" as a lexicon term.
+BANNED_LEXICON_JARGON_PATTERN = re.compile(
+    r"\b(hallucinat\w*|fine[- ]tun\w*|transformer|neural network|training data|"
+    r"prompt engineering|\bapi\b|algorithm|inference|embedding|"
+    r"parameter|overfitting|backpropagation|gradient descent|large language "
+    r"model|\bllm\b|chatbot|generative ai|genai)\b",
+    re.IGNORECASE,
+)
+
 
 # Lightweight, append-only history files — just a JSON array of strings,
 # newest entry first, no other metadata. These exist specifically so term/
@@ -923,25 +953,33 @@ the exclusion lists above. Output only the JSON object."""
         already_used_terms = {t.lower() for t in (recent_terms + rejected_this_run)}
         term_collides = bool(picked_term) and picked_term.lower() in already_used_terms
 
+        # Same lesson applied to a second failure mode: the prompt now
+        # explicitly bans raw AI/ML jargon (Hallucination, Fine-Tuning, API,
+        # etc.) as a Builder's Lexicon term, but per the exact same pattern
+        # observed with AI-heavy themes, an abstract instruction alone is
+        # not reliable enough — this is the code-level guarantee.
+        term_is_banned_jargon = bool(picked_term) and BANNED_LEXICON_JARGON_PATTERN.search(picked_term)
+
         picked_company = edition.get("breakdown", {}).get("company", "").strip()
         already_used_companies = {c.lower() for c in (recent_companies + rejected_companies_this_run)}
         company_collides = bool(picked_company) and picked_company.lower() in already_used_companies
 
-        if term_collides or company_collides:
+        if term_collides or term_is_banned_jargon or company_collides:
             reasons = []
             if term_collides:
-                reasons.append(f"Builder's Lexicon term '{picked_term}'")
+                reasons.append(f"Builder's Lexicon term '{picked_term}' repeats recent history")
+            if term_is_banned_jargon:
+                reasons.append(f"Builder's Lexicon term '{picked_term}' is raw AI/ML jargon, not a business concept")
             if company_collides:
-                reasons.append(f"Startup Breakdown company '{picked_company}'")
+                reasons.append(f"Startup Breakdown company '{picked_company}' collides with the exclusion list")
             print(
-                f"[warn] attempt {attempt}/{max_attempts}: {' and '.join(reasons)} "
-                f"collide{'s' if len(reasons) == 1 else ''} with the exclusion list(s). "
-                + ("Retrying with them explicitly excluded..." if attempt < max_attempts
-                   else "Out of retries — keeping the repeat(s) this once rather "
+                f"[warn] attempt {attempt}/{max_attempts}: {' and '.join(reasons)}. "
+                + ("Retrying with it explicitly excluded..." if attempt < max_attempts
+                   else "Out of retries — keeping the issue this once rather "
                         "than failing the whole edition over a soft issue.")
             )
             if attempt < max_attempts:
-                if term_collides:
+                if term_collides or term_is_banned_jargon:
                     rejected_this_run.append(picked_term)
                 if company_collides:
                     rejected_companies_this_run.append(picked_company)
