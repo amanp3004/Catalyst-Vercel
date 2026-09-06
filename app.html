@@ -717,6 +717,13 @@ const VAPID_KEY = "BEavfMHZXr8KqpXrSgf9SrwHLI2KdYHuNM34o0mPTfZrjYdef2qUcIsPlX9zG
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
+// Explicit, not just relying on the default — LOCAL persistence survives
+// page reloads and browser restarts. Setting this explicitly (rather than
+// trusting the SDK default) avoids a possible race where a sign-in
+// completes before the default persistence mode has fully initialized.
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch((err) => {
+  console.error("Couldn't set auth persistence:", err);
+});
 
 // ---------------------------------------------------------------------
 // Auth + bookmarks (Google Sign-In only for now; Apple can be added later
