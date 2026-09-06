@@ -1,0 +1,11 @@
+{
+  "name": "catalyst",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": "20.x"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.6.0"
+  }
+}
