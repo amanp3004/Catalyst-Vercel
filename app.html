@@ -400,6 +400,28 @@ window.addEventListener('resize', () => syncTrendHeight());
   });
 })();
 
+// Bookmark helpers used inside render() — deliberately placed here, in the
+// SAME script block as render() and BEFORE the Firebase SDK <script src>
+// tags below, not in the later Firebase-dependent block. Loading those
+// external scripts blocks further parsing, and during that wait the
+// earlier fetch('data/latest.json') can resolve and call render() before
+// the later block has even executed — these two helpers have zero actual
+// Firebase dependency (they only build HTML strings referencing function
+// names for later onclick use), so there's no reason to risk that race.
+function bmKey(dateStr, name) { return `${dateStr}::${name}`; }
+
+function heartButtonHtml(type, key, data) {
+  return `
+    <div class="heart-row">
+      <button class="heart-btn" data-bookmark-type="${type}" data-bookmark-key="${encodeURIComponent(key)}"
+        data-bookmark-payload="${encodeURIComponent(JSON.stringify(data))}"
+        onclick="handleHeartClick(this)" aria-label="Bookmark">
+        <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 000-7.6z"/></svg>
+      </button>
+    </div>
+  `;
+}
+
 function render(edition, opts) {
   opts = opts || {};
   document.getElementById('dateMeta').innerHTML =
@@ -544,7 +566,11 @@ function render(edition, opts) {
   `;
 
   initTrendCarousel(trendCards);
-  refreshAllHeartUI(); // reflect actual bookmark state on the just-rendered hearts
+  // Guarded: refreshAllHeartUI is defined in a later script block (after
+  // the Firebase SDK loads). In the rare case render() fires before that
+  // block has executed, hearts just render empty for a moment — the
+  // upcoming auth state change calls refreshAllHeartUI() again anyway.
+  if (typeof refreshAllHeartUI === "function") refreshAllHeartUI();
 }
 
 // ---------------------------------------------------------------------
@@ -688,8 +714,6 @@ let bookmarkedLexicon = new Set();
 let bookmarksLoaded = false;
 let pendingBookmarkAction = null; // set when a signed-out user clicks a heart, replayed after sign-in
 
-function bmKey(dateStr, name) { return `${dateStr}::${name}`; }
-
 auth.onAuthStateChanged(async (user) => {
   currentUser = user;
   const topBar = document.getElementById("topBar");
@@ -797,23 +821,6 @@ function refreshAllHeartUI() {
     const isBookmarked = getBookmarkSet(type).has(key);
     el.classList.toggle("filled", isBookmarked);
   });
-}
-
-// Data is passed via URL-encoded data-attributes rather than inlined into
-// an onclick string — a raw title/quote containing an apostrophe or
-// double-quote would otherwise break out of the HTML attribute and/or the
-// inline JS call. encodeURIComponent is safe inside any HTML attribute
-// context with zero escaping concerns.
-function heartButtonHtml(type, key, data) {
-  return `
-    <div class="heart-row">
-      <button class="heart-btn" data-bookmark-type="${type}" data-bookmark-key="${encodeURIComponent(key)}"
-        data-bookmark-payload="${encodeURIComponent(JSON.stringify(data))}"
-        onclick="handleHeartClick(this)" aria-label="Bookmark">
-        <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 000-7.6z"/></svg>
-      </button>
-    </div>
-  `;
 }
 
 function handleHeartClick(btn) {
