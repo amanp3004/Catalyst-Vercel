@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.catalyst_saksham_bay.twa",
+        "sha256_cert_fingerprints": ["09:14:E6:BB:C7:8D:BE:93:B8:03:58:0F:4A:93:EE:9D:16:27:E1:1A:9E:D0:C6:BC:A7:7F:58:91:D1:C5:44:83"]
+      }
+}]
