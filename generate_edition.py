@@ -807,21 +807,39 @@ def collect_stories(limit_per_source=12):
 def _post_to_gemini_with_retry(url, payload, max_retries=4, initial_delay=2):
     """POST to Gemini with retry + exponential backoff on transient
     server-side errors (503 Service Unavailable, 429 rate limit, and other
-    5xx). These are infrastructure hiccups on Google's end — observed in
-    practice as a bare 503 that killed the whole run — unrelated to prompt
-    content or JSON quality, which is what curate_edition's own retry loop
-    already handles. Kept as a separate inner retry so a transient network
-    blip doesn't consume one of that loop's limited attempts, which exist
-    to handle a different class of problem (a bad generation, not a down
-    server).
+    5xx) AND on connection-level failures (timeouts, connection resets,
+    DNS blips) — observed in practice as a 503 that got retried correctly,
+    immediately followed by a ReadTimeout on the very next attempt that
+    wasn't caught at all and killed the whole run, skipping every
+    remaining retry. A timeout never produces a response to check the
+    status code of, so it needs its own except clause, not just the
+    status-code check below. These are infrastructure hiccups on Google's
+    end, unrelated to prompt content or JSON quality, which is what
+    curate_edition's own retry loop already handles. Kept as a separate
+    inner retry so a transient network blip doesn't consume one of that
+    loop's limited attempts, which exist to handle a different class of
+    problem (a bad generation, not a down server).
 
     Any non-retryable status (success, or a genuine 4xx like a bad request)
-    breaks out immediately — only 429/5xx trigger a sleep-and-retry.
+    breaks out immediately — only 429/5xx/connection failures trigger a
+    sleep-and-retry.
     """
     delay = initial_delay
     response = None
     for attempt in range(1, max_retries + 1):
-        response = requests.post(url, json=payload, timeout=60)
+        try:
+            response = requests.post(url, json=payload, timeout=60)
+        except requests.exceptions.RequestException as e:
+            if attempt < max_retries:
+                print(
+                    f"[warn] Gemini API request failed: {type(e).__name__}: {e} "
+                    f"(attempt {attempt}/{max_retries}). Retrying in {delay}s..."
+                )
+                time.sleep(delay)
+                delay *= 2
+                continue
+            raise  # out of retries — let the real exception surface, don't swallow it
+
         if response.status_code not in (429, 500, 502, 503, 504):
             break  # success, or a non-retryable error — stop here either way
         if attempt < max_retries:
