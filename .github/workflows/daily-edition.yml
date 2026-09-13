@@ -2,8 +2,23 @@ name: Generate Daily Catalyst Edition
 
 on:
   schedule:
-    # 18:40 UTC = 12:10 AM IST (the following IST calendar day).
-    - cron: "40 18 * * *"
+    # Same day's edition is generated at most once — generate_edition.py
+    # itself locks content as soon as data/{today}.json exists, and every
+    # run below checks that before doing anything else (collecting
+    # stories, calling Gemini, etc.), so a run that finds it already
+    # exists just exits immediately at near-zero cost. These runs are a
+    # safety net against a run failing outright (e.g. a Gemini ReadTimeout
+    # that exhausts all retries) rather than separate editions — once one
+    # run succeeds, every later one that same day is a no-op; if a run
+    # fails, the next one gets a fresh attempt from scratch, since a
+    # failed run never reaches the point where it creates that lock file.
+    - cron: "40 18 * * *"  # 18:40 UTC = 12:10 AM IST — primary run
+    - cron: "40 20 * * *"  # 20:40 UTC = 2:10 AM IST
+    - cron: "40 22 * * *"  # 22:40 UTC = 4:10 AM IST
+    - cron: "40 0 * * *"   # 00:40 UTC = 6:10 AM IST
+    - cron: "40 2 * * *"   # 02:40 UTC = 8:10 AM IST
+    - cron: "40 4 * * *"   # 04:40 UTC = 10:10 AM IST
+    - cron: "40 6 * * *"   # 06:40 UTC = 12:10 PM IST
   workflow_dispatch: {}
 
 permissions:
