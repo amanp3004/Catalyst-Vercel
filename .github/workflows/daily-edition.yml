@@ -2,16 +2,15 @@ name: Generate Daily Catalyst Edition
 
 on:
   schedule:
-    # Same day's edition is generated at most once — generate_edition.py
-    # itself locks content as soon as data/{today}.json exists, and every
-    # run below checks that before doing anything else (collecting
-    # stories, calling Gemini, etc.), so a run that finds it already
-    # exists just exits immediately at near-zero cost. These runs are a
-    # safety net against a run failing outright (e.g. a Gemini ReadTimeout
-    # that exhausts all retries) rather than separate editions — once one
-    # run succeeds, every later one that same day is a no-op; if a run
-    # fails, the next one gets a fresh attempt from scratch, since a
-    # failed run never reaches the point where it creates that lock file.
+    # Same day's edition is generated at most once. These are a safety net
+    # against a run failing outright (e.g. a Gemini ReadTimeout that
+    # exhausts all retries), not separate editions — once one run
+    # succeeds, every later trigger that same day skips almost instantly
+    # (see "Check if today's edition already exists" below, which runs
+    # before checkout/Python setup/pip install, so a no-op run costs a
+    # couple of seconds, not the full job); if a run fails, the next one
+    # gets a fresh attempt from scratch, since a failed run never reaches
+    # the point where it creates that day's file.
     - cron: "40 18 * * *"  # 18:40 UTC = 12:10 AM IST — primary run
     - cron: "40 20 * * *"  # 20:40 UTC = 2:10 AM IST
     - cron: "40 22 * * *"  # 22:40 UTC = 4:10 AM IST
@@ -28,18 +27,45 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
+      # Deliberately the ONLY step that always runs, and deliberately
+      # checkout-free — it asks GitHub's API directly whether
+      # data/{today}.json (IST) already exists on main, without needing
+      # to clone the repo first. Every step below is conditional on this
+      # one, so a day that's already succeeded costs a couple of seconds
+      # per extra scheduled trigger instead of a full checkout + Python
+      # setup + pip install (which is where the real time/minutes go).
+      - name: Check if today's edition already exists
+        id: check
+        run: |
+          TODAY=$(TZ='Asia/Kolkata' date +%Y-%m-%d)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/contents/data/${TODAY}.json?ref=main")
+          echo "today=$TODAY" >> "$GITHUB_OUTPUT"
+          if [ "$STATUS" = "200" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "data/${TODAY}.json already exists on main — skipping the rest of this run."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "data/${TODAY}.json not found yet (HTTP $STATUS) — proceeding with generation."
+          fi
+
       - name: Checkout repo
+        if: steps.check.outputs.exists != 'true'
         uses: actions/checkout@v4
 
       - name: Set up Python
+        if: steps.check.outputs.exists != 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Install dependencies
+        if: steps.check.outputs.exists != 'true'
         run: pip install -r requirements.txt
 
       - name: Generate today's edition
+        if: steps.check.outputs.exists != 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
@@ -47,6 +73,7 @@ jobs:
         run: python generate_edition.py
 
       - name: Commit updated data
+        if: steps.check.outputs.exists != 'true'
         run: |
           git config user.name "catalyst-bot"
           git config user.email "actions@github.com"
