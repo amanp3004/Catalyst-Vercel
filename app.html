@@ -82,6 +82,46 @@
   .bd-block h4{font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--signal-deep); margin-bottom:6px;}
   .bd-block p{font-size:14.5px;}
   .lesson-box{background:#FBF3E2; border-left:3px solid var(--signal); padding:12px 16px; border-radius:4px; font-family:'Fraunces', serif; font-style:italic; font-size:15px;}
+
+  /* --- Deep Dive: MBA Lens / So What / Explain Like (app.html only) --- */
+  .deep-dive-toggle{margin-top:14px; padding-top:14px; border-top:1px dashed var(--line);}
+  .deep-dive-trigger{display:flex; align-items:center; gap:6px; background:none; border:none; cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--signal-deep); padding:0;}
+  .deep-dive-trigger svg{width:14px; height:14px; transition:transform .15s ease; stroke:currentColor; fill:none;}
+  .deep-dive-trigger.open svg{transform:rotate(90deg);}
+  .deep-dive-body{display:none; margin-top:16px;}
+  .deep-dive-body.open{display:block;}
+  .deep-dive-subhead{font-family:'IBM Plex Mono', monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.08em; color:var(--signal-deep); margin-bottom:10px;}
+  .deep-dive-block{margin-bottom:20px;}
+  .deep-dive-block:last-child{margin-bottom:0;}
+
+  .so-what-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  @media (max-width:520px){.so-what-grid{grid-template-columns:1fr;}}
+  .so-what-item{background:var(--paper); border-radius:8px; padding:10px 12px;}
+  .so-what-item h5{font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin:0 0 4px;}
+  .so-what-item p{font-size:13px; margin:0;}
+
+  .pill-tabs{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;}
+  .pill-tab-btn{font-family:'IBM Plex Mono', monospace; font-size:10.5px; text-transform:uppercase; background:var(--paper); border:1px solid var(--line); color:var(--muted); padding:6px 11px; border-radius:14px; cursor:pointer;}
+  .pill-tab-btn.active{background:var(--forest); color:var(--paper); border-color:var(--forest);}
+  .lens-panel{background:var(--paper); border-radius:8px; padding:14px 16px;}
+  .lens-key-concept{display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:10px; text-transform:uppercase; background:#FBF3E2; color:var(--signal-deep); padding:3px 9px; border-radius:20px; margin-bottom:8px;}
+  .lens-panel p{font-size:13.5px; margin:0 0 6px;}
+  .lens-why{font-size:12px; color:var(--muted); margin:0;}
+  .persona-panel{background:var(--paper); border-radius:8px; padding:14px 16px; font-family:'Fraunces', serif; font-style:italic; font-size:14px;}
+
+  /* --- Daily Question / Daily Case mini-widgets --- */
+  .mini-widget-card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:24px;}
+  .mini-widget-card + .mini-widget-card{margin-top:16px;}
+  .mini-widget-label{font-family:'IBM Plex Mono', monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.1em; color:var(--signal-deep); margin-bottom:12px;}
+  .mini-widget-prompt{font-family:'Fraunces', serif; font-weight:700; font-size:15.5px; margin-bottom:14px; line-height:1.4;}
+  .mini-widget-scenario{font-size:13.5px; line-height:1.5; margin-bottom:14px;}
+  .quiz-option-btn{display:block; width:100%; text-align:left; background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:10px 14px; margin-bottom:8px; cursor:pointer; font-family:'Space Grotesk', sans-serif; font-size:13.5px; color:var(--ink);}
+  .quiz-option-btn:hover:not(.disabled){border-color:var(--forest);}
+  .quiz-option-btn.correct{border-color:var(--forest); background:#EDF3EF;}
+  .quiz-option-btn.incorrect{border-color:#B0453D; background:#FBECEA;}
+  .quiz-option-btn.disabled{cursor:default;}
+  .quiz-explanation{margin-top:10px; padding:12px 14px; background:var(--paper); border-left:3px solid var(--signal); border-radius:0 6px 6px 0; font-size:13px; line-height:1.5;}
+  .quiz-explanation b{color:var(--signal-deep);}
   .trend-carousel-wrap{position:relative; overflow:hidden; border-radius:12px; border:1px solid var(--line); transition:height 0.35s ease;}
   .trend-carousel{display:flex; align-items:flex-start; touch-action:pan-y; transition:transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);}
   .trend-card-slide{flex:0 0 100%; box-sizing:border-box; padding:0 1px;}
@@ -495,6 +535,50 @@ function render(edition, opts) {
   ` : '';
 
   const bd = edition.breakdown;
+  const dd = edition.deep_dive; // absent on Fridays (see apply_founder_spotlight) and on older archived editions — both handled by this being falsy
+  const deepDiveHtml = dd ? `
+    <div class="deep-dive-toggle">
+      <button class="deep-dive-trigger" id="deepDiveTrigger" onclick="toggleDeepDive()">
+        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        MBA Lens &amp; Deep Dive
+      </button>
+      <div class="deep-dive-body" id="deepDiveBody">
+        ${dd.so_what ? `
+        <div class="deep-dive-block">
+          <div class="deep-dive-subhead">So What?</div>
+          <div class="so-what-grid">
+            <div class="so-what-item"><h5>Why It Matters</h5><p>${dd.so_what.why_it_matters || ''}</p></div>
+            <div class="so-what-item"><h5>Business Implication</h5><p>${dd.so_what.business_implication || ''}</p></div>
+            <div class="so-what-item"><h5>What To Watch</h5><p>${dd.so_what.what_to_watch || ''}</p></div>
+            <div class="so-what-item"><h5>Key Takeaway</h5><p>${dd.so_what.key_takeaway || ''}</p></div>
+          </div>
+        </div>` : ''}
+        ${dd.mba_lens && dd.mba_lens.length ? `
+        <div class="deep-dive-block">
+          <div class="deep-dive-subhead">MBA Lens</div>
+          <div class="pill-tabs" id="lensTabs">
+            ${dd.mba_lens.map((l, i) => `<button class="pill-tab-btn${i === 0 ? ' active' : ''}" onclick="switchLensTab(${i})">${l.lens}</button>`).join('')}
+          </div>
+          ${dd.mba_lens.map((l, i) => `
+            <div class="lens-panel" id="lensPanel-${i}" ${i === 0 ? '' : 'style="display:none;"'}>
+              ${l.key_concept ? `<div class="lens-key-concept">${l.key_concept}</div>` : ''}
+              <p>${l.insight || ''}</p>
+              ${l.why_it_matters ? `<p class="lens-why"><b>Why it matters:</b> ${l.why_it_matters}</p>` : ''}
+            </div>
+          `).join('')}
+        </div>` : ''}
+        ${dd.explain_like && dd.explain_like.length ? `
+        <div class="deep-dive-block">
+          <div class="deep-dive-subhead">Explain Like...</div>
+          <div class="pill-tabs" id="personaTabs">
+            ${dd.explain_like.map((p, i) => `<button class="pill-tab-btn${i === 0 ? ' active' : ''}" onclick="switchPersonaTab(${i})">${p.persona}</button>`).join('')}
+          </div>
+          ${dd.explain_like.map((p, i) => `<div class="persona-panel" id="personaPanel-${i}" ${i === 0 ? '' : 'style="display:none;"'}>&ldquo;${p.explanation || ''}&rdquo;</div>`).join('')}
+        </div>` : ''}
+      </div>
+    </div>
+  ` : '';
+
   const breakdownHtml = `
     <div class="breakdown-card">
       <div class="breakdown-head">
@@ -507,6 +591,7 @@ function render(edition, opts) {
       <div class="bd-block"><h4>What it does</h4><p>${bd.what}</p></div>
       <div class="bd-block"><h4>Why it matters</h4><p>${bd.why}</p></div>
       ${bd.lesson ? `<div class="bd-block"><h4>The lesson</h4><div class="lesson-box">"${bd.lesson}"</div></div>` : ''}
+      ${deepDiveHtml}
       ${heartButtonHtml('startups', bmKey(edition.date, bd.company), { company: bd.company, what: bd.what, domain: bd.domain, image: logoUrl(bd.domain), date: edition.date })}
     </div>
   `;
@@ -551,6 +636,31 @@ function render(edition, opts) {
     </div>
   ` : '';
 
+  const dq = edition.daily_question;
+  const dailyQuestionHtml = dq ? `
+    <div class="mini-widget-card">
+      <div class="mini-widget-label">Today's Business Question</div>
+      <div class="mini-widget-prompt">${dq.question}</div>
+      <div id="dqOptions">
+        ${dq.options.map((opt, i) => `<button class="quiz-option-btn" onclick="answerDailyQuestion(${i})">${opt}</button>`).join('')}
+      </div>
+      <div id="dqExplanation"></div>
+    </div>
+  ` : '';
+
+  const dc = edition.daily_case;
+  const dailyCaseHtml = dc ? `
+    <div class="mini-widget-card">
+      <div class="mini-widget-label">Today's Case</div>
+      <div class="mini-widget-scenario">${dc.scenario}</div>
+      <div class="deep-dive-subhead" style="margin-bottom:10px;">What would you do?</div>
+      <div id="dcOptions">
+        ${dc.options.map((opt, i) => `<button class="quiz-option-btn" onclick="answerDailyCase(${i})">${opt}</button>`).join('')}
+      </div>
+      <div id="dcAnalysis"></div>
+    </div>
+  ` : '';
+
   const noteHtml = `<div class="note"><div class="section-label">${icon('note')}Editor's Note</div>${edition.editors_note.paragraphs.map(p => `<p>${p}</p>`).join('')}</div>`;
 
   document.getElementById('app').innerHTML = `
@@ -575,6 +685,13 @@ function render(edition, opts) {
         <div class="section-label">${icon('breakdown')}Startup Breakdown</div>
         ${breakdownHtml}
       </section>
+      ${(dailyQuestionHtml || dailyCaseHtml) ? `
+      <section>
+        <div class="section-label">${icon('trend')}Test Yourself</div>
+        ${dailyQuestionHtml}
+        ${dailyCaseHtml}
+      </section>
+      ` : ''}
       <section>
         <div class="section-label">${icon('trend')}Trend to Watch</div>
         ${trendHtml}
@@ -592,11 +709,68 @@ function render(edition, opts) {
   `;
 
   initTrendCarousel(trendCards);
+  // Deep Dive / Daily Question / Daily Case handlers read from this rather
+  // than having their answer data embedded in onclick attributes — keeps
+  // every onclick down to a single safe integer, same reasoning as the
+  // heart buttons' data-attribute approach: no risk of a quote or special
+  // character in generated text ever breaking an inline handler.
+  currentRenderedEdition = edition;
   // Guarded: refreshAllHeartUI is defined in a later script block (after
   // the Firebase SDK loads). In the rare case render() fires before that
   // block has executed, hearts just render empty for a moment — the
   // upcoming auth state change calls refreshAllHeartUI() again anyway.
   if (typeof refreshAllHeartUI === "function") refreshAllHeartUI();
+}
+
+let currentRenderedEdition = null;
+
+function toggleDeepDive() {
+  document.getElementById('deepDiveTrigger').classList.toggle('open');
+  document.getElementById('deepDiveBody').classList.toggle('open');
+}
+
+function switchLensTab(idx) {
+  document.querySelectorAll('#lensTabs .pill-tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === idx));
+  document.querySelectorAll('[id^="lensPanel-"]').forEach((el) => { el.style.display = 'none'; });
+  const panel = document.getElementById('lensPanel-' + idx);
+  if (panel) panel.style.display = 'block';
+}
+
+function switchPersonaTab(idx) {
+  document.querySelectorAll('#personaTabs .pill-tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === idx));
+  document.querySelectorAll('[id^="personaPanel-"]').forEach((el) => { el.style.display = 'none'; });
+  const panel = document.getElementById('personaPanel-' + idx);
+  if (panel) panel.style.display = 'block';
+}
+
+function answerDailyQuestion(chosenIdx) {
+  const dq = currentRenderedEdition && currentRenderedEdition.daily_question;
+  if (!dq) return;
+  const buttons = document.querySelectorAll('#dqOptions .quiz-option-btn');
+  buttons.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === dq.correct_index) btn.classList.add('correct');
+    else if (i === chosenIdx) btn.classList.add('incorrect');
+  });
+  document.getElementById('dqExplanation').innerHTML =
+    `<div class="quiz-explanation">${escapeHtml(dq.explanation || '')}</div>`;
+}
+
+function answerDailyCase(chosenIdx) {
+  const dc = currentRenderedEdition && currentRenderedEdition.daily_case;
+  if (!dc) return;
+  const buttons = document.querySelectorAll('#dcOptions .quiz-option-btn');
+  buttons.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === dc.best_option_index) btn.classList.add('correct');
+    else if (i === chosenIdx) btn.classList.add('incorrect');
+  });
+  const reasoning = escapeHtml((dc.analysis && dc.analysis.reasoning) || '');
+  const tradeOffs = escapeHtml((dc.analysis && dc.analysis.trade_offs) || '');
+  document.getElementById('dcAnalysis').innerHTML =
+    `<div class="quiz-explanation"><b>Reasoning:</b> ${reasoning}<br><br><b>Trade-offs:</b> ${tradeOffs}</div>`;
 }
 
 // ---------------------------------------------------------------------
