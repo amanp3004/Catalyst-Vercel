@@ -559,6 +559,49 @@ WORKFLOW:
    - editors_note: EXACTLY 2 short paragraphs, no more — one thoughtful
      reflection that ties the whole edition into one coherent story with
      one memorable idea. Two paragraphs is enough; do not pad to three.
+   - deep_dive: a business-learning layer built ONLY on the Startup
+     Breakdown company (not the brief items, not trend cards) — deliberately
+     scoped to one story so this doesn't multiply the edition's total size
+     the way applying it everywhere would. Three parts:
+       * mba_lens: exactly 7 entries, one per discipline (Strategy,
+         Marketing, Finance, Operations, Product, Entrepreneurship,
+         Consulting), each reframing the SAME Breakdown story through
+         that discipline's lens. Each entry: "lens" (the discipline name
+         exactly as listed), "insight" (2-3 sentences, specific to this
+         story, not generic — e.g. "X's logistics investment is vertical
+         integration: owning a critical value-chain link" NOT "companies
+         are increasingly investing in infrastructure"), "key_concept"
+         (a short business/strategy term name, e.g. "Vertical
+         Integration"), "why_it_matters" (1 sentence). If a discipline
+         genuinely has nothing sharp to say about this specific story,
+         write the most defensible honest angle rather than generic
+         filler — every one of the 7 must still be concrete and specific
+         to this story, never a restatement of "this is relevant to X."
+       * so_what: "why_it_matters", "business_implication",
+         "what_to_watch", "key_takeaway" — each ONE sentence, sharp and
+         editorial. Answers: why should an MBA student/founder/business
+         professional actually care about this story.
+       * explain_like: exactly 5 entries, one per persona (MBA,
+         Consultant, Founder, Investor, Product Manager), each explaining
+         the SAME Breakdown story in that persona's voice/framing in 1-2
+         sentences. These must sound genuinely different from each other
+         — a consultant frames it as a strategic question, a founder
+         frames it as an execution lesson, an investor frames it as a
+         risk/return question — not five versions of the same sentence.
+   - daily_question: ONE multiple-choice question testing understanding
+     of today's theme or Breakdown story (active recall, not trivia).
+     "question" (one sentence), "options" (exactly 4 short strings),
+     "correct_index" (0-3), "explanation" (1-2 sentences on why that's
+     correct, referencing the actual story).
+   - daily_case: ONE short original business scenario (2-4 sentences)
+     inspired by today's theme — NOT a real named company's real
+     situation stated as fact (that would be fabricating a claim about a
+     real company); a plausible, clearly-general scenario in the same
+     spirit as the day's theme. "scenario", "options" (exactly 4 short
+     strategic choices), "best_option_index" (0-3), "analysis": object
+     with "reasoning" (why that option is strongest, 1-2 sentences) and
+     "trade_offs" (1 sentence on what the other options sacrifice).
+     Designed for a 2-5 minute read, not an exam.
 
 STYLE: Clear, thoughtful, analytical, conversational, concise, confident
 without exaggeration. No buzzwords, no unnecessary adjectives, no
@@ -618,7 +661,46 @@ matching exactly this schema:
     "real_world_example": "string (1 sentence)",
     "reading_time": "string (e.g. '20 sec read')"
   },
-  "editors_note": {"paragraphs": ["string", "string"]}
+  "editors_note": {"paragraphs": ["string", "string"]},
+  "deep_dive": {
+    "mba_lens": [
+      {"lens": "Strategy", "insight": "string, 2-3 sentences, specific to today's Breakdown story", "key_concept": "string, short term name", "why_it_matters": "string, 1 sentence"},
+      {"lens": "Marketing", "insight": "string", "key_concept": "string", "why_it_matters": "string"},
+      {"lens": "Finance", "insight": "string", "key_concept": "string", "why_it_matters": "string"},
+      {"lens": "Operations", "insight": "string", "key_concept": "string", "why_it_matters": "string"},
+      {"lens": "Product", "insight": "string", "key_concept": "string", "why_it_matters": "string"},
+      {"lens": "Entrepreneurship", "insight": "string", "key_concept": "string", "why_it_matters": "string"},
+      {"lens": "Consulting", "insight": "string", "key_concept": "string", "why_it_matters": "string"}
+    ],
+    "so_what": {
+      "why_it_matters": "string, 1 sentence",
+      "business_implication": "string, 1 sentence",
+      "what_to_watch": "string, 1 sentence",
+      "key_takeaway": "string, 1 sentence"
+    },
+    "explain_like": [
+      {"persona": "MBA", "explanation": "string, 1-2 sentences"},
+      {"persona": "Consultant", "explanation": "string"},
+      {"persona": "Founder", "explanation": "string"},
+      {"persona": "Investor", "explanation": "string"},
+      {"persona": "Product Manager", "explanation": "string"}
+    ]
+  },
+  "daily_question": {
+    "question": "string, 1 sentence",
+    "options": ["string", "string", "string", "string"],
+    "correct_index": 0,
+    "explanation": "string, 1-2 sentences"
+  },
+  "daily_case": {
+    "scenario": "string, 2-4 sentences, an original plausible scenario, not a real company's real situation stated as fact",
+    "options": ["string", "string", "string", "string"],
+    "best_option_index": 0,
+    "analysis": {
+      "reasoning": "string, 1-2 sentences",
+      "trade_offs": "string, 1 sentence"
+    }
+  }
 }
 """
 
@@ -914,7 +996,14 @@ the exclusion lists above. Output only the JSON object."""
             "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
             "generationConfig": {
                 "temperature": 0.7,
-                "maxOutputTokens": 16384,
+                # Raised from 16384: the schema grew meaningfully with
+                # deep_dive/daily_question/daily_case (7 MBA lenses + 5
+                # explain_like personas + a case + a question, all new).
+                # This codebase already hit real mid-JSON truncation once
+                # at the smaller schema size (see the thinkingConfig
+                # comment below) — raising this is a deliberate safety
+                # margin, not a guess.
+                "maxOutputTokens": 24576,
                 "responseMimeType": "application/json",
                 # gemini-2.5-flash has extended "thinking" enabled by
                 # default, which draws from the same token budget as the
@@ -1216,6 +1305,19 @@ def apply_founder_spotlight(edition, today):
         # Startup Breakdown card too would just duplicate the same line
         # twice on the page.
     }
+
+    # deep_dive (MBA Lens / So What / Explain Like) was generated by
+    # Gemini around whichever company IT originally picked for the
+    # Breakdown, before this function replaced that with the founder's
+    # real company above. Showing that now-orphaned AI-written content
+    # next to a real, named founder's real company would be confusing at
+    # best (a Strategy/Marketing/Finance lens on a company that isn't
+    # even the one showing on the page) and drifts toward the exact
+    # hallucination-adjacent risk this whole feature exists to avoid.
+    # Dropping it is the same graceful-degrade pattern app.html already
+    # uses for founder_spotlight itself: a missing section is just
+    # skipped in rendering, not an error.
+    edition.pop("deep_dive", None)
 
     mark_founder_featured(doc_id, today)
     print(f"Founders' Friday: featuring {founder.get('founder_name')} ({founder.get('company_name')}).")
