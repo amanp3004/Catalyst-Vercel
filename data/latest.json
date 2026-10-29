@@ -1,217 +1,150 @@
 {
-  "date": "2026-10-29",
-  "theme": "The AI Economic Engine: Revenue, Risk, and Reinvention",
-  "theme_image_query": "digital economy network",
+  "date": "2026-10-30",
+  "theme": "AI Is Eating Software, One Vertical At A Time",
+  "theme_image_query": "AI brain chip software integration",
   "brief": [
     {
-      "title": "Microsoft's OpenAI Bet Pays Off Handsomely",
-      "summary": "Microsoft revealed a staggering $10 billion in revenue from its commercial agreements with OpenAI, highlighting the immense financial upside of strategic AI partnerships and the growing interdependence between big tech and frontier AI labs.",
-      "url": "https://techcrunch.com/2026/10/28/microsoft-recorded-10-billion-in-revenue-from-openai/",
-      "domain": "microsoft.com",
+      "title": "Amazon's Cloud Soars, Retail Stumbles",
+      "summary": "While Amazon's core retail business missed expectations and reported negative free cash flow, its cloud division, AWS, continued to boom. This highlights how cloud infrastructure remains a foundational growth engine, even as consumer spending shifts.",
+      "url": "https://techcrunch.com/2026/10/29/amazon-reported-booming-cloud-revenue-but-otherwise-missed-expectations/",
+      "domain": "amazon.com",
       "region": "global",
-      "sector": "ai",
-      "image_query": "ai datacenter collaboration",
+      "sector": "non_ai",
+      "image_query": "cloud data center servers",
       "image": "https://images.pexels.com/photos/37730212/pexels-photo-37730212.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "title": "Google Supercharges Search with Global AI Ads",
-      "summary": "As growth in its traditional advertising business decelerates, Google is expanding AI-powered search ads globally, signaling a critical strategic shift to leverage generative AI for new revenue streams and maintain its ad dominance.",
-      "url": "https://techcrunch.com/2026/10/28/google-expands-ai-search-ads-globally-as-core-ad-growth-slows/",
-      "domain": "google.com",
+      "title": "GM Pays Up for User Data Misuse",
+      "summary": "General Motors settled for $220 million over allegations of selling drivers' private data without consent. This marks a significant moment for data privacy, underscoring the growing legal and financial risks companies face for mishandling user information.",
+      "url": "https://techcrunch.com/2026/10/29/gm-reaches-220m-settlement-over-selling-drivers-private-data/",
+      "domain": "gm.com",
+      "region": "global",
+      "sector": "non_ai",
+      "image_query": "car dashboard data privacy",
+      "image": "https://images.pexels.com/photos/15828799/pexels-photo-15828799.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+    },
+    {
+      "title": "Rivian & VW Expand EV Partnership with AI",
+      "summary": "Electric vehicle maker Rivian is expanding its joint venture with Volkswagen to integrate an AI assistant, signaling the increasing importance of intelligent software and user experience in the competitive automotive market, beyond just hardware.",
+      "url": "https://techcrunch.com/2026/10/29/rivian-expands-joint-venture-with-vw-to-include-ai-assistant/",
+      "domain": "rivian.com",
       "region": "global",
       "sector": "ai",
-      "image_query": "digital advertising global",
-      "image": "https://images.pexels.com/photos/37669363/pexels-photo-37669363.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "image_query": "electric vehicle AI assistant",
+      "image": "https://images.pexels.com/photos/35076289/pexels-photo-35076289.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "title": "Cybersecurity Faces 'Vulnpocalypse' from PHP Flaws",
-      "summary": "Critical vulnerabilities in PHP, the language powering 70% of websites, have exposed thousands of organizations to significant risk, underscoring the persistent and evolving threat landscape in cybersecurity, even as AI dominates headlines.",
-      "url": "https://techcrunch.com/video/wizs-cto-on-php2shell-and-the-coming-vulnpocalypse/",
-      "domain": "wiz.io",
-      "region": "global",
-      "sector": "non_ai",
-      "image_query": "cybersecurity data breach",
-      "image": "https://images.pexels.com/photos/38486953/pexels-photo-38486953.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-    },
-    {
-      "title": "Meesho's Path to Profitability Narrows",
-      "summary": "Indian e-commerce giant Meesho significantly cut its losses by 68% while growing revenue 34% in Q2 FY27, demonstrating a strong focus on unit economics and sustainable growth in a competitive market.",
-      "url": "https://inc42.com/buzz/meesho-q2-loss-narrows-68-yoy-to-%e2%82%b9132-cr-revenue-jumps-34-yoy/",
-      "domain": "meesho.com",
+      "title": "Indian Spacetech Pixxel Eyes US Market",
+      "summary": "Bengaluru-based spacetech startup Pixxel, known for its hyperspectral imaging satellites, has established a US subsidiary, Pixxel Federal. This strategic move aims to tap into the lucrative US government and defense market, demonstrating global ambitions for Indian deep tech.",
+      "url": "https://inc42.com/buzz/spacetech-soonicorn-pixxel-eyes-us-expansion-with-new-subsidiary/",
+      "domain": "pixxel.space",
       "region": "india",
       "sector": "non_ai",
-      "image_query": "ecommerce financial report",
-      "image": "https://images.pexels.com/photos/5918191/pexels-photo-5918191.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "image_query": "satellite launch space tech",
+      "image": "https://images.pexels.com/photos/60133/pexels-photo-60133.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "title": "Workshaala Eyes Rs 1,000 Cr in Flexible Workspaces",
-      "summary": "Workshaala, an Indian enterprise workspace provider, is targeting Rs 1,000 crore in revenue, capitalizing on the growing demand for flexible and managed office solutions as companies adapt to hybrid work models.",
-      "url": "https://yourstory.com/2026/10/workshaala-targets-rs-1000-cr-revenue-scales-enterprise-workspace-business",
+      "title": "Zorit Raises Capital for B2B Quick Commerce",
+      "summary": "Delhi-based B2B ecommerce startup Bijnis has rebranded as Zorit and secured \u20b927 crore in funding. This highlights continued investor confidence in India's B2B quick commerce sector, aiming to streamline supply chains for small businesses.",
+      "url": "https://inc42.com/buzz/bijnis-rebrands-as-zorit-raises-%e2%82%b927-cr-for-b2b-quick-commerce/",
       "domain": null,
       "region": "india",
       "sector": "non_ai",
-      "image_query": "coworking office space",
-      "image": "https://images.pexels.com/photos/7651639/pexels-photo-7651639.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "image_query": "warehouse logistics quick commerce",
+      "image": "https://images.pexels.com/photos/1797428/pexels-photo-1797428.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     }
   ],
   "breakdown": {
-    "company": "Cognition",
-    "domain": "cognition-labs.com",
-    "category": "AI Development \u00b7 Coding Agents \u00b7 Global",
-    "what": "Cognition is an AI coding startup that develops 'Devin,' the world's first fully autonomous AI software engineer. Devin can execute complex engineering tasks end-to-end, debugging its own code and learning from its mistakes.",
-    "why": "Cognition's reported $70-80 billion valuation for a new funding round highlights the intense investor appetite for companies building foundational AI agents. If successful, Devin could fundamentally redefine software development, making human engineers more productive and accelerating innovation cycles.",
-    "lesson": "In a rapidly evolving market, a truly disruptive product that promises a step-change in productivity can command extraordinary valuations, even from a relatively early stage."
+    "company": "CurryIt",
+    "domain": "curryit.in",
+    "category": "IIM Udaipur Alumnus Founder",
+    "what": "A D2C brand making ready-to-cook, preservative-free curry and cooking pastes using autoclave technology, letting home cooks recreate regional Indian dishes in minutes.",
+    "why": "Backed by IIM Udaipur's own Incubation Centre and RPSG Capital Ventures, CurryIt is a rare India D2C food brand co-founded and funded entirely within the IIM Udaipur ecosystem \u2014 from classroom idea to shelf."
   },
   "trend_cards": [
     {
-      "headline": "AI's Billion-Dollar Handshake",
-      "insight": "Microsoft's $10 billion revenue from OpenAI underscores how strategic partnerships, beyond mere investment, are becoming critical for monetizing AI. This model allows large tech companies to capture value from cutting-edge AI without fully owning the underlying R&D.",
-      "image_query": "business partnership handshake",
-      "image": "https://images.pexels.com/photos/33175650/pexels-photo-33175650.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "AI Transforms Legacy Industries",
+      "insight": "Thrive Holdings' acquisition of ADT for $15.3 billion illustrates a growing trend where AI companies are not just creating new products but buying established players to inject AI directly into traditional sectors like home security. This bypasses slow adoption cycles and leverages existing customer bases.",
+      "image_query": "smart home security system",
+      "image": "https://images.pexels.com/photos/24346971/pexels-photo-24346971.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "headline": "New Revenue, Old Playbook",
-      "insight": "Google's pivot to AI-powered search ads, as core ad growth slows, shows how established giants are adapting. They're leveraging new tech to enhance existing revenue streams rather than creating entirely new business models from scratch, a common strategy in tech cycles.",
-      "image_query": "digital advertising growth",
-      "image": "https://images.pexels.com/photos/6476563/pexels-photo-6476563.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "Vertical AI Wins Over Horizontal",
+      "insight": "Meta's Style Sketch app and Rivian's AI assistant integration with VW show a clear move towards vertical AI applications. Instead of generic AI, companies are embedding specialized AI directly into specific product experiences or industry verticals, creating more tailored and impactful solutions.",
+      "image_query": "stylized fashion AI app",
+      "image": "https://images.pexels.com/photos/20870806/pexels-photo-20870806.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "headline": "Talent Flight to Frontier AI",
-      "insight": "The reported trend of Indian AI founders eyeing Silicon Valley for funding (like Reo.Dev) reveals a global talent arbitrage. Founders seek capital, expertise, and market access, even if it means leaving behind the local ecosystem's advantages.",
-      "image_query": "startup founder global relocation",
-      "image": "https://images.pexels.com/photos/7413915/pexels-photo-7413915.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "Data Privacy Risk Escalates",
+      "insight": "GM's $220 million settlement for selling driver data highlights the increasing regulatory and financial risks associated with handling private information. As AI systems ingest more data, companies must prioritize robust consent mechanisms and transparent data practices to avoid costly penalties and reputational damage.",
+      "image_query": "data privacy legal document",
+      "image": "https://images.pexels.com/photos/4160125/pexels-photo-4160125.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "headline": "The 'Vulnpocalypse' is Real",
-      "insight": "Despite the AI hype, fundamental cybersecurity risks, like the PHP vulnerabilities, continue to pose significant threats. Neglecting core infrastructure security for frontier tech investments is a critical oversight for any organization.",
-      "image_query": "cyber security vulnerability",
-      "image": "https://images.pexels.com/photos/2882654/pexels-photo-2882654.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "Search Engines Under Threat",
+      "insight": "Reddit's shift to a logged-in experience, driven by drying up search traffic due to AI, signals a foundational challenge for open-web content providers. As AI models directly answer queries, the traditional funnel of discovery via search engines is being disrupted, forcing platforms to re-evaluate their value proposition.",
+      "image_query": "person looking at phone AI search",
+      "image": "https://images.pexels.com/photos/31466991/pexels-photo-31466991.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "headline": "Valuation Skyrockets, Vision Follows",
-      "insight": "Cognition's potential $70-80 billion valuation for an AI coding agent is a stark reminder of how investor confidence in transformative AI can outpace traditional metrics. This reflects a belief in future market dominance rather than current revenue.",
-      "image_query": "financial graph ascending",
-      "image": "https://images.pexels.com/photos/186461/pexels-photo-186461.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "AI-Driven M&A Accelerates",
+      "insight": "The Thrive Holdings-ADT deal is a prime example of AI-fueled M&A, where strategic acquisitions are less about market consolidation and more about technology integration. Expect more AI-backed entities to acquire traditional businesses to rapidly deploy AI solutions at scale.",
+      "image_query": "merger acquisition handshake AI",
+      "image": "https://images.pexels.com/photos/8441809/pexels-photo-8441809.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "headline": "Transparency Builds Trust (and IPOs)",
-      "insight": "Anthropic launching tools to show companies what their AI spending is buying is a smart move ahead of its IPO. In a market where AI costs are opaque, transparency can differentiate and build customer trust, especially for enterprise clients.",
-      "image_query": "data analytics dashboard",
-      "image": "https://images.pexels.com/photos/97080/pexels-photo-97080.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "India's Manufacturing AI Opportunity",
+      "insight": "Avendus Capital's report on India's new-age manufacturers benefiting from a $3 trillion global AI investment cycle shows a clear path for industrial growth. Sectors like defense, aerospace, robotics, and advanced materials are ripe for AI integration, driving India's next industrial revolution.",
+      "image_query": "indian factory robotics AI",
+      "image": "https://images.pexels.com/photos/35280311/pexels-photo-35280311.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     }
   ],
   "builder_lexicon": {
-    "term": "Goodwill Impairment",
-    "definition": "Goodwill impairment occurs when the fair value of an acquired business or its assets falls below the carrying value of its goodwill on the acquirer's balance sheet. It results in a non-cash write-down that reduces the company's reported earnings.",
-    "why_it_matters": "For founders and investors, understanding goodwill impairment is crucial as it signals that an acquisition may have overpaid or that the acquired business is underperforming expectations. It impacts financial statements and can affect investor perception.",
-    "real_world_example": "Meta Platforms faced a significant goodwill impairment charge after its acquisition of WhatsApp, indicating that the value of the acquisition had diminished in the eyes of the market.",
+    "term": "Acquihire",
+    "definition": "Acquihire refers to the acquisition of a company primarily for the skills and expertise of its employees, rather than for its products, services, or market share.",
+    "why_it_matters": "For startups, an acquihire can be a strategic exit, especially if the product hasn't achieved scale but the team is exceptional. For larger companies, it's a way to quickly onboard specialized talent and intellectual property, particularly in competitive fields like AI.",
+    "real_world_example": "A tech giant might acquihire a small AI startup specifically for its team of machine learning engineers to accelerate development on an internal project.",
     "reading_time": "20 sec read"
   },
   "editors_note": {
     "paragraphs": [
-      "Today's stories paint a vivid picture of the AI economy's dual nature: immense revenue generation and staggering valuations, alongside persistent operational risks and strategic shifts. Microsoft's $10 billion from OpenAI and Google's AI ad expansion show how established giants are already monetizing the AI wave, while startups like Cognition command valuations that reflect future potential more than present earnings. The sheer scale of capital flowing into AI is reshaping market dynamics, creating new centers of gravity for talent and investment.",
-      "Yet, beneath the AI-fueled headlines, the fundamentals of business endure. Cybersecurity threats remain potent, and companies like Meesho demonstrate that disciplined execution and a focus on unit economics are still paramount for sustainable growth, regardless of the tech du jour. For aspiring founders, the lesson is clear: while AI offers unprecedented opportunities, the enduring principles of value creation, risk management, and market fit are what ultimately separate hype from lasting impact."
-    ]
-  },
-  "deep_dive": {
-    "mba_lens": [
-      {
-        "lens": "Strategy",
-        "insight": "Cognition's strategy of building an autonomous AI software engineer aims to create a new category, fundamentally disrupting how software is developed. This is a bold move to capture a significant portion of the software development value chain.",
-        "key_concept": "Category Creation",
-        "why_it_matters": "Successful category creation can lead to winner-take-all markets and significant competitive moats."
-      },
-      {
-        "lens": "Marketing",
-        "insight": "For a product like Devin, marketing shifts from feature-based to outcome-based, emphasizing the dramatic productivity gains for engineering teams. The challenge is to overcome skepticism about AI's ability to handle complex, creative tasks.",
-        "key_concept": "Value Proposition",
-        "why_it_matters": "Clearly articulating a revolutionary value proposition is essential for rapid adoption in a nascent market."
-      },
-      {
-        "lens": "Finance",
-        "insight": "Cognition's reported $70-80 billion valuation is largely based on discounted future cash flows and market potential, not current revenue. This reflects a high-growth, high-risk investment profile typical of frontier tech with massive TAM.",
-        "key_concept": "Growth Valuation",
-        "why_it_matters": "Understanding how to value disruptive technologies requires forecasting significant future market capture."
-      },
-      {
-        "lens": "Operations",
-        "insight": "Integrating an AI agent like Devin into existing engineering workflows requires significant operational changes, including new training, process adjustments, and potentially restructuring engineering teams. Change management will be crucial.",
-        "key_concept": "Process Reengineering",
-        "why_it_matters": "Operational readiness is as important as technological capability for successful deployment of AI tools."
-      },
-      {
-        "lens": "Product",
-        "insight": "The product development for Devin focuses on agentic capabilities, allowing the AI to understand, plan, and execute multi-step tasks autonomously. This requires robust error handling and continuous learning mechanisms.",
-        "key_concept": "Agentic AI Design",
-        "why_it_matters": "Designing truly autonomous agents demands a shift from simple tool creation to intelligent system building."
-      },
-      {
-        "lens": "Entrepreneurship",
-        "insight": "Cognition's approach exemplifies 'moonshot' entrepreneurship, tackling a problem with a solution that seems almost science fiction. This requires deep technical expertise, significant capital, and a tolerance for high risk.",
-        "key_concept": "Moonshot Thinking",
-        "why_it_matters": "Entrepreneurs pursuing moonshots can create entirely new industries and redefine what's possible."
-      },
-      {
-        "lens": "Consulting",
-        "insight": "Consultants advising clients on AI adoption would need to assess the impact of tools like Devin on organizational structure, talent acquisition, and competitive strategy, guiding them through a potential paradigm shift in software development.",
-        "key_concept": "Digital Transformation",
-        "why_it_matters": "Advising on disruptive AI requires a holistic understanding of its impact across all business functions."
-      }
-    ],
-    "so_what": {
-      "why_it_matters": "Cognition's high valuation signals that investors believe autonomous AI agents will fundamentally reshape the software industry and demand premium pricing.",
-      "business_implication": "Companies must prepare for a future where AI handles significant portions of software development, impacting hiring, training, and strategic R&D investments.",
-      "what_to_watch": "Monitor how fast autonomous coding agents move from niche applications to mainstream enterprise adoption and what new roles emerge for human engineers.",
-      "key_takeaway": "Disruptive AI doesn't just automate tasks; it can create entirely new paradigms for how work is done, demanding strategic foresight from business leaders."
-    },
-    "explain_like": [
-      {
-        "persona": "MBA",
-        "explanation": "Cognition's Devin is a game-changer for software development, potentially boosting productivity and shifting competitive advantage to firms that adopt AI-driven engineering first, forcing a re-evaluation of traditional resource allocation."
-      },
-      {
-        "persona": "Consultant",
-        "explanation": "Our analysis indicates that an autonomous AI software engineer like Devin presents a significant strategic inflection point; clients must evaluate its potential to optimize engineering spend and accelerate product roadmaps, or risk falling behind."
-      },
-      "Founder",
-      {
-        "persona": "Founder",
-        "explanation": "If Devin works as advertised, it means we can build faster with smaller, more impactful teams, freeing up human engineers for higher-level problem-solving and innovation, essentially a force multiplier for our startup."
-      },
-      {
-        "persona": "Investor",
-        "explanation": "Cognition's valuation reflects its potential to capture a massive share of the software development market by creating an entirely new class of AI agents; it's a high-conviction bet on a future where AI is the primary coder."
-      },
-      {
-        "persona": "Product Manager",
-        "explanation": "Devin could dramatically accelerate our feature development cycles and reduce technical debt, but we'll need to rethink how we scope projects, manage quality assurance, and integrate AI into our existing dev toolchain."
-      }
+      "Today's stories reveal a clear pattern: AI is no longer just a separate tool or a feature; it's becoming the core operating system for entire industries. From home security to fashion, and even within the automotive sector, we're seeing a strategic pivot from building AI *for* a sector to fundamentally *rebuilding* the sector *with* AI. This isn't just about efficiency gains; it's about redefining value propositions and competitive landscapes.",
+      "For aspiring founders, this means the opportunity isn't just in creating the next foundational AI model, but in identifying traditional industries ripe for disruption and then embedding AI deeply into their very fabric. The question shifts from 'How can I use AI?' to 'How can AI allow me to own the entire value chain in a specific vertical, potentially through strategic acquisitions or deep integrations?' The battleground for AI leadership is moving from general-purpose tools to specialized, vertically integrated solutions."
     ]
   },
   "daily_question": {
-    "question": "Which of the following best describes the strategic implication of Cognition's high valuation for its AI coding agent, Devin?",
+    "question": "Which of the following best describes the strategic approach of Thrive Holdings in acquiring ADT?",
     "options": [
-      "It primarily reflects Cognition's current revenue and market share.",
-      "It indicates strong investor belief in the future disruptive potential of autonomous AI agents.",
-      "It suggests a saturated market for software development tools.",
-      "It is a sign of declining interest in AI investments."
+      "Building a new AI-powered security product from the ground up.",
+      "Acquiring an existing company to integrate AI into its established operations and customer base.",
+      "Focusing solely on developing AI software for other security companies.",
+      "Divesting from the home security market to focus on other AI ventures."
     ],
     "correct_index": 1,
-    "explanation": "Cognition's high valuation, despite being an early-stage company, reflects intense investor belief in the future disruptive potential of its autonomous AI coding agent, Devin, to fundamentally change software development."
+    "explanation": "Thrive Holdings acquired ADT to embed AI directly into an existing, large-scale home security business, rather than building a new product from scratch, demonstrating a 'buy to transform' strategy."
   },
   "daily_case": {
-    "scenario": "A mid-sized software company, 'InnovateNow,' is facing increasing pressure to accelerate its product development cycle and reduce engineering costs. They are considering adopting a new AI-powered autonomous coding agent, similar to Cognition's Devin, but are wary of the upfront investment and potential integration challenges.",
+    "scenario": "A healthtech startup has developed a highly accurate AI diagnostic tool but struggles with market adoption due to the slow pace of integration into hospital systems. A large, traditional hospital chain expresses interest in acquiring the startup.",
     "options": [
-      "Invest heavily in the AI agent immediately, aiming for first-mover advantage and maximum cost savings.",
-      "Pilot the AI agent on a small, non-critical project to understand its capabilities and integration requirements before wider adoption.",
-      "Postpone any AI adoption, focusing instead on optimizing existing human engineering workflows.",
-      "Acquire a smaller AI coding startup to gain proprietary technology and talent."
+      "Decline the acquisition to maintain full control and continue pursuing organic growth.",
+      "Accept the acquisition to rapidly integrate the AI tool across the hospital chain's extensive network.",
+      "License the AI technology to multiple hospital chains to maximize reach without selling the company.",
+      "Pivot to a direct-to-consumer model, bypassing hospital integration challenges entirely."
     ],
     "best_option_index": 1,
     "analysis": {
-      "reasoning": "Piloting the AI agent on a small project allows InnovateNow to assess its real-world effectiveness, identify integration hurdles, and measure ROI with controlled risk before committing to a larger, more disruptive rollout.",
-      "trade_offs": "Immediate heavy investment is high risk; postponing misses potential benefits; acquisition is a complex and costly strategy not directly addressing integration challenges."
+      "reasoning": "Accepting the acquisition offers the fastest and most direct path to scale and impact for the AI diagnostic tool, leveraging the acquirer's existing infrastructure and patient base.",
+      "trade_offs": "Declining maintains control but sacrifices rapid scaling; licensing offers reach but less integration control; pivoting to D2C fundamentally changes the business model and target market."
     }
   },
-  "theme_image": "https://images.pexels.com/photos/8370345/pexels-photo-8370345.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+  "founder_spotlight": {
+    "name": "Richa Sharma",
+    "linkedin_url": "https://in.linkedin.com/in/richasharma05",
+    "photo_url": "https://res.cloudinary.com/nyfdso4y/image/upload/v1788458755/founder-photos/richa-sharma--curryit.jpg",
+    "company": "CurryIt",
+    "status": "alumnus",
+    "batch_or_year": "2014",
+    "learning": "CurryIt didn't work around \"no preservatives\" \u2014 it built the entire product line and packaging process around that one constraint. The hardest rule you set for yourself is often the one that ends up defining the brand."
+  },
+  "theme_image": "https://images.pexels.com/photos/34924856/pexels-photo-34924856.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
 }
