@@ -1,150 +1,216 @@
 {
-  "date": "2026-10-30",
-  "theme": "AI Is Eating Software, One Vertical At A Time",
-  "theme_image_query": "AI brain chip software integration",
+  "date": "2026-10-31",
+  "theme": "The Resilience of Real-World Assets",
+  "theme_image_query": "factory production line, supply chain logistics",
   "brief": [
     {
-      "title": "Amazon's Cloud Soars, Retail Stumbles",
-      "summary": "While Amazon's core retail business missed expectations and reported negative free cash flow, its cloud division, AWS, continued to boom. This highlights how cloud infrastructure remains a foundational growth engine, even as consumer spending shifts.",
-      "url": "https://techcrunch.com/2026/10/29/amazon-reported-booming-cloud-revenue-but-otherwise-missed-expectations/",
-      "domain": "amazon.com",
+      "title": "Intel's AI-Fueled PC Pain",
+      "summary": "Intel's stock dropped significantly as the AI industry's demand for memory and components drove up PC prices, highlighting how shifts in a related tech sector can disrupt established hardware markets.",
+      "url": "https://techcrunch.com/2026/10/30/intels-stock-crashes-knocking-12b-from-governments-stake/",
+      "domain": "intel.com",
       "region": "global",
       "sector": "non_ai",
-      "image_query": "cloud data center servers",
-      "image": "https://images.pexels.com/photos/37730212/pexels-photo-37730212.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "image_query": "computer chip manufacturing",
+      "image": "https://images.pexels.com/photos/3665442/pexels-photo-3665442.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "title": "GM Pays Up for User Data Misuse",
-      "summary": "General Motors settled for $220 million over allegations of selling drivers' private data without consent. This marks a significant moment for data privacy, underscoring the growing legal and financial risks companies face for mishandling user information.",
-      "url": "https://techcrunch.com/2026/10/29/gm-reaches-220m-settlement-over-selling-drivers-private-data/",
-      "domain": "gm.com",
+      "title": "Applebee's Serves Up a Data Breach",
+      "summary": "A security researcher found a hardcoded password in Applebee's app, exposing customer data. This underscores the persistent risk of basic security flaws even for large, non-tech companies handling sensitive information.",
+      "url": "https://techcrunch.com/2026/10/30/applebees-exposed-customers-personal-data-after-leaving-database-password-in-app/",
+      "domain": "applebees.com",
       "region": "global",
       "sector": "non_ai",
-      "image_query": "car dashboard data privacy",
-      "image": "https://images.pexels.com/photos/15828799/pexels-photo-15828799.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "image_query": "cyber security data lock",
+      "image": "https://images.pexels.com/photos/39584/censorship-limitations-freedom-of-expression-restricted-39584.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "title": "Rivian & VW Expand EV Partnership with AI",
-      "summary": "Electric vehicle maker Rivian is expanding its joint venture with Volkswagen to integrate an AI assistant, signaling the increasing importance of intelligent software and user experience in the competitive automotive market, beyond just hardware.",
-      "url": "https://techcrunch.com/2026/10/29/rivian-expands-joint-venture-with-vw-to-include-ai-assistant/",
-      "domain": "rivian.com",
+      "title": "Binance Hit by Record-Breaking Crypto Heist",
+      "summary": "North Korean hackers are suspected of stealing $6.3 billion from Binance after compromising an employee's laptop, revealing that even leading crypto exchanges remain vulnerable to sophisticated cyberattacks and insider threats.",
+      "url": "https://techcrunch.com/2026/10/30/north-korean-hackers-blamed-for-stealing-record-6-3b-in-binance-breach/",
+      "domain": "binance.com",
       "region": "global",
-      "sector": "ai",
-      "image_query": "electric vehicle AI assistant",
-      "image": "https://images.pexels.com/photos/35076289/pexels-photo-35076289.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "sector": "non_ai",
+      "image_query": "digital wallet theft",
+      "image": "https://images.pexels.com/photos/15195243/pexels-photo-15195243.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "title": "Indian Spacetech Pixxel Eyes US Market",
-      "summary": "Bengaluru-based spacetech startup Pixxel, known for its hyperspectral imaging satellites, has established a US subsidiary, Pixxel Federal. This strategic move aims to tap into the lucrative US government and defense market, demonstrating global ambitions for Indian deep tech.",
-      "url": "https://inc42.com/buzz/spacetech-soonicorn-pixxel-eyes-us-expansion-with-new-subsidiary/",
-      "domain": "pixxel.space",
+      "title": "Pine Labs' Profit Surge Signals Fintech Health",
+      "summary": "Indian fintech giant Pine Labs reported a 6.5x jump in net profit and 24% revenue growth in Q2 FY27, showcasing strong performance in the digital payments and merchant solutions space.",
+      "url": "https://yourstory.com/2026/10/pine-labs-q2-net-profit-soars-65x-cognizant-trims-2026-growth-outlook",
+      "domain": "pinelabs.com",
       "region": "india",
       "sector": "non_ai",
-      "image_query": "satellite launch space tech",
-      "image": "https://images.pexels.com/photos/60133/pexels-photo-60133.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "image_query": "digital payment terminal",
+      "image": "https://images.pexels.com/photos/5849594/pexels-photo-5849594.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "title": "Zorit Raises Capital for B2B Quick Commerce",
-      "summary": "Delhi-based B2B ecommerce startup Bijnis has rebranded as Zorit and secured \u20b927 crore in funding. This highlights continued investor confidence in India's B2B quick commerce sector, aiming to streamline supply chains for small businesses.",
-      "url": "https://inc42.com/buzz/bijnis-rebrands-as-zorit-raises-%e2%82%b927-cr-for-b2b-quick-commerce/",
-      "domain": null,
+      "title": "Hero MotoCorp Electrifies Production Goals",
+      "summary": "Hero MotoCorp plans to increase its EV two-wheeler capacity to 80,000 units per month by Q2 FY28. This aggressive expansion highlights the growing commitment of traditional manufacturers to the electric vehicle market in India.",
+      "url": "https://yourstory.com/2026/10/hero-motocorp-increase-ev-capacity-to-80000-units-per-month-by-q2-fy28",
+      "domain": "heromotocorp.com",
       "region": "india",
       "sector": "non_ai",
-      "image_query": "warehouse logistics quick commerce",
-      "image": "https://images.pexels.com/photos/1797428/pexels-photo-1797428.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "image_query": "electric motorcycle factory",
+      "image": "https://images.pexels.com/photos/40418406/pexels-photo-40418406.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     }
   ],
   "breakdown": {
-    "company": "CurryIt",
-    "domain": "curryit.in",
-    "category": "IIM Udaipur Alumnus Founder",
-    "what": "A D2C brand making ready-to-cook, preservative-free curry and cooking pastes using autoclave technology, letting home cooks recreate regional Indian dishes in minutes.",
-    "why": "Backed by IIM Udaipur's own Incubation Centre and RPSG Capital Ventures, CurryIt is a rare India D2C food brand co-founded and funded entirely within the IIM Udaipur ecosystem \u2014 from classroom idea to shelf."
+    "company": "Delhivery",
+    "domain": "delhivery.com",
+    "category": "Logistics \u00b7 Supply Chain \u00b7 India",
+    "what": "Delhivery is an integrated logistics and supply chain services company in India, offering express parcel delivery, freight, warehousing, and other services across various sectors.",
+    "why": "Delhivery's return to profitability in Q2 FY27, with a \u20b941 crore profit and over \u20b93,000 crore revenue, demonstrates the critical role of robust physical infrastructure and efficient operations in a growing economy, even amidst a broader tech slowdown. Its success underscores the enduring value of managing real-world assets and complex networks.",
+    "lesson": "Founders often over-index on digital innovation; true value can lie in optimizing the physical flow of goods and services, building resilient infrastructure, and achieving operational excellence."
   },
   "trend_cards": [
     {
-      "headline": "AI Transforms Legacy Industries",
-      "insight": "Thrive Holdings' acquisition of ADT for $15.3 billion illustrates a growing trend where AI companies are not just creating new products but buying established players to inject AI directly into traditional sectors like home security. This bypasses slow adoption cycles and leverages existing customer bases.",
-      "image_query": "smart home security system",
-      "image": "https://images.pexels.com/photos/24346971/pexels-photo-24346971.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "Physical Assets Still Dominate",
+      "insight": "While software and AI capture headlines, companies like Delhivery show that mastering physical logistics and asset-heavy operations can generate substantial revenue and profit. The 'real world' still needs to move goods efficiently.",
+      "image_query": "logistics warehouse operations",
+      "image": "https://images.pexels.com/photos/4484073/pexels-photo-4484073.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "headline": "Vertical AI Wins Over Horizontal",
-      "insight": "Meta's Style Sketch app and Rivian's AI assistant integration with VW show a clear move towards vertical AI applications. Instead of generic AI, companies are embedding specialized AI directly into specific product experiences or industry verticals, creating more tailored and impactful solutions.",
-      "image_query": "stylized fashion AI app",
-      "image": "https://images.pexels.com/photos/20870806/pexels-photo-20870806.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "Profitability Over Hype",
+      "insight": "Delhivery's Q2 profit signals a market shift towards valuing tangible financial results over speculative growth. Investors are increasingly scrutinizing unit economics and cash flow, demanding evidence of sustainable business models.",
+      "image_query": "financial chart growth",
+      "image": "https://images.pexels.com/photos/7947757/pexels-photo-7947757.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "headline": "Data Privacy Risk Escalates",
-      "insight": "GM's $220 million settlement for selling driver data highlights the increasing regulatory and financial risks associated with handling private information. As AI systems ingest more data, companies must prioritize robust consent mechanisms and transparent data practices to avoid costly penalties and reputational damage.",
-      "image_query": "data privacy legal document",
-      "image": "https://images.pexels.com/photos/4160125/pexels-photo-4160125.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "Infrastructure as a Moat",
+      "insight": "Building a comprehensive logistics network, as Delhivery has done, creates significant barriers to entry for competitors. This physical infrastructure, combined with technology, forms a powerful competitive advantage that is hard to replicate quickly.",
+      "image_query": "interconnected supply chain",
+      "image": "https://images.pexels.com/photos/8782690/pexels-photo-8782690.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "headline": "Search Engines Under Threat",
-      "insight": "Reddit's shift to a logged-in experience, driven by drying up search traffic due to AI, signals a foundational challenge for open-web content providers. As AI models directly answer queries, the traditional funnel of discovery via search engines is being disrupted, forcing platforms to re-evaluate their value proposition.",
-      "image_query": "person looking at phone AI search",
-      "image": "https://images.pexels.com/photos/31466991/pexels-photo-31466991.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "India's Logistics Boom Continues",
+      "insight": "The strong performance of companies like Delhivery reflects India's booming e-commerce and manufacturing sectors. As consumption rises, the demand for efficient delivery and warehousing solutions will only intensify, creating massive opportunities.",
+      "image_query": "india e-commerce delivery",
+      "image": "https://images.pexels.com/photos/6721907/pexels-photo-6721907.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "headline": "AI-Driven M&A Accelerates",
-      "insight": "The Thrive Holdings-ADT deal is a prime example of AI-fueled M&A, where strategic acquisitions are less about market consolidation and more about technology integration. Expect more AI-backed entities to acquire traditional businesses to rapidly deploy AI solutions at scale.",
-      "image_query": "merger acquisition handshake AI",
-      "image": "https://images.pexels.com/photos/8441809/pexels-photo-8441809.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "Operational Excellence is Key",
+      "insight": "Achieving profitability in a low-margin business like logistics requires relentless focus on operational efficiency, cost control, and network optimization. Delhivery's success is a testament to disciplined execution in complex environments.",
+      "image_query": "optimized warehouse robots",
+      "image": "https://images.pexels.com/photos/36522028/pexels-photo-36522028.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "headline": "India's Manufacturing AI Opportunity",
-      "insight": "Avendus Capital's report on India's new-age manufacturers benefiting from a $3 trillion global AI investment cycle shows a clear path for industrial growth. Sectors like defense, aerospace, robotics, and advanced materials are ripe for AI integration, driving India's next industrial revolution.",
-      "image_query": "indian factory robotics AI",
-      "image": "https://images.pexels.com/photos/35280311/pexels-photo-35280311.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "Beyond Digital-Only Solutions",
+      "insight": "Even 'tech' companies are often underpinned by robust physical operations. The lesson from Delhivery is that digital tools enable, but rarely replace, the fundamental need to manage and optimize physical resources.",
+      "image_query": "digital logistics dashboard",
+      "image": "https://images.pexels.com/photos/5025643/pexels-photo-5025643.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     }
   ],
   "builder_lexicon": {
-    "term": "Acquihire",
-    "definition": "Acquihire refers to the acquisition of a company primarily for the skills and expertise of its employees, rather than for its products, services, or market share.",
-    "why_it_matters": "For startups, an acquihire can be a strategic exit, especially if the product hasn't achieved scale but the team is exceptional. For larger companies, it's a way to quickly onboard specialized talent and intellectual property, particularly in competitive fields like AI.",
-    "real_world_example": "A tech giant might acquihire a small AI startup specifically for its team of machine learning engineers to accelerate development on an internal project.",
+    "term": "Asset-Light Model",
+    "definition": "An asset-light business model minimizes ownership of physical assets (like factories, vehicles, or real estate) by leasing, outsourcing, or using third-party providers. This reduces capital expenditure and increases operational flexibility.",
+    "why_it_matters": "This model allows companies to scale rapidly without heavy upfront investment, improving return on capital and enabling quicker adaptation to market changes. It's a common strategy for startups to reduce financial risk.",
+    "real_world_example": "Uber, for instance, operates an asset-light model by not owning the vehicles its drivers use, instead relying on a network of independent contractors.",
     "reading_time": "20 sec read"
   },
   "editors_note": {
     "paragraphs": [
-      "Today's stories reveal a clear pattern: AI is no longer just a separate tool or a feature; it's becoming the core operating system for entire industries. From home security to fashion, and even within the automotive sector, we're seeing a strategic pivot from building AI *for* a sector to fundamentally *rebuilding* the sector *with* AI. This isn't just about efficiency gains; it's about redefining value propositions and competitive landscapes.",
-      "For aspiring founders, this means the opportunity isn't just in creating the next foundational AI model, but in identifying traditional industries ripe for disruption and then embedding AI deeply into their very fabric. The question shifts from 'How can I use AI?' to 'How can AI allow me to own the entire value chain in a specific vertical, potentially through strategic acquisitions or deep integrations?' The battleground for AI leadership is moving from general-purpose tools to specialized, vertically integrated solutions."
+      "Today's headlines are a stark reminder: while the digital world captivates, the physical one still dictates much of our commerce and economy. From Intel's struggles due to component demand to record crypto breaches, the 'real' world\u2014with its supply chains, security vulnerabilities, and tangible assets\u2014continues to present both the greatest challenges and the most enduring opportunities.",
+      "Delhivery's return to profit, in particular, highlights that fundamental business principles of operational efficiency and strategic asset management remain paramount. As founders, it's easy to get caught up in the allure of purely digital innovation. But the companies building lasting value often master the complex dance between bits and atoms, recognizing that physical infrastructure and execution are often the bedrock of true resilience."
+    ]
+  },
+  "deep_dive": {
+    "mba_lens": [
+      {
+        "lens": "Strategy",
+        "insight": "Delhivery's strategy to build an integrated logistics network across India allows it to capture a larger share of the value chain and offer end-to-end solutions, creating a strong competitive moat by controlling multiple stages of delivery.",
+        "key_concept": "Vertical Integration",
+        "why_it_matters": "This approach reduces reliance on external parties, enhances service quality, and allows for greater cost control."
+      },
+      {
+        "lens": "Marketing",
+        "insight": "By offering reliable and comprehensive logistics services, Delhivery builds strong customer trust and brand loyalty, crucial in a sector where timely and damage-free delivery directly impacts client satisfaction and repeat business.",
+        "key_concept": "Customer Experience",
+        "why_it_matters": "A positive experience translates into higher retention and word-of-mouth growth for B2B services."
+      },
+      {
+        "lens": "Finance",
+        "insight": "Returning to profitability and crossing the \u20b93,000 crore revenue mark indicates improved operational leverage and effective cost management. This financial discipline is vital for attracting further investment and ensuring long-term sustainability.",
+        "key_concept": "Profitability & Revenue Growth",
+        "why_it_matters": "Demonstrating a clear path to profit validates the business model and enhances investor confidence."
+      },
+      {
+        "lens": "Operations",
+        "insight": "Delhivery's success hinges on optimizing complex logistics networks, including warehousing, transportation, and last-mile delivery. Efficient routing, inventory management, and technology-driven tracking are critical for cost-effectiveness and speed.",
+        "key_concept": "Supply Chain Optimization",
+        "why_it_matters": "Streamlined operations directly impact delivery times, reduce costs, and improve overall service reliability."
+      },
+      {
+        "lens": "Product",
+        "insight": "Delhivery's 'product' is a suite of logistics solutions, customized for different business needs. This includes technology platforms for tracking, data analytics for route optimization, and specialized services for various industries (e.g., e-commerce, pharma).",
+        "key_concept": "Service Productization",
+        "why_it_matters": "Packaging services into scalable, modular offerings allows for broader market reach and easier integration for clients."
+      },
+      {
+        "lens": "Entrepreneurship",
+        "insight": "Building a nationwide logistics infrastructure from scratch requires immense capital, operational expertise, and a long-term vision. Delhivery exemplifies tackling a 'hard problem' with significant execution risk but also massive market potential.",
+        "key_concept": "Scalable Infrastructure",
+        "why_it_matters": "Solving foundational challenges often unlocks larger markets and creates more defensible businesses."
+      },
+      {
+        "lens": "Consulting",
+        "insight": "A key recommendation for Delhivery would be to continue leveraging data analytics and AI to further optimize its network, identify new market segments, and anticipate future supply chain disruptions. This proactive approach ensures sustained competitive advantage.",
+        "key_concept": "Data-Driven Decision Making",
+        "why_it_matters": "Using insights from operational data can lead to continuous improvement and strategic adjustments in a dynamic market."
+      }
+    ],
+    "so_what": {
+      "why_it_matters": "Delhivery's profitability shows that foundational, asset-heavy businesses are thriving, even as software-centric models face scrutiny.",
+      "business_implication": "Companies must balance digital innovation with robust physical operations, recognizing that real-world execution often underpins digital success.",
+      "what_to_watch": "Observe how Delhivery continues to integrate technology to enhance its physical network and expand into new service offerings.",
+      "key_takeaway": "Sustainable growth often comes from mastering the tangible, not just the technological."
+    },
+    "explain_like": [
+      {
+        "persona": "MBA",
+        "explanation": "Delhivery's Q2 performance demonstrates strong execution in a capital-intensive sector, validating its strategy of building an integrated logistics network to achieve economies of scale and operational efficiency, leading to profitability."
+      },
+      {
+        "persona": "Consultant",
+        "explanation": "Our analysis indicates Delhivery has successfully optimized its supply chain and leveraged its extensive network as a strategic asset, converting market demand into tangible financial results through disciplined operational management."
+      },
+      {
+        "persona": "Founder",
+        "explanation": "This tells me that even with all the AI hype, building solid infrastructure and nailing your operations in the physical world can still lead to massive, profitable businesses. Don't forget the 'boring' stuff; it's often the hardest to replicate."
+      },
+      {
+        "persona": "Investor",
+        "explanation": "Delhivery's return to profitability signals a maturity in the Indian logistics market and validates its long-term investment in physical assets and network density, suggesting a strong potential for sustained shareholder value."
+      },
+      {
+        "persona": "Product Manager",
+        "explanation": "Delhivery's 'product' is a highly efficient logistics platform; their profitability shows that continuous optimization of features like routing, tracking, and warehousing integration directly translates to business success and customer satisfaction."
+      }
     ]
   },
   "daily_question": {
-    "question": "Which of the following best describes the strategic approach of Thrive Holdings in acquiring ADT?",
+    "question": "Which of the following best describes the core lesson from Delhivery's recent financial performance?",
     "options": [
-      "Building a new AI-powered security product from the ground up.",
-      "Acquiring an existing company to integrate AI into its established operations and customer base.",
-      "Focusing solely on developing AI software for other security companies.",
-      "Divesting from the home security market to focus on other AI ventures."
+      "Digital-only businesses are inherently more profitable than asset-heavy ones.",
+      "Strong operational execution and physical infrastructure are critical for sustainable growth.",
+      "AI is the sole driver of success for logistics companies in emerging markets.",
+      "High revenue growth automatically guarantees profitability in the long run."
     ],
     "correct_index": 1,
-    "explanation": "Thrive Holdings acquired ADT to embed AI directly into an existing, large-scale home security business, rather than building a new product from scratch, demonstrating a 'buy to transform' strategy."
+    "explanation": "Delhivery's return to profitability highlights that strong operational execution and robust physical infrastructure, not just digital solutions, are critical for sustainable growth in the logistics sector."
   },
   "daily_case": {
-    "scenario": "A healthtech startup has developed a highly accurate AI diagnostic tool but struggles with market adoption due to the slow pace of integration into hospital systems. A large, traditional hospital chain expresses interest in acquiring the startup.",
+    "scenario": "A new D2C furniture startup, 'FurnishFast,' aims to disrupt the market with personalized designs and quick delivery across Tier 2 and 3 Indian cities. They are considering two supply chain models: either building their own network of regional warehouses and delivery vans, or partnering with multiple third-party logistics (3PL) providers. FurnishFast has limited initial capital.",
     "options": [
-      "Decline the acquisition to maintain full control and continue pursuing organic growth.",
-      "Accept the acquisition to rapidly integrate the AI tool across the hospital chain's extensive network.",
-      "License the AI technology to multiple hospital chains to maximize reach without selling the company.",
-      "Pivot to a direct-to-consumer model, bypassing hospital integration challenges entirely."
+      "Build their own integrated logistics network for maximum control and brand experience.",
+      "Partner with multiple 3PL providers to minimize upfront capital expenditure and leverage existing networks.",
+      "Focus solely on online marketing and outsource all manufacturing to reduce operational complexity.",
+      "Raise a very large seed round to invest heavily in AI-driven robotic warehouses from day one."
     ],
     "best_option_index": 1,
     "analysis": {
-      "reasoning": "Accepting the acquisition offers the fastest and most direct path to scale and impact for the AI diagnostic tool, leveraging the acquirer's existing infrastructure and patient base.",
-      "trade_offs": "Declining maintains control but sacrifices rapid scaling; licensing offers reach but less integration control; pivoting to D2C fundamentally changes the business model and target market."
+      "reasoning": "Partnering with multiple 3PL providers allows FurnishFast to maintain an asset-light model, conserving precious capital and gaining immediate access to established distribution networks in diverse geographies. This aligns with the lesson of managing physical assets efficiently without owning them, especially with limited initial capital.",
+      "trade_offs": "Building their own network demands significant capital and operational expertise; focusing only on marketing ignores the physical delivery challenge; heavy AI investment from day one is premature without proven product-market fit."
     }
   },
-  "founder_spotlight": {
-    "name": "Richa Sharma",
-    "linkedin_url": "https://in.linkedin.com/in/richasharma05",
-    "photo_url": "https://res.cloudinary.com/nyfdso4y/image/upload/v1788458755/founder-photos/richa-sharma--curryit.jpg",
-    "company": "CurryIt",
-    "status": "alumnus",
-    "batch_or_year": "2014",
-    "learning": "CurryIt didn't work around \"no preservatives\" \u2014 it built the entire product line and packaging process around that one constraint. The hardest rule you set for yourself is often the one that ends up defining the brand."
-  },
-  "theme_image": "https://images.pexels.com/photos/34924856/pexels-photo-34924856.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+  "theme_image": "https://images.pexels.com/photos/34718922/pexels-photo-34718922.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
 }
