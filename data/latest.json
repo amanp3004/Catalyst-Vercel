@@ -1,150 +1,216 @@
 {
-  "date": "2026-11-20",
-  "theme": "Beyond the Buzz: Finding Real Value in Niche Markets",
-  "theme_image_query": "niche market customers",
+  "date": "2026-11-21",
+  "theme": "The Shifting Sands of Corporate Ownership",
+  "theme_image_query": "corporate merger handshake",
   "brief": [
     {
-      "title": "Uber Expands to Kid Rides, Eyes New Market",
-      "summary": "Uber is piloting a program to offer rides for children as young as 10, with increased pay for drivers. This move signals a strategic expansion into a new, potentially high-demand demographic, addressing a specific pain point for busy parents.",
-      "url": "https://techcrunch.com/2026/11/19/uber-tests-rides-for-kids-as-young-as-10-with-extra-pay-for-drivers/",
-      "domain": "uber.com",
+      "title": "Mailchimp's $12B Sale Shrinks to $3.68B Re-Sale",
+      "summary": "Bending Spoons acquired email marketing giant Mailchimp for a significantly lower price than Intuit paid in 2021, highlighting the volatility of tech valuations and the potential for strategic buyers to find bargains in a cooling market.",
+      "url": "https://techcrunch.com/2026/11/20/bending-spoons-buys-mailchimp-for-3-68-billion/",
+      "domain": "bendingspoons.com",
       "region": "global",
       "sector": "non_ai",
-      "image_query": "kids riding car",
-      "image": "https://images.pexels.com/photos/6139055/pexels-photo-6139055.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "image_query": "business acquisition handshake",
+      "image": "https://images.pexels.com/photos/33175650/pexels-photo-33175650.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "title": "SpaceX Aims to Erase Cell Dead Zones",
-      "summary": "Elon Musk announced SpaceX has designed a miniature rooftop cell tower to eliminate mobile phone dead zones. This initiative could significantly improve connectivity in underserved areas, leveraging SpaceX's satellite infrastructure for a new B2B or consumer offering.",
-      "url": "https://techcrunch.com/2026/11/19/elon-musk-says-spacex-has-a-plan-to-eliminate-cell-phone-dead-zones/",
-      "domain": "spacex.com",
+      "title": "Fusion Power Catches Spotify Founder's Eye",
+      "summary": "Spotify founder Daniel Ek is backing Europa Fusion, a fusion power startup, signaling continued investor interest in deep tech and clean energy, even from prominent figures outside traditional energy sectors.",
+      "url": "https://techcrunch.com/2026/11/20/daniel-ek-backs-ai-researchers-fusion-power-startup-heres-what-theyre-building/",
+      "domain": "europafusion.com",
       "region": "global",
       "sector": "non_ai",
-      "image_query": "satellite dish rooftop",
-      "image": "https://images.pexels.com/photos/8476867/pexels-photo-8476867.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "image_query": "fusion reactor energy",
+      "image": "https://images.pexels.com/photos/39256644/pexels-photo-39256644.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "title": "Meta's Muse Charm: A Wearable Gamble",
-      "summary": "Meta's upcoming Muse Charm device, reportedly costing $300, hints at the company's continued push into hardware and AI wearables. This product launch will test consumer appetite for new form factors and Meta's ability to integrate AI into daily life beyond screens.",
-      "url": "https://techcrunch.com/2026/11/19/metas-new-muse-charm-device-may-cost-300/",
-      "domain": "meta.com",
+      "title": "Spacetech Financing: Collateral in Orbit?",
+      "summary": "The challenge of financing space-based hardware, where collateral can literally be shot into orbit, reveals a unique hurdle for startups in the growing space data center industry and innovative lending models may be needed.",
+      "url": "https://techcrunch.com/2026/11/20/chips-can-survive-the-space-environment-can-their-financing/",
+      "domain": null,
       "region": "global",
-      "sector": "ai",
-      "image_query": "wearable tech device",
-      "image": "https://images.pexels.com/photos/267391/pexels-photo-267391.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "sector": "non_ai",
+      "image_query": "satellite financing space",
+      "image": "https://images.pexels.com/photos/586056/pexels-photo-586056.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "title": "Paytm Invests in Singapore's Funding Societies",
-      "summary": "Indian fintech giant Paytm is investing up to \u20b9200 Cr (approximately $21M) in Singapore-based Funding Societies, a regional SME digital financing platform. This move highlights Paytm's international expansion strategy and its focus on cross-border fintech opportunities in Southeast Asia.",
-      "url": "https://inc42.com/buzz/paytm-lines-up-%e2%82%b9200-cr-investment-in-singapores-funding-societies/",
-      "domain": "paytm.com",
+      "title": "Urban Company Secures \u20b92,500 Cr QIP",
+      "summary": "Home services marketplace Urban Company successfully raised \u20b92,500 crore through a Qualified Institutional Placement, attracting significant domestic and international investor interest for its expansion plans in India.",
+      "url": "https://yourstory.com/2026/11/urban-company-raises-rs-2500-cr-through-qip",
+      "domain": "urbancompany.com",
       "region": "india",
       "sector": "non_ai",
-      "image_query": "fintech investment handshake",
-      "image": "https://images.pexels.com/photos/7414111/pexels-photo-7414111.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "image_query": "investment capital market",
+      "image": "https://images.pexels.com/photos/19856572/pexels-photo-19856572.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "title": "NEPRA Raises \u20b9110 Cr for Plastic Recycling Expansion",
-      "summary": "Ahmedabad-based waste management startup NEPRA secured \u20b9110 Cr (around $11.7M) in equity funding to boost its plastic recycling capacity. This investment underscores growing interest in India's circular economy and sustainable solutions for pressing environmental challenges.",
-      "url": "https://inc42.com/buzz/nepra-raises-%e2%82%b9110-cr-to-expand-plastic-recycling-capacity/",
-      "domain": "nepra.co.in",
+      "title": "Indian Spacetech Firm SatSure Raises \u20b960 Cr",
+      "summary": "SatSure, an Indian spacetech startup focused on Earth observation data, secured \u20b960 crore from the Antariksh fund, indicating government-backed support and increasing private investment in India's burgeoning space sector.",
+      "url": "https://yourstory.com/2026/11/spacetech-firm-satsure-raises-rs-60-cr-from-antariksh-fund",
+      "domain": "satsure.co",
       "region": "india",
       "sector": "non_ai",
-      "image_query": "plastic recycling plant",
-      "image": "https://images.pexels.com/photos/14370990/pexels-photo-14370990.png?auto=compress&cs=tinysrgb&h=650&w=940"
+      "image_query": "satellite data earth",
+      "image": "https://images.pexels.com/photos/586063/pexels-photo-586063.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     }
   ],
   "breakdown": {
-    "company": "Bombay Shaving Company",
-    "domain": "bombayshavingcompany.com",
-    "category": "IIM Udaipur Alumnus Founder",
-    "what": "A direct-to-consumer men's grooming brand selling razors, shave and beard care, and skincare, built around a subscription model for recurring blade and cream refills.",
-    "why": "One of India's best-known homegrown D2C grooming brands, backed by investors including Reckitt, Colgate-Palmolive, and Sixth Sense Ventures \u2014 a legacy-category startup that scaled against global incumbents like Gillette."
+    "company": "Bending Spoons",
+    "domain": "bendingspoons.com",
+    "category": "Mobile Apps \u00b7 M&A \u00b7 Italy",
+    "what": "Bending Spoons is an Italian technology company that develops and publishes mobile applications. They recently acquired Mailchimp, a leading email marketing platform, from Intuit.",
+    "why": "This acquisition is significant because Bending Spoons bought Mailchimp for a fraction of what Intuit paid just five years prior. It highlights the dynamic nature of tech valuations, the potential for strategic buyers to 'unbundle' assets from larger conglomerates, and the increasing role of European tech companies in global M&A.",
+    "lesson": "Founders must understand that market valuations are fluid; what's considered a premium asset today can become a bargain tomorrow, creating opportunities for well-capitalized, strategic buyers."
   },
   "trend_cards": [
     {
-      "headline": "Micro-Segmentation Wins",
-      "insight": "Ccigmaa Lifestyles' success highlights how catering to hyper-specific regional differences in consumer needs, like local water composition affecting haircare, can unlock significant market share. Generic solutions often miss these critical nuances.",
-      "image_query": "diverse hair types",
-      "image": "https://images.pexels.com/photos/9167104/pexels-photo-9167104.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "Tech Valuations Re-Calibrate",
+      "insight": "The Mailchimp deal, acquired by Intuit for $12 billion in 2021 and now by Bending Spoons for $3.68 billion, showcases a significant re-calibration of tech asset valuations. This implies a more discerning market where profitability and sustainable growth are prioritized over hyper-growth at any cost.",
+      "image_query": "stock market graph downturn",
+      "image": "https://images.pexels.com/photos/38782891/pexels-photo-38782891.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "headline": "Local Problems, Local Solutions",
-      "insight": "Many global or national brands overlook the granular, localized challenges that consumers face. Startups like Ccigmaa thrive by identifying these specific pain points and developing bespoke solutions that resonate deeply with a particular segment.",
-      "image_query": "local community market",
-      "image": "https://images.pexels.com/photos/9524918/pexels-photo-9524918.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "Conglomerates Unbundle Assets",
+      "insight": "Intuit's sale of Mailchimp suggests a trend where large companies divest non-core assets to streamline operations or unlock value. This creates opportunities for specialized players like Bending Spoons to acquire established businesses at potentially lower multiples.",
+      "image_query": "corporate divestiture strategy",
+      "image": "https://images.pexels.com/photos/36733421/pexels-photo-36733421.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "headline": "Beyond Broad Demographics",
-      "insight": "Instead of targeting 'Gen Z' or 'Millennials' broadly, successful companies are now segmenting based on lifestyle, geography, and even environmental factors. This allows for highly effective product development and marketing efforts.",
-      "image_query": "customer persona research",
-      "image": "https://images.pexels.com/photos/8657370/pexels-photo-8657370.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "Strategic Buyers Emerge",
+      "insight": "Bending Spoons, a mobile app developer, acquiring an email marketing platform like Mailchimp demonstrates how strategic buyers can leverage established brands to expand their ecosystem or customer base, even if the valuation has fallen.",
+      "image_query": "business strategy chess",
+      "image": "https://images.pexels.com/photos/36038795/pexels-photo-36038795.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "headline": "Distribution Is Key",
-      "insight": "Building a diverse brand portfolio for niche markets requires robust, adaptable distribution channels. Ccigmaa likely leverages different retail strategies for its various brands, optimizing reach within each target segment.",
-      "image_query": "retail store shelves",
-      "image": "https://images.pexels.com/photos/6752430/pexels-photo-6752430.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "European Tech's M&A Influence",
+      "insight": "An Italian company like Bending Spoons making a multi-billion dollar acquisition of a US-based tech giant underscores the growing financial power and strategic ambition of European tech firms on the global stage.",
+      "image_query": "european business global",
+      "image": "https://images.pexels.com/photos/6949991/pexels-photo-6949991.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "headline": "Founder's Deep Empathy",
-      "insight": "Dhruv Sayani's personal observation about regional hair differences underscores the power of founder empathy and direct market immersion. This hands-on understanding often leads to insights that data alone might miss.",
-      "image_query": "founder observing market",
-      "image": "https://images.pexels.com/photos/269965/pexels-photo-269965.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "Founder Lessons: Timing Matters",
+      "insight": "The Mailchimp acquisition saga emphasizes the importance of timing in M&A. Founders need to understand market cycles and be strategic about when to sell, recognizing that peak valuations may not last.",
+      "image_query": "business clock timing",
+      "image": "https://images.pexels.com/photos/5833807/pexels-photo-5833807.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     },
     {
-      "headline": "Leveraging India's Diversity",
-      "insight": "India's vast geographical and cultural diversity presents unique opportunities for micro-segmentation. What works in one state might not in another, creating a fertile ground for businesses that can adapt and localize effectively.",
-      "image_query": "map of india diverse regions",
-      "image": "https://images.pexels.com/photos/8828412/pexels-photo-8828412.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+      "headline": "Beyond the Hype Cycle",
+      "insight": "The sharp drop in Mailchimp's valuation from its 2021 peak indicates that companies are increasingly scrutinized for fundamental value rather than just growth potential or market hype. This forces a shift towards sustainable business models.",
+      "image_query": "business value fundamentals",
+      "image": "https://images.pexels.com/photos/33137139/pexels-photo-33137139.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     }
   ],
   "builder_lexicon": {
-    "term": "Market Segmentation",
-    "definition": "Market segmentation is the process of dividing a broad consumer market into subsets of consumers who have common needs, characteristics, or behaviors. These segments can then be targeted with specific products and marketing strategies.",
-    "why_it_matters": "For founders, effective market segmentation allows for more precise product development, tailored marketing messages, and efficient resource allocation, leading to higher customer satisfaction and stronger competitive advantages. It helps avoid a 'spray and pray' approach.",
-    "real_world_example": "Coca-Cola uses market segmentation to offer different beverages like Coke Zero for health-conscious consumers and Fanta for a younger, more playful demographic.",
+    "term": "Divestiture",
+    "definition": "Divestiture is the process by which a company sells off an asset, a subsidiary, or a portion of its business. It can be a strategic move to focus on core competencies, raise capital, or shed underperforming assets.",
+    "why_it_matters": "For founders and business leaders, understanding divestiture is crucial for both strategic planning and identifying market opportunities. It signals a company's shifting priorities and can create openings for new players or M&A.",
+    "real_world_example": "Intuit's sale of Mailchimp to Bending Spoons is a clear example of a divestiture, allowing Intuit to focus on its core financial software offerings.",
     "reading_time": "20 sec read"
   },
   "editors_note": {
     "paragraphs": [
-      "Today's headlines are a fascinating mix, but the thread connecting them isn't always obvious. While the tech giants grab attention with IPOs and new gadgets, the real lesson often lies in the companies quietly building value by understanding specific, underserved needs. Whether it's Uber expanding its demographic reach or SpaceX tackling connectivity dead zones, the focus is shifting from broad strokes to precise solutions.",
-      "Ccigmaa Lifestyles, with its localized personal care brands, offers a powerful reminder: the world isn't flat, and neither are markets. Identifying and catering to granular differences \u2014 geographical, cultural, or behavioral \u2014 can create incredibly resilient businesses. For aspiring founders, this means digging deeper than surface-level trends and finding the overlooked niches where genuine problems await tailored solutions."
+      "The headlines today paint a vivid picture of a tech landscape in flux, particularly when it comes to valuations and corporate ownership. From Mailchimp's steep re-sale discount to the unique challenges of financing space assets, the idea of what a company is 'worth' and how it's owned is constantly being redefined. This isn't just about market adjustments; it's about strategic re-evaluation.",
+      "For aspiring founders, these shifts are not just news, but blueprints. They reveal opportunities for smart acquisitions, the enduring value of tangible assets (or the risk of intangible ones), and the importance of building businesses with fundamental strength that can weather valuation swings. The game of corporate ownership is dynamic, and understanding its rules is key to long-term success."
+    ]
+  },
+  "deep_dive": {
+    "mba_lens": [
+      {
+        "lens": "Strategy",
+        "insight": "Bending Spoons' acquisition of Mailchimp at a significantly reduced valuation represents a 'buy low' strategy, capitalizing on market corrections and Intuit's divestiture. This allows Bending Spoons to expand its market reach and leverage a proven brand without overpaying.",
+        "key_concept": "Strategic Acquisition",
+        "why_it_matters": "Identifies how companies can grow through opportunistic M&A, not just organic development."
+      },
+      {
+        "lens": "Marketing",
+        "insight": "Mailchimp's brand equity, despite its valuation drop, remains substantial. Bending Spoons can leverage this established brand to cross-sell its other mobile applications, enhancing customer acquisition costs and potentially increasing customer lifetime value across its portfolio.",
+        "key_concept": "Brand Equity Transfer",
+        "why_it_matters": "Highlights how a strong brand can retain value even when corporate ownership changes hands."
+      },
+      {
+        "lens": "Finance",
+        "insight": "The Mailchimp deal exemplifies a significant markdown in valuation from $12 billion to $3.68 billion, underscoring the impact of changing interest rates, market sentiment, and the re-evaluation of growth-at-any-cost models on tech asset pricing.",
+        "key_concept": "Valuation Adjustment",
+        "why_it_matters": "Shows how macroeconomic factors and strategic fit can drastically alter a company's market worth."
+      },
+      {
+        "lens": "Operations",
+        "insight": "Integrating Mailchimp's extensive email marketing operations into Bending Spoons' mobile app ecosystem will require careful operational synergy to realize cost efficiencies and maintain service quality, particularly in data management and customer support.",
+        "key_concept": "Post-Merger Integration",
+        "why_it_matters": "Emphasizes the critical operational challenges and opportunities that follow M&A deals."
+      },
+      {
+        "lens": "Product",
+        "insight": "Bending Spoons' challenge will be to innovate and evolve Mailchimp's product while maintaining its core functionality and user base, potentially by integrating AI features or streamlining the user experience to compete with newer marketing automation tools.",
+        "key_concept": "Product Evolution",
+        "why_it_matters": "Illustrates the need to continually adapt products post-acquisition to stay competitive."
+      },
+      {
+        "lens": "Entrepreneurship",
+        "insight": "This case teaches founders to build businesses with intrinsic value that can withstand market fluctuations. While Intuit overpaid, Bending Spoons' acquisition demonstrates the opportunity for entrepreneurs to acquire strong assets at a fair price during market downturns.",
+        "key_concept": "Sustainable Value Creation",
+        "why_it_matters": "Encourages building resilient businesses rather than relying solely on inflated valuations."
+      },
+      {
+        "lens": "Consulting",
+        "insight": "A consultant might advise Bending Spoons on a comprehensive integration roadmap, focusing on identifying synergistic opportunities between Mailchimp and their existing apps, optimizing Mailchimp's cost structure, and retaining key talent to ensure a smooth transition.",
+        "key_concept": "Synergy Realization",
+        "why_it_matters": "Highlights the structured approach consultants take to maximize value from M&A deals."
+      }
+    ],
+    "so_what": {
+      "why_it_matters": "The Mailchimp acquisition illustrates the dramatic re-calibration of tech valuations and the strategic opportunities for well-positioned buyers.",
+      "business_implication": "Companies must build resilient business models that deliver tangible value, as market sentiment can rapidly shift valuations.",
+      "what_to_watch": "Observe how Bending Spoons integrates Mailchimp and whether they can revitalize its growth trajectory under new ownership.",
+      "key_takeaway": "Market corrections create significant M&A opportunities for strategic acquirers with strong balance sheets and clear vision."
+    },
+    "explain_like": [
+      {
+        "persona": "MBA",
+        "explanation": "This deal is a classic example of how a strategic buyer capitalized on a divestiture, acquiring a valuable asset at a significantly lower valuation during a market adjustment, showcasing the importance of market timing and corporate strategy."
+      },
+      {
+        "persona": "Consultant",
+        "explanation": "Our analysis suggests Intuit's divestiture of Mailchimp was a move to optimize its portfolio, while Bending Spoons executed a value-driven acquisition, requiring a robust post-merger integration plan to realize anticipated synergies and drive ROI."
+      },
+      {
+        "persona": "Founder",
+        "explanation": "Wow, what a price drop! This reminds me that building a sustainable business with real customers and revenue is key, because the hype cycle won't protect you when the market corrects, but it does open doors for smart buyers."
+      },
+      {
+        "persona": "Investor",
+        "explanation": "The Mailchimp re-sale is a stark reminder of valuation volatility; while Intuit took a hit, Bending Spoons made a compelling investment at a much more attractive multiple, highlighting the importance of entry price and long-term asset value over short-term market exuberance."
+      },
+      {
+        "persona": "Product Manager",
+        "explanation": "Now that Mailchimp is with Bending Spoons, the product challenge will be to innovate its core offerings and potentially integrate with their other apps, ensuring it remains a competitive and relevant marketing platform for users."
+      }
     ]
   },
   "daily_question": {
-    "question": "What is the primary strategic advantage gained by Ccigmaa Lifestyles by tailoring its personal care products to regional variations across India?",
+    "question": "What does Bending Spoons' acquisition of Mailchimp at a lower price than Intuit paid primarily demonstrate about tech valuations?",
     "options": [
-      "Achieving lower production costs through bulk manufacturing.",
-      "Gaining premium pricing and stronger customer loyalty in specific segments.",
-      "Eliminating the need for extensive marketing campaigns.",
-      "Simplifying its supply chain and distribution network."
+      "Tech valuations are inherently stable and predictable.",
+      "Market sentiment and strategic fit can significantly impact a company's perceived value.",
+      "Only AI companies retain their high valuations over time.",
+      "Larger companies always overpay for acquisitions."
     ],
     "correct_index": 1,
-    "explanation": "By tailoring products to niche regional needs, Ccigmaa Lifestyles can differentiate itself, justify premium pricing, and build strong loyalty among customers whose specific needs are met better than by generic alternatives."
+    "explanation": "The Mailchimp acquisition highlights that tech valuations are highly susceptible to market sentiment, economic conditions, and the strategic priorities of the acquiring and divesting companies, leading to significant price adjustments over time."
   },
   "daily_case": {
-    "scenario": "A healthtech startup has developed an AI diagnostic tool that performs exceptionally well in clinical trials. However, early market feedback reveals that adoption is slow because doctors in different regions of the country require specific integrations with their existing, disparate Electronic Health Record (EHR) systems and have varying regulatory compliance hurdles.",
+    "scenario": "A successful D2C brand, 'NutriBoost,' known for its organic snacks, is approached by a large food conglomerate, 'Global Foods,' for an acquisition. Global Foods offers a premium valuation, but NutriBoost's founder believes the offer is inflated due to current market hype around healthy eating, and fears a future divestiture at a lower price.",
     "options": [
-      "Focus on a single, most receptive region to perfect the integration and compliance process before expanding.",
-      "Develop a universal integration API that can connect to all EHR systems simultaneously.",
-      "Partner with a large national healthcare provider to gain immediate broad market access.",
-      "Re-engineer the AI tool to be a standalone system, eliminating the need for EHR integration."
+      "Accept the offer, maximizing immediate shareholder returns.",
+      "Negotiate for a lower, more sustainable valuation with performance-based earn-outs.",
+      "Decline the offer and focus on independent organic growth.",
+      "Seek a different acquirer, hoping for an even higher valuation."
     ],
-    "best_option_index": 0,
+    "best_option_index": 1,
     "analysis": {
-      "reasoning": "Focusing on a single region allows the startup to deeply understand and solve the localized integration and compliance challenges, build a strong reference case, and refine its go-to-market strategy before scaling.",
-      "trade_offs": "A universal API is costly and complex, a national partnership risks diluting control, and a standalone system ignores critical workflow needs, all sacrificing focused problem-solving for broad but shallow reach."
+      "reasoning": "Negotiating for a sustainable valuation with earn-outs protects the founder against future market corrections and ensures long-term value creation, aligning incentives with the acquirer's performance.",
+      "trade_offs": "Accepting the highest offer risks a future down-round or divestiture, while declining an offer might miss a peak opportunity; seeking a higher offer could be futile if the current one is already inflated."
     }
   },
-  "founder_spotlight": {
-    "name": "Rohit Jaiswal",
-    "linkedin_url": "https://in.linkedin.com/in/rohitjaiswal19",
-    "photo_url": "https://res.cloudinary.com/nyfdso4y/image/upload/v1788458762/founder-photos/rohit-jaiswal--bombay-shaving-company.jpg",
-    "company": "Bombay Shaving Company",
-    "status": "alumnus",
-    "batch_or_year": "2014",
-    "learning": "Grooming was something men just did, not something worth building a brand around \u2014 until four co-founders decided otherwise. The biggest opportunity isn't always a new problem; sometimes it's an old, unglamorous one nobody bothered to make delightful."
-  },
-  "theme_image": "https://images.pexels.com/photos/7564193/pexels-photo-7564193.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+  "theme_image": "https://images.pexels.com/photos/8441809/pexels-photo-8441809.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
 }
