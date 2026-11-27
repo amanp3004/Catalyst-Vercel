@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-27",
+  "theme": "Geopolitics Rewrites the Tech Playbook",
+  "theme_image_query": "global supply chain map",
+  "brief": [
+    {
+      "title": "Nvidia's Chip Pause: Geopolitics Over Profits",
+      "summary": "Nvidia has halted AI chip shipments to Southeast Asian nations like Malaysia and Singapore, bowing to tightened U.S. export controls aimed at restricting China's access to advanced technology. This signals how geopolitical tensions are now directly dictating global supply chains, even for market leaders.",
+      "url": "https://techcrunch.com/2026/11/26/nvidia-hits-pause-on-chip-shipments-to-southeast-asia/",
+      "domain": "nvidia.com",
+      "region": "global",
+      "sector": "non_ai",
+      "image_query": "microchip manufacturing factory",
+      "image": "https://images.pexels.com/photos/5554948/pexels-photo-5554948.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+    },
+    {
+      "title": "SpaceX to Launch AI Data Centers Into Orbit",
+      "summary": "The FCC has approved SpaceX's audacious plan to deploy AI data centers in space, brushing aside concerns about scientific interference. This move highlights a new frontier for infrastructure, where regulatory bodies are grappling with unprecedented technological advancements.",
+      "url": "https://techcrunch.com/2026/11/25/fcc-approves-spacex-plan-to-put-ai-data-centers-in-space/",
+      "domain": "spacex.com",
+      "region": "global",
+      "sector": "ai",
+      "image_query": "satellite orbiting earth",
+      "image": "https://images.pexels.com/photos/586056/pexels-photo-586056.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+    },
+    {
+      "title": "The iPhone Duo: Apple's Foldable Gamble Pays Off in Habits",
+      "summary": "Apple's new foldable iPhone Duo is reportedly changing user habits, encouraging more reading and less mindless scrolling, beyond just offering a new form factor. This suggests that truly disruptive hardware innovation can reshape user behavior in unforeseen, positive ways.",
+      "url": "https://techcrunch.com/2026/11/26/a-month-with-the-iphone-duo-has-changed-how-i-use-my-phone/",
+      "domain": "apple.com",
+      "region": "global",
+      "sector": "non_ai",
+      "image_query": "foldable smartphone",
+      "image": "https://images.pexels.com/photos/19022735/pexels-photo-19022735.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+    },
+    {
+      "title": "PhonePe Resumes IPO Plans at $12-15B Valuation",
+      "summary": "Indian fintech giant PhonePe is reactivating its IPO process, targeting a $12-15 billion valuation, after previously delaying due to market uncertainties. This signals a potential rebound in investor confidence for mature Indian tech companies seeking public listings.",
+      "url": "https://yourstory.com/2026/11/phonepe-resumes-ipo-process-targets-listing-in-feb-march-12-15b-valuation",
+      "domain": "phonepe.com",
+      "region": "india",
+      "sector": "non_ai",
+      "image_query": "stock market ticker",
+      "image": "https://images.pexels.com/photos/28682357/pexels-photo-28682357.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+    },
+    {
+      "title": "GIVA Secures \u20b990 Cr for Omnichannel Expansion",
+      "summary": "Indian D2C jewelry brand GIVA has raised \u20b990 crore from BlackSoil, earmarked for aggressive store expansion and working capital. This funding underscores the continued growth potential for omnichannel retail models in India's consumer market.",
+      "url": "https://yourstory.com/2026/11/giva-raises-rs-90-crore-from-alternative-credit-platform-blacksoil",
+      "domain": "giva.co",
+      "region": "india",
+      "sector": "non_ai",
+      "image_query": "jewelry store interior",
+      "image": "https://images.pexels.com/photos/33257665/pexels-photo-33257665.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+    }
+  ],
+  "breakdown": {
+    "company": "CurryIt",
+    "domain": "curryit.in",
+    "category": "IIM Udaipur Alumnus Founder",
+    "what": "A D2C brand making ready-to-cook, preservative-free curry and cooking pastes using autoclave technology, letting home cooks recreate regional Indian dishes in minutes.",
+    "why": "Backed by IIM Udaipur's own Incubation Centre and RPSG Capital Ventures, CurryIt is a rare India D2C food brand co-founded and funded entirely within the IIM Udaipur ecosystem \u2014 from classroom idea to shelf."
+  },
+  "trend_cards": [
+    {
+      "headline": "Geopolitics: The New Supply Chain CFO",
+      "insight": "Nvidia's decision to halt chip shipments to Southeast Asia due to US sanctions isn't just a compliance issue; it's a strategic re-routing of global tech flows. Founders must now factor geopolitical risk directly into their supply chain and market entry strategies, as political agendas increasingly override economic logic.",
+      "image_query": "geopolitical map global trade",
+      "image": "https://images.pexels.com/photos/8828390/pexels-photo-8828390.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+    },
+    {
+      "headline": "AI Infrastructure Goes Orbital",
+      "insight": "SpaceX's FCC approval for in-space AI data centers signals a radical decentralization of computing. This could offer new advantages for latency-sensitive applications or secure processing, but also introduces novel operational and regulatory challenges for founders building next-gen infrastructure.",
+      "image_query": "server rack in space",
+      "image": "https://images.pexels.com/photos/37730212/pexels-photo-37730212.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+    },
+    {
+      "headline": "Hardware's Quiet Power: Reshaping Habits",
+      "insight": "Apple's iPhone Duo, a foldable phone, is praised for subtly encouraging better digital habits. This shows that true hardware innovation isn't just about specs or form factor, but about its capacity to fundamentally alter user interaction and create new 'jobs to be done' for consumers.",
+      "image_query": "person reading on foldable phone",
+      "image": "https://images.pexels.com/photos/4313857/pexels-photo-4313857.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+    },
+    {
+      "headline": "India's Tech IPO Rebound",
+      "insight": "PhonePe resuming its IPO process at a high valuation suggests a renewed optimism in India's tech ecosystem. This indicates that while global macroeconomic headwinds persist, strong domestic market fundamentals and proven business models can still attract significant public market capital.",
+      "image_query": "indian stock market",
+      "image": "https://images.pexels.com/photos/28682348/pexels-photo-28682348.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+    },
+    {
+      "headline": "D2C: Capitalizing on Omnichannel",
+      "insight": "GIVA's significant funding for store expansion demonstrates the enduring value of physical retail even for digital-first brands in India. An integrated omnichannel approach is becoming critical for D2C players to capture broader market share and build customer trust.",
+      "image_query": "jewelry D2C store",
+      "image": "https://images.pexels.com/photos/16063740/pexels-photo-16063740.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+    },
+    {
+      "headline": "Founder Conduct Under Scrutiny",
+      "insight": "S&P considering an Nvidia credit downgrade due to 'key man' risk and governance concerns highlights how personal actions of founders can directly impact corporate valuation and stability. Investors are increasingly scrutinizing leadership ethics as a material risk factor, not just a PR issue.",
+      "image_query": "corporate governance meeting",
+      "image": "https://images.pexels.com/photos/6950018/pexels-photo-6950018.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+    }
+  ],
+  "builder_lexicon": {
+    "term": "Key Man Risk",
+    "definition": "Key man risk refers to the potential negative impact on a company if a critical individual, whose skills, knowledge, or relationships are essential to its operations or success, becomes unavailable.",
+    "why_it_matters": "For startups and growth companies, relying heavily on a single founder or executive can make the business vulnerable. Mitigating this risk is crucial for long-term stability and investor confidence, as it ensures business continuity beyond one individual.",
+    "real_world_example": "S&P's consideration of a credit downgrade for Nvidia due to concerns over CEO Jensen Huang's conduct illustrates how 'key man risk' can directly impact a company's financial standing and perception.",
+    "reading_time": "20 sec read"
+  },
+  "editors_note": {
+    "paragraphs": [
+      "Today's headlines paint a vivid picture of a world where the lines between technology, business, and geopolitics are increasingly blurred. From Nvidia's chip shipments being dictated by international policy to the FCC approving space-based AI data centers, founders are operating in an environment where strategic decisions are no longer purely commercial. The 'rules of the game' are being rewritten by forces far beyond market dynamics.",
+      "This shift demands a broader lens for aspiring founders. Understanding global power dynamics, regulatory landscapes, and even the personal conduct of leaders is no longer a niche concern but a core competency. Building a resilient business today means anticipating not just market trends, but also political winds and the ethical implications that can sway public and investor sentiment."
+    ]
+  },
+  "daily_question": {
+    "question": "Which factor is NOT directly highlighted as influencing business decisions in today's edition?",
+    "options": [
+      "Geopolitical tensions and export controls.",
+      "Consumer shift towards sustainable products.",
+      "Personal conduct of company leadership.",
+      "Investor confidence in public market listings."
+    ],
+    "correct_index": 1,
+    "explanation": "While sustainability is a crucial topic, today's edition specifically highlighted geopolitical tensions (Nvidia), leadership conduct (Nvidia S&P), and investor confidence (PhonePe IPO) as influencing business decisions, but not a consumer shift towards sustainable products."
+  },
+  "daily_case": {
+    "scenario": "A European deep tech startup has developed a breakthrough quantum computing chip. They have received acquisition offers from both a major US tech conglomerate and a state-backed Chinese fund. Accepting the Chinese offer would provide more immediate capital and market access in Asia, but could trigger regulatory scrutiny and potential export restrictions from Western governments.",
+    "options": [
+      "Accept the US conglomerate's offer to maintain geopolitical alignment and avoid immediate regulatory hurdles.",
+      "Accept the Chinese fund's offer, planning to navigate regulatory issues with local legal teams.",
+      "Decline both offers and seek a European sovereign tech fund for funding, prioritizing regional independence.",
+      "Attempt to license the technology to both parties, retaining ownership but diversifying market access."
+    ],
+    "best_option_index": 0,
+    "analysis": {
+      "reasoning": "Given the current geopolitical climate, particularly concerning advanced technology like quantum computing, accepting the US offer is the most pragmatic choice to ensure continued access to Western markets and avoid severe regulatory backlash, as seen with Nvidia.",
+      "trade_offs": "Other options risk either immediate regulatory blocking, foregoing potentially lucrative market access, or diluting control over critical IP in a highly sensitive sector."
+    }
+  },
+  "founder_spotlight": {
+    "name": "Richa Sharma",
+    "linkedin_url": "https://in.linkedin.com/in/richasharma05",
+    "photo_url": "https://res.cloudinary.com/nyfdso4y/image/upload/v1788458755/founder-photos/richa-sharma--curryit.jpg",
+    "company": "CurryIt",
+    "status": "alumnus",
+    "batch_or_year": "2014",
+    "learning": "CurryIt didn't work around \"no preservatives\" \u2014 it built the entire product line and packaging process around that one constraint. The hardest rule you set for yourself is often the one that ends up defining the brand."
+  },
+  "theme_image": "https://images.pexels.com/photos/8828672/pexels-photo-8828672.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+}
